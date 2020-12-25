@@ -1,0 +1,80 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+Name: Org3MSP
+ID: Org3MSP
+
+MSPDir: ./testdata/peerOrganizations/org3.example.com/msp
+
+# You can specify certificates directly instead of specifying them in files.
+# (You should put certificates to suit your environment.)
+# MSP:
+#     RootCerts:
+#         - |
+#             -----BEGIN CERTIFICATE-----
+#             ..........
+#             -----END CERTIFICATE-----
+#     IntermediateCerts:
+#     Admins:
+#     RevocationList:
+#     OrganizationalUnitIdentifiers:
+#     TLSRootCerts:
+#         - |
+#             -----BEGIN CERTIFICATE-----
+#             ..........
+#             -----END CERTIFICATE-----
+#     TLSIntermediateCerts:
+#     NodeOUs:
+#         Enable: true
+#         ClientOUIdentifier:
+#             OrganizationalUnitIdentifier: client
+#             Certificate: |
+#                 -----BEGIN CERTIFICATE-----
+#                 ..........
+#                 -----END CERTIFICATE-----
+#         PeerOUIdentifier:
+#             OrganizationalUnitIdentifier: peer
+#             Certificate: |
+#                 -----BEGIN CERTIFICATE-----
+#                 ..........
+#                 -----END CERTIFICATE-----
+#         AdminOUIdentifier:
+#             OrganizationalUnitIdentifier: admin
+#             Certificate: |
+#                 -----BEGIN CERTIFICATE-----
+#                 ..........
+#                 -----END CERTIFICATE-----
+#         OrdererOUIdentifier:
+#             OrganizationalUnitIdentifier: orderer
+#             Certificate: |
+#                 -----BEGIN CERTIFICATE-----
+#                 ..........
+#                 -----END CERTIFICATE-----
+
+Policies:
+    Readers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+    Writers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+    OrderingReaders:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+    OrderingWriters:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+    Admins:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin')"
+    Endorsement:
+        Type: Signature
+        Rule: "OR('Org3MSP.peer')"
+
+AnchorPeers:
+    - Host: peer0.org3.example.com
+      Port: 11051
+OrdererEndpoints:
+    - orderer0.org3.example.com:11050

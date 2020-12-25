@@ -1,0 +1,61 @@
+{
+    "name": "test-network-org3",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Org3",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Org3": {
+            "mspid": "Org3MSP",
+            "peers": [
+                "peer0.org3.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.org3.example.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.org3.example.com": {
+            "url": "grpcs://peer0.org3.example.com:11051",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw\ncTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH\nEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj\nYS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw\nMFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD\nVQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD\nExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\nqdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp\nHMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI\nMAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49\nBAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6\ntrjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=\n-----END CERTIFICATE-----\n"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.org3.example.com",
+                "hostnameOverride": "peer0.org3.example.com"
+            }
+        }
+    },
+    "orderers": {
+        "orderer0.org3.example.com": {
+            "url": "grpcs://orderer0.org3.example.com:11050",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw\ncTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH\nEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj\nYS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw\nMFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD\nVQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD\nExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\nqdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp\nHMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI\nMAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49\nBAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6\ntrjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=\n-----END CERTIFICATE-----\n"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "orderer0.org3.example.com",
+                "hostnameOverride": "orderer0.org3.example.com"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.org3.example.com": {
+            "url": "https://ca_org3:11054",
+            "caName": "ca-org3",
+            "tlsCACerts": {
+                "pem": "-----BEGIN CERTIFICATE-----\nMIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw\ncTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH\nEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj\nYS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw\nMFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD\nVQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD\nExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE\nqdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp\nHMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI\nMAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49\nBAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6\ntrjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=\n-----END CERTIFICATE-----\n"
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

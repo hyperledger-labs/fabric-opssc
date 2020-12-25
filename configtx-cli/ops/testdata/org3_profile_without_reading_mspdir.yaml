@@ -1,0 +1,142 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+Name: Org3MSP
+ID: Org3MSP
+
+MSP:
+    RootCerts:
+        - |
+            -----BEGIN CERTIFICATE-----
+            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+            -----END CERTIFICATE-----
+    IntermediateCerts:
+    Admins:
+    RevocationList:
+    OrganizationalUnitIdentifiers:
+    TLSRootCerts:
+        - |
+            -----BEGIN CERTIFICATE-----
+            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+            -----END CERTIFICATE-----
+    TLSIntermediateCerts:
+    NodeOUs:
+        Enable: true
+        ClientOUIdentifier:
+            OrganizationalUnitIdentifier: client
+            Certificate: |
+                -----BEGIN CERTIFICATE-----
+                MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                -----END CERTIFICATE-----
+        PeerOUIdentifier:
+            OrganizationalUnitIdentifier: peer
+            Certificate: |
+                -----BEGIN CERTIFICATE-----
+                MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                -----END CERTIFICATE-----
+        AdminOUIdentifier:
+            OrganizationalUnitIdentifier: admin
+            Certificate: |
+                -----BEGIN CERTIFICATE-----
+                MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                -----END CERTIFICATE-----
+        OrdererOUIdentifier:
+            OrganizationalUnitIdentifier: orderer
+            Certificate: |
+                -----BEGIN CERTIFICATE-----
+                MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                -----END CERTIFICATE-----
+
+Policies:
+    Readers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+    Writers:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+    OrderingReaders:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+    OrderingWriters:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+    Admins:
+        Type: Signature
+        Rule: "OR('Org3MSP.admin')"
+    Endorsement:
+        Type: Signature
+        Rule: "OR('Org3MSP.peer')"
+
+AnchorPeers:
+    - Host: peer0.org3.example.com
+      Port: 11051
+OrdererEndpoints:
+    - orderer0.org3.example.com:11050

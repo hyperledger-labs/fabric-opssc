@@ -1,0 +1,289 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+- Command: set-org # Add org3
+  Parameters:
+        OrgType: "Application|Orderer"
+        Org:
+            Name: Org3MSP
+            ID: Org3MSP
+
+            MSP:
+                RootCerts:
+                    - |
+                        -----BEGIN CERTIFICATE-----
+                        MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                        cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                        EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                        YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                        MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                        VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                        ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                        qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                        HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                        MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                        BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                        trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                        -----END CERTIFICATE-----
+                IntermediateCerts:
+                Admins:
+                RevocationList:
+                OrganizationalUnitIdentifiers:
+                TLSRootCerts:
+                    - |
+                        -----BEGIN CERTIFICATE-----
+                        MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                        cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                        EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                        YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                        MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                        VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                        ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                        qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                        HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                        MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                        BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                        trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                        -----END CERTIFICATE-----
+                TLSIntermediateCerts:
+                NodeOUs:
+                    Enable: true
+                    ClientOUIdentifier:
+                        OrganizationalUnitIdentifier: client
+                        Certificate: |
+                            -----BEGIN CERTIFICATE-----
+                            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                            -----END CERTIFICATE-----
+                    PeerOUIdentifier:
+                        OrganizationalUnitIdentifier: peer
+                        Certificate: |
+                            -----BEGIN CERTIFICATE-----
+                            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                            -----END CERTIFICATE-----
+                    AdminOUIdentifier:
+                        OrganizationalUnitIdentifier: admin
+                        Certificate: |
+                            -----BEGIN CERTIFICATE-----
+                            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                            -----END CERTIFICATE-----
+                    OrdererOUIdentifier:
+                        OrganizationalUnitIdentifier: orderer
+                        Certificate: |
+                            -----BEGIN CERTIFICATE-----
+                            MIICKTCCAc+gAwIBAgIUeVmkenEMzjQf9TOB+sDPSaUiGF4wCgYIKoZIzj0EAwIw
+                            cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                            EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                            YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTM1MTIxNDA0MjIw
+                            MFowcTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYD
+                            VQQHEwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQD
+                            ExNjYS5vcmczLmV4YW1wbGUuY29tMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE
+                            qdCiQhHJS5lltVKPnfsO9+4crYi4u6rWL19thgYBJzk01SNCtZ6IPSw69ZNojcxp
+                            HMydl/zqbTX/uHFz2C990aNFMEMwDgYDVR0PAQH/BAQDAgEGMBIGA1UdEwEB/wQI
+                            MAYBAf8CAQEwHQYDVR0OBBYEFA1NbbbI6m+gLy0fGg0wKoqToxtBMAoGCCqGSM49
+                            BAMCA0gAMEUCIQClK6pTAS1xG1GTsbpIHNxH/iILXBmEXb2VAqjWygwNcQIgRwj6
+                            trjm0EjCy4nmoK8r8eOHHvDVsO6JbIpN4n5bw3E=
+                            -----END CERTIFICATE-----
+
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+                OrderingReaders:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+                OrderingWriters:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.peer')"
+
+            AnchorPeers:
+                - Host: peer0.org3.example.com
+                  Port: 11051
+            OrdererEndpoints:
+                - orderer0.org3.example.com:11050
+
+- Command: set-channel
+  Parameters:
+        Channel:
+            Application:
+                ACLs:
+                    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
+                    _lifecycle/CommitChaincodeDefinition: /Channel/Application/Writers
+                    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Readers
+                    _lifecycle/QueryChaincodeDefinitions: /Channel/Application/Readers
+
+                    lscc/ChaincodeExists: /Channel/Application/Readers
+                    lscc/GetDeploymentSpec: /Channel/Application/Readers
+                    lscc/GetChaincodeData: /Channel/Application/Readers
+                    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
+                    qscc/GetChainInfo: /Channel/Application/Readers
+                    qscc/GetBlockByNumber: /Channel/Application/Readers
+                    qscc/GetBlockByHash: /Channel/Application/Readers
+                    qscc/GetTransactionByID: /Channel/Application/Readers
+                    qscc/GetBlockByTxID: /Channel/Application/Readers
+
+                    cscc/GetConfigBlock: /Channel/Application/Readers
+
+                    peer/Propose: /Channel/Application/Writers
+                    peer/ChaincodeToChaincode: /Channel/Application/Readers
+
+                    event/Block: /Channel/Application/Readers
+                    event/FilteredBlock: /Channel/Application/Readers
+
+                Policies:
+                    Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                    Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                    Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins"
+                    LifecycleEndorsement:
+                        Type: ImplicitMeta
+                        Rule: "ANY Endorsement" # Updated
+                    Endorsement:
+                        Type: ImplicitMeta
+                        Rule: "ANY Endorsement" # Updated
+
+            Channel:
+                Policies:
+                    Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                    Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                    Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins" # Updated
+
+- Command: set-orderer
+  Parameters:
+        Orderer:
+            OrdererType: etcdraft
+            EtcdRaftOptions:
+                TickInterval: 500ms
+                ElectionTick: 10
+                HeartbeatTick: 1
+                MaxInflightBlocks: 5
+                SnapshotIntervalSize: 16 MB
+
+            MaxChannels: 0
+            BatchTimeout: 2s
+            BatchSize:
+                MaxMessageCount: 10
+                AbsoluteMaxBytes: 99 MB
+                PreferredMaxBytes: 512 KB
+
+            # /Channel/Orderer/<PolicyName>
+            Policies:
+                Readers:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingReaders"
+                Writers:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingWriters"
+                Admins:
+                    Type: ImplicitMeta
+                    Rule: "ANY Admins" # Updated
+                BlockValidation:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingWriters"
+
+- Command: set-consenter # Add consenter for org3
+  Parameters:
+        Consenter:
+            Host: orderer0.org3.example.com
+            Port: 11050
+            ClientTLSCert: |
+                -----BEGIN CERTIFICATE-----
+                MIIC5jCCAoygAwIBAgIUHmtLVpbza+qNvXlteXmik2YADVgwCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTIxMTIxNzA0Mjcw
+                MFowYTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYD
+                VQQKEwtIeXBlcmxlZGdlcjEQMA4GA1UECxMHb3JkZXJlcjERMA8GA1UEAxMIb3Jk
+                ZXJlcjAwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQvP/ZHmvhk7AnAGAnUWyNQ
+                UewQWqyuEHbCPVj3Akwyu/EKXmUfrwBiicP0ZJNZtBYQ/mf+H80jzOIpnpIMTwUK
+                o4IBEDCCAQwwDgYDVR0PAQH/BAQDAgOoMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+                BgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBTR93G2F8NmQvPZLNqz1SGz
+                Pqx3gTAfBgNVHSMEGDAWgBQNTW22yOpvoC8tHxoNMCqKk6MbQTAvBgNVHREEKDAm
+                ghlvcmRlcmVyMC5vcmczLmV4YW1wbGUuY29tgglsb2NhbGhvc3QwXAYIKgMEBQYH
+                CAEEUHsiYXR0cnMiOnsiaGYuQWZmaWxpYXRpb24iOiIiLCJoZi5FbnJvbGxtZW50
+                SUQiOiJvcmRlcmVyMCIsImhmLlR5cGUiOiJvcmRlcmVyIn19MAoGCCqGSM49BAMC
+                A0gAMEUCIQCQfRbUABkda/gEmlog2Z+jgCDv2Ftlll42ak6xqcV5kAIgT4EJWLk+
+                xf8fg12BL4LQib/0v3fC+sipkrQZ5/dbIsM=
+                -----END CERTIFICATE-----
+            ServerTLSCert: |
+                -----BEGIN CERTIFICATE-----
+                MIIC5jCCAoygAwIBAgIUHmtLVpbza+qNvXlteXmik2YADVgwCgYIKoZIzj0EAwIw
+                cTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRAwDgYDVQQH
+                EwdSYWxlaWdoMRkwFwYDVQQKExBvcmczLmV4YW1wbGUuY29tMRwwGgYDVQQDExNj
+                YS5vcmczLmV4YW1wbGUuY29tMB4XDTIwMTIxNzA0MjIwMFoXDTIxMTIxNzA0Mjcw
+                MFowYTELMAkGA1UEBhMCVVMxFzAVBgNVBAgTDk5vcnRoIENhcm9saW5hMRQwEgYD
+                VQQKEwtIeXBlcmxlZGdlcjEQMA4GA1UECxMHb3JkZXJlcjERMA8GA1UEAxMIb3Jk
+                ZXJlcjAwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQvP/ZHmvhk7AnAGAnUWyNQ
+                UewQWqyuEHbCPVj3Akwyu/EKXmUfrwBiicP0ZJNZtBYQ/mf+H80jzOIpnpIMTwUK
+                o4IBEDCCAQwwDgYDVR0PAQH/BAQDAgOoMB0GA1UdJQQWMBQGCCsGAQUFBwMBBggr
+                BgEFBQcDAjAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBTR93G2F8NmQvPZLNqz1SGz
+                Pqx3gTAfBgNVHSMEGDAWgBQNTW22yOpvoC8tHxoNMCqKk6MbQTAvBgNVHREEKDAm
+                ghlvcmRlcmVyMC5vcmczLmV4YW1wbGUuY29tgglsb2NhbGhvc3QwXAYIKgMEBQYH
+                CAEEUHsiYXR0cnMiOnsiaGYuQWZmaWxpYXRpb24iOiIiLCJoZi5FbnJvbGxtZW50
+                SUQiOiJvcmRlcmVyMCIsImhmLlR5cGUiOiJvcmRlcmVyIn19MAoGCCqGSM49BAMC
+                A0gAMEUCIQCQfRbUABkda/gEmlog2Z+jgCDv2Ftlll42ak6xqcV5kAIgT4EJWLk+
+                xf8fg12BL4LQib/0v3fC+sipkrQZ5/dbIsM=
+                -----END CERTIFICATE-----
+
+- Command: remove-consenter
+  Parameters:
+        ConsenterAddress: orderer0.org2.example.com:9050
+
+- Command: remove-org
+  Parameters:
+        OrgType: "Application|Orderer"
+        OrgName: Org2MSP

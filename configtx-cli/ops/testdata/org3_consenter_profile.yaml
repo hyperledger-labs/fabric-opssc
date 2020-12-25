@@ -1,0 +1,20 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+Host: orderer0.org3.example.com
+Port: 11050
+ClientTLSCert: ./testdata/peerOrganizations/org3.example.com/orderers/orderer0.org3.example.com/tls/server.crt
+ServerTLSCert: ./testdata/peerOrganizations/org3.example.com/orderers/orderer0.org3.example.com/tls/server.crt
+
+# You can specify certificates directly instead of specifying them in files.
+# (You should put certificates to suit your environment.)
+# ClientTLSCert: |
+#   -----BEGIN CERTIFICATE-----
+#   ..........
+#   -----END CERTIFICATE-----
+# ServerTLSCert: |
+# -----BEGIN CERTIFICATE-----
+#   ..........
+# -----END CERTIFICATE-----

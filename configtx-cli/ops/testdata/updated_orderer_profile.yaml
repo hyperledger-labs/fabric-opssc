@@ -1,0 +1,35 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+OrdererType: etcdraft
+
+EtcdRaftOptions:
+    TickInterval: 500ms
+    ElectionTick: 10
+    HeartbeatTick: 1
+    MaxInflightBlocks: 5
+    SnapshotIntervalSize: 16 MB
+
+MaxChannels: 0
+BatchTimeout: 2s
+BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 99 MB
+    PreferredMaxBytes: 512 KB
+
+# /Channel/Orderer/<PolicyName>
+Policies:
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY OrderingReaders"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY OrderingWriters"
+    Admins:
+        Type: ImplicitMeta
+        Rule: "ANY Admins" # Updated
+    BlockValidation:
+        Type: ImplicitMeta
+        Rule: "ANY OrderingWriters"

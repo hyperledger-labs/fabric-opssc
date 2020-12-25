@@ -1,0 +1,104 @@
+# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+---
+- Command: set-org # Add Org3
+  Parameters:
+        OrgType: "Consortiums|Orderer"
+        Org:
+            Name: Org3MSP
+            ID: Org3MSP
+
+            MSPDir: ./testdata/peerOrganizations/org3.example.com/msp
+
+            Policies:
+                Readers:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.peer', 'Org3MSP.client')"
+                Writers:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.client')"
+                OrderingReaders:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+                OrderingWriters:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin', 'Org3MSP.orderer')"
+                Admins:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.admin')"
+                Endorsement:
+                    Type: Signature
+                    Rule: "OR('Org3MSP.peer')"
+
+            AnchorPeers:
+                - Host: peer0.org3.example.com
+                  Port: 11051
+            OrdererEndpoints:
+                - orderer0.org3.example.com:11050
+
+- Command: set-channel
+  Parameters:
+        Channel:
+            Channel:
+                Policies:
+                    Readers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Readers"
+                    Writers:
+                        Type: ImplicitMeta
+                        Rule: "ANY Writers"
+                    Admins:
+                        Type: ImplicitMeta
+                        Rule: "ANY Admins" # Updated
+
+- Command: set-orderer
+  Parameters:
+        Orderer:
+            OrdererType: etcdraft
+            EtcdRaftOptions:
+                TickInterval: 500ms
+                ElectionTick: 10
+                HeartbeatTick: 1
+                MaxInflightBlocks: 5
+                SnapshotIntervalSize: 16 MB
+
+            MaxChannels: 0
+            BatchTimeout: 2s
+            BatchSize:
+                MaxMessageCount: 10
+                AbsoluteMaxBytes: 99 MB
+                PreferredMaxBytes: 512 KB
+
+            # /Channel/Orderer/<PolicyName>
+            Policies:
+                Readers:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingReaders"
+                Writers:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingWriters"
+                Admins:
+                    Type: ImplicitMeta
+                    Rule: "ANY Admins" # Updated
+                BlockValidation:
+                    Type: ImplicitMeta
+                    Rule: "ANY OrderingWriters"
+
+- Command: set-consenter # Add consenter for org3
+  Parameters:
+        Consenter:
+            Host: orderer0.org3.example.com
+            Port: 11050
+            ClientTLSCert: ./testdata/peerOrganizations/org3.example.com/orderers/orderer0.org3.example.com/tls/server.crt
+            ServerTLSCert: ./testdata/peerOrganizations/org3.example.com/orderers/orderer0.org3.example.com/tls/server.crt
+
+- Command: remove-consenter
+  Parameters:
+        ConsenterAddress: orderer0.org2.example.com:9050
+
+- Command: remove-org
+  Parameters:
+        OrgType: "Consortiums|Orderer"
+        OrgName: Org2MSP
