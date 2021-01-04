@@ -1,0 +1,41 @@
+{
+  "name": "opssc-agent",
+  "version": "0.1.0",
+  "description": "OpsSC Agent",
+  "main": "opssc-agent.js",
+  "scripts": {
+    "prepare": "tsc",
+    "start": "node opssc-agent.js",
+    "lint": "eslint --ext .ts .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Tatsuya Sato <Tatsuya.Sato@hal.hitachi.com>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "fabric-network": "^2.3.0-snapshot.16",
+    "fs-extra": "^9.0.1",
+    "js-yaml": "^3.14.1",
+    "morgan": "^1.10.0",
+    "opssc-common": "file:../../common/src",
+    "simple-git": "^2.26.0",
+    "winston": "^3.3.3",
+    "ws": "^7.4.1"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/cors": "^2.8.9",
+    "@types/express": "^4.17.9",
+    "@types/fs-extra": "^9.0.5",
+    "@types/js-yaml": "^3.12.5",
+    "@types/morgan": "^1.9.2",
+    "@types/node": "^12.0.2",
+    "@types/ws": "^7.4.0",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "eslint": "^7.11.0",
+    "typescript": "^3.9.6"
+  }
+}
