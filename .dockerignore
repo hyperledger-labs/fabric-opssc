@@ -1,5 +1,6 @@
 .git
 .gitignore
+sample-environments
 */src/*.js
 */src/node_modules/*
 */src/package-lock.json
