@@ -1,0 +1,25 @@
+{
+  "scripts": {
+    "test": "./node_modules/.bin/cucumber-js -p default",
+    "dry-run": "./node_modules/.bin/cucumber-js -d -p default",
+    "lint": "eslint --ext .ts ."
+  },
+  "author": "Tatsuya Sato <Tatsuya.Sato@hal.hitachi.com>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@types/chai": "^4.2.11",
+    "@types/cucumber": "^6.0.1",
+    "@types/node": "^12.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "axios": "^0.21.1",
+    "chai": "^4.2.0",
+    "cucumber": "^6.0.5",
+    "cucumber-pretty": "^6.0.0",
+    "cucumber-tsflow": "^3.2.0",
+    "eslint": "^7.11.0",
+    "moment": "^2.26.0",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.6"
+  }
+}

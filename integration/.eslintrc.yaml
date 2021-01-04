@@ -1,0 +1,45 @@
+---
+  root: true
+  parser: "@typescript-eslint/parser"
+  plugins:
+    - "@typescript-eslint"
+  extends:
+    - eslint:recommended
+    - plugin:@typescript-eslint/recommended
+  rules:
+    no-bitwise: error
+    no-console: error
+    object-shorthand:
+      - error
+      - never
+    sort-imports:
+      - error
+      - ignoreDeclarationSort: true
+        ignoreCase: true
+    "@typescript-eslint/explicit-module-boundary-types": off
+    "@typescript-eslint/no-explicit-any": off
+    "@typescript-eslint/no-unused-vars":
+      - error
+      - argsIgnorePattern: "^_"
+        varsIgnorePattern: "^_"
+    "@typescript-eslint/no-non-null-assertion": off
+    array-bracket-spacing:
+      - error
+      - never
+    indent:
+      - error
+      - 2
+      - SwitchCase: 1
+    keyword-spacing:
+      - error
+    linebreak-style:
+      - error
+      - unix
+    no-trailing-spaces:
+      - error
+    semi:
+      - error
+      - always
+    quotes:
+      - error
+      - single
