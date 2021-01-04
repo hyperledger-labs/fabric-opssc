@@ -1,0 +1,33 @@
+# Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  test:
+    external:
+      name: net_test
+
+services:
+  opssc-agent.org4.example.com:
+    container_name: opssc-agent.org4.example.com
+    image: fabric-opssc/opssc-agent:latest
+    environment:
+      - ADMIN_MSPID=Org4MSP
+      - ADMIN_CERT=/opt/fabric/msp/signcerts
+      - ADMIN_KEY=/opt/fabric/msp/keystore
+      - LOG_LEVEL=info
+      - DISCOVER_AS_LOCALHOST=false
+      - GIT_USER=$GIT_USER
+      - GIT_PASSWORD=$GIT_PASSWORD
+      - AGENT_SERVICE_PORT=5503
+      - WS_URL=ws://opssc-api-server.org4.example.com:5003
+    volumes:
+      - ../organizations/peerOrganizations/org4.example.com/users/Admin@org4.example.com/msp:/opt/fabric/msp
+      - ../organizations/peerOrganizations/org4.example.com/connection-org4.yaml:/opt/fabric/config/connection-profile.yaml
+    networks:
+      - test
+    ports:
+      - 5503:5503
+    restart: on-failure

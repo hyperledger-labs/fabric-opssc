@@ -1,0 +1,43 @@
+# Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  test:
+    external:
+      name: net_test
+
+services:
+  opssc-api-server.org1.example.com:
+    container_name: opssc-api-server.org1.example.com
+    image: fabric-opssc/opssc-api-server:latest
+    environment:
+      - ADMIN_MSPID=Org1MSP
+      - LOG_LEVEL=info
+      - DISCOVER_AS_LOCALHOST=false
+      - CLIENT_SERVICE_PORT=5000
+    volumes:
+      - ../organizations/peerOrganizations/org1.example.com/connection-org1.yaml:/opt/fabric/config/connection-profile.yaml
+      - ../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/opt/fabric/msp
+    networks:
+      - test
+    ports:
+      - 5000:5000
+
+  opssc-api-server.org2.example.com:
+    container_name: opssc-api-server.org2.example.com
+    image: fabric-opssc/opssc-api-server:latest
+    environment:
+      - ADMIN_MSPID=Org2MSP
+      - LOG_LEVEL=info
+      - DISCOVER_AS_LOCALHOST=false
+      - CLIENT_SERVICE_PORT=5001
+    volumes:
+      - ../organizations/peerOrganizations/org2.example.com/connection-org2.yaml:/opt/fabric/config/connection-profile.yaml
+      - ../organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/opt/fabric/msp
+    networks:
+      - test
+    ports:
+      - 5001:5001

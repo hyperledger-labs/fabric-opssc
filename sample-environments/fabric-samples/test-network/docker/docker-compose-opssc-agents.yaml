@@ -1,0 +1,53 @@
+# Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+networks:
+  test:
+    external:
+      name: net_test
+
+services:
+  opssc-agent.org1.example.com:
+    container_name: opssc-agent.org1.example.com
+    image: fabric-opssc/opssc-agent:latest
+    environment:
+      - ADMIN_MSPID=Org1MSP
+      - ADMIN_CERT=/opt/fabric/msp/signcerts
+      - ADMIN_KEY=/opt/fabric/msp/keystore
+      - LOG_LEVEL=info
+      - DISCOVER_AS_LOCALHOST=false
+      - GIT_USER=$GIT_USER
+      - GIT_PASSWORD=$GIT_PASSWORD
+      - AGENT_SERVICE_PORT=5500
+      - WS_URL=ws://opssc-api-server.org1.example.com:5000
+    volumes:
+      - ../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/opt/fabric/msp
+      - ../organizations/peerOrganizations/org1.example.com/connection-org1.yaml:/opt/fabric/config/connection-profile.yaml
+    networks:
+      - test
+    ports:
+      - 5500:5500
+
+  opssc-agent.org2.example.com:
+    container_name: opssc-agent.org2.example.com
+    image: fabric-opssc/opssc-agent:latest
+    environment:
+      - ADMIN_MSPID=Org2MSP
+      - ADMIN_CERT=/opt/fabric/msp/signcerts
+      - ADMIN_KEY=/opt/fabric/msp/keystore
+      - LOG_LEVEL=info
+      - DISCOVER_AS_LOCALHOST=false
+      - GIT_USER=$GIT_USER
+      - GIT_PASSWORD=$GIT_PASSWORD
+      - AGENT_SERVICE_PORT=5501
+      - WS_URL=ws://opssc-api-server.org2.example.com:5001
+    volumes:
+      - ../organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/opt/fabric/msp
+      - ../organizations/peerOrganizations/org2.example.com/connection-org2.yaml:/opt/fabric/config/connection-profile.yaml
+    networks:
+      - test
+    ports:
+      - 5501:5501

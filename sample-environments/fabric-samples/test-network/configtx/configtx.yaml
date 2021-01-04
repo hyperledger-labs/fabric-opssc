@@ -14,35 +14,35 @@
 ################################################################################
 Organizations:
 
-    # SampleOrg defines an MSP using the sampleconfig.  It should never be used
-    # in production but may be used as a template for other definitions
-    - &OrdererOrg
-        # DefaultOrg defines the organization which is used in the sampleconfig
-        # of the fabric.git development environment
-        Name: OrdererOrg
+    # # SampleOrg defines an MSP using the sampleconfig.  It should never be used
+    # # in production but may be used as a template for other definitions
+    # - &OrdererOrg
+    #     # DefaultOrg defines the organization which is used in the sampleconfig
+    #     # of the fabric.git development environment
+    #     Name: OrdererOrg
 
-        # ID to load the MSP definition as
-        ID: OrdererMSP
+    #     # ID to load the MSP definition as
+    #     ID: OrdererMSP
 
-        # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: ../organizations/ordererOrganizations/example.com/msp
+    #     # MSPDir is the filesystem path which contains the MSP configuration
+    #     MSPDir: ../organizations/ordererOrganizations/example.com/msp
 
-        # Policies defines the set of policies at this level of the config tree
-        # For organization policies, their canonical path is usually
-        #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
-        Policies:
-            Readers:
-                Type: Signature
-                Rule: "OR('OrdererMSP.member')"
-            Writers:
-                Type: Signature
-                Rule: "OR('OrdererMSP.member')"
-            Admins:
-                Type: Signature
-                Rule: "OR('OrdererMSP.admin')"
+    #     # Policies defines the set of policies at this level of the config tree
+    #     # For organization policies, their canonical path is usually
+    #     #   /Channel/<Application|Orderer>/<OrgName>/<PolicyName>
+    #     Policies:
+    #         Readers:
+    #             Type: Signature
+    #             Rule: "OR('OrdererMSP.member')"
+    #         Writers:
+    #             Type: Signature
+    #             Rule: "OR('OrdererMSP.member')"
+    #         Admins:
+    #             Type: Signature
+    #             Rule: "OR('OrdererMSP.admin')"
 
-        OrdererEndpoints:
-            - orderer.example.com:7050
+    #     OrdererEndpoints:
+    #         - orderer.example.com:7050
 
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -64,6 +64,12 @@ Organizations:
             Writers:
                 Type: Signature
                 Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+            OrderingReaders:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.orderer')"
+            OrderingWriters:
+                Type: Signature
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.orderer')"
             Admins:
                 Type: Signature
                 Rule: "OR('Org1MSP.admin')"
@@ -78,6 +84,8 @@ Organizations:
             # encoded in the genesis block in the Application section context
             - Host: peer0.org1.example.com
               Port: 7051
+        OrdererEndpoints:
+            - orderer0.org1.example.com:7050
 
     - &Org2
         # DefaultOrg defines the organization which is used in the sampleconfig
@@ -99,6 +107,12 @@ Organizations:
             Writers:
                 Type: Signature
                 Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+            OrderingReaders:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.orderer')"
+            OrderingWriters:
+                Type: Signature
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.orderer')"
             Admins:
                 Type: Signature
                 Rule: "OR('Org2MSP.admin')"
@@ -112,6 +126,8 @@ Organizations:
             # encoded in the genesis block in the Application section context
             - Host: peer0.org2.example.com
               Port: 9051
+        OrdererEndpoints:
+            - orderer0.org2.example.com:9050
 
 ################################################################################
 #
@@ -217,21 +233,17 @@ Orderer: &OrdererDefaults
 
     # Orderer Type: The orderer implementation to start
     OrdererType: etcdraft
-    
-    # Addresses used to be the list of orderer addresses that clients and peers
-    # could connect to.  However, this does not allow clients to associate orderer
-    # addresses and orderer organizations which can be useful for things such
-    # as TLS validation.  The preferred way to specify orderer addresses is now
-    # to include the OrdererEndpoints item in your org definition
-    Addresses:
-        - orderer.example.com:7050
 
     EtcdRaft:
         Consenters:
-        - Host: orderer.example.com
+        - Host: orderer0.org1.example.com
           Port: 7050
-          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+          ClientTLSCert: ../organizations/peerOrganizations/org1.example.com/orderers/orderer0.org1.example.com/tls/server.crt
+          ServerTLSCert: ../organizations/peerOrganizations/org1.example.com/orderers/orderer0.org1.example.com/tls/server.crt
+        - Host: orderer0.org2.example.com
+          Port: 9050
+          ClientTLSCert: ../organizations/peerOrganizations/org2.example.com/orderers/orderer0.org2.example.com/tls/server.crt
+          ServerTLSCert: ../organizations/peerOrganizations/org2.example.com/orderers/orderer0.org2.example.com/tls/server.crt
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -261,10 +273,10 @@ Orderer: &OrdererDefaults
     Policies:
         Readers:
             Type: ImplicitMeta
-            Rule: "ANY Readers"
+            Rule: "ANY OrderingReaders"
         Writers:
             Type: ImplicitMeta
-            Rule: "ANY Writers"
+            Rule: "ANY OrderingWriters"
         Admins:
             Type: ImplicitMeta
             Rule: "MAJORITY Admins"
@@ -272,7 +284,7 @@ Orderer: &OrdererDefaults
         # from the orderer for the peer to validate it.
         BlockValidation:
             Type: ImplicitMeta
-            Rule: "ANY Writers"
+            Rule: "ANY OrderingWriters"
 
 ################################################################################
 #
@@ -321,7 +333,8 @@ Profiles:
         Orderer:
             <<: *OrdererDefaults
             Organizations:
-                - *OrdererOrg
+                - *Org1
+                - *Org2
             Capabilities:
                 <<: *OrdererCapabilities
         Consortiums:
