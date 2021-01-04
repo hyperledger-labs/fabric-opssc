@@ -1,0 +1,9 @@
+.git
+.gitignore
+*/src/*.js
+*/src/node_modules/*
+*/src/package-lock.json
+*/scripts
+chaincode/*/vendor
+chaincode/channel_ops/channel_ops
+chaincode/chaincode_ops/chaincode_ops
