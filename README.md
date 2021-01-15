@@ -21,7 +21,13 @@ As the first step for applying this to Fabric v2.x, we have developed a purpose-
 - Chaincode operations: Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x.
 - Channel operations: Streamline channel configuration updates across multiple organizations (e.g., creating a channel, adding an organization, adding an orderer etc.)
 
-### Related materials
+### Materials
+
+Please refer to the following files to get the detail of OpsSC for Hyperledger Fabric v2.x.
+- [Presentation slide](https://github.com/satota2/fabric-opssc-materials/blob/main/materials/OpsSC_for_Hyperledger_Fabric_v2.x_pub.pdf)
+- [Demo movies](https://github.com/satota2/fabric-opssc-materials#demo-movies)
+
+### Other related materials
 
 To get the overview of the OpsSC, please refer to pp.19-24 and pp.31-38 of [the presentation material in Hyperledger Global Forum 2020](https://static.sched.com/hosted_files/hgf20/c4/Practical_Tools_for_Enterprise_Uses_of_Fabric.pub.pdf).
 
