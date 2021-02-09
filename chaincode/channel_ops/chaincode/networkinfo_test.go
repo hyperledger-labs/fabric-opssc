@@ -16,8 +16,8 @@ import (
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
 	"github.com/stretchr/testify/require"
-	"github.com/satota2/fabric-opssc/chaincode/channel_ops/chaincode"
-	"github.com/satota2/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
 )
 
 //go:generate counterfeiter -o mocks/transaction.go -fake-name TransactionContext . transactionContext

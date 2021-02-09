@@ -21,7 +21,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/stretchr/testify/require"
-	"github.com/satota2/fabric-opssc/chaincode/chaincode_ops/core/mocks"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core/mocks"
 )
 
 var (

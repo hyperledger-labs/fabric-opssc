@@ -10,7 +10,7 @@ import (
 	"log"
 
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
-	"github.com/satota2/fabric-opssc/chaincode/channel_ops/chaincode"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode"
 )
 
 func main() {

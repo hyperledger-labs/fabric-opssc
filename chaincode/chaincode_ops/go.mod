@@ -1,4 +1,4 @@
-module github.com/satota2/fabric-opssc/chaincode/chaincode_ops
+module github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops
 
 go 1.14
 

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
-	"github.com/satota2/fabric-opssc/configtx-cli/ops"
+	"github.com/hyperledger-labs/fabric-opssc/configtx-cli/ops"
 )
 
 // SetOrgCmd returns the cobra command for set-org.

@@ -20,7 +20,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/stretchr/testify/require"
-	"github.com/satota2/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
 )
 
 var (

@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package main
 
-import "github.com/satota2/fabric-opssc/configtx-cli/cmd"
+import "github.com/hyperledger-labs/fabric-opssc/configtx-cli/cmd"
 
 func main() {
 	cmd.Execute()
