@@ -372,7 +372,7 @@ $ curl -X POST http://localhost:5000/api/v1/chaincode/proposals/deploy_basic \
     "channelID": "mychannel",
     "chaincodeName": "basic",
     "chaincodePackage": {
-      "repository": "github.com/satota2/fabric-opssc",
+      "repository": "github.com/hyperledger-labs/fabric-opssc",
       "pathToSourceFiles": "sample-environments/fabric-samples/asset-transfer-basic/chaincode-go",
       "commitID": "master",
       "type": "golang"

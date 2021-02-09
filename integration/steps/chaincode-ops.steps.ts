@@ -30,7 +30,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on basic (golang|javascript|typescript) template via opssc-api-server/)
   public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, lang: string) {
-    const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/satota2/fabric-opssc';
+    const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
     const commitID = process.env.IT_REMOTE_COMMIT_ID || 'master';
     let pathToSourceFiles;
     switch (lang) {

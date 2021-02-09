@@ -1,4 +1,4 @@
-module github.com/satota2/fabric-opssc/configtx-cli
+module github.com/hyperledger-labs/fabric-opssc/configtx-cli
 
 go 1.14
 
