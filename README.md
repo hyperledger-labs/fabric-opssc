@@ -107,7 +107,7 @@ Running the OpsSC sample environment gives you a rough idea of how the OpsSC wor
 *NOTE:* This sample will collide with the original test-network in fabric-samples and destroy the environment. So, please tear down the existing test-network environment before trying the sample.
 
 The following shows how to set up this sample environment first. After that, as a typical example of decentralized operation using the OpsSC,
-it will explain a procedure for creating a new channel and deploying a new chaincode on the channel using the OpsSC.
+it will explain a procedure for creating a new channel, deploying a new chaincode on the channel and adding a new organization using the OpsSC.
 
 ### System configuration of the test-network
 
@@ -479,6 +479,417 @@ $ curl -X GET 'http://localhost:5000/api/v1/utils/queryTransaction?channelID=myc
     "appraisedValue": 300
   }
 ]
+```
+
+### Add a new organization to each channel using the OpsSC
+
+Belows are the steps to add a new organization (named `Org4MSP`), which has a peer and an ordering nodes as same as the other organizations, to each channel.
+These steps are a bit more complicated than the operations described above.
+
+First, keys and certificates for peers and orderers for `Org4MSP` should be prepared.
+Here, execute the following utility script to launch a CA for `Org4MSP` and then issue keys and certificates for peers and orderers for `Org4MSP` using the CA.
+
+```sh
+# Launch a CA for Org4MSP and then issue keys and certificates for peers and orderers for Org4MSP using the CA
+$ ./create-org4-artifacts-for-test-network.sh
+
+# Convert keys and certificates (PEM files) to JSON and store them as environment variables (for simplifying the following steps)
+$ export ORG4_CA_CERT=$(cat organizations/peerOrganizations/org4.example.com/msp/cacerts/localhost-13054-ca-org4.pem | sed -e ':loop; N; $!b loop; s/\n/\\n/g')
+$ echo "$ORG4_CA_CERT"
+
+$ export ORG4_TLS_CA_CERT=$(cat organizations/peerOrganizations/org4.example.com/msp/tlscacerts/ca.crt | sed -e ':loop; N; $!b loop; s/\n/\\n/g')
+$ echo "$ORG4_TLS_CA_CERT"
+
+$ export ORG4_ORDERER_SERVER_TLS_CERT=$(cat organizations/peerOrganizations/org4.example.com/orderers/orderer0.org4.example.com/tls/server.crt | sed -e ':loop; N; $!b loop; s/\n/\\n/g')
+$ echo "$ORG4_ORDERER_SERVER_TLS_CERT"
+```
+
+The above will be done outside of OpsSC because the step itself does not require inter organizational negotiation.
+Here, let's assume that `Org4MSP` does the above and shares the MSP information including the certificates with `Org1MSP`.
+
+Next, an administrator for `Org1MSP` sends a request for the channel update proposal to add `Org4MSP` to system-channel to the OpsSC API server.
+
+The request is:
+
+```sh
+$ curl -X POST http://localhost:5000/api/v1/channel/proposals/add_org4_to_system-channel \
+-H "Expect:" \
+-H 'Content-Type: application/json; charset=utf-8' \
+-d @- <<EOF
+{
+  "proposal": {
+    "channelID": "system-channel",
+    "description": "Add org4 to system channel",
+    "action": "update",
+    "opsProfile": [
+      {
+        "Command": "set-org",
+        "Parameters": {
+          "OrgType": "Consortiums|Orderer",
+          "Org": {
+            "Name": "Org4MSP",
+            "ID": "Org4MSP",
+            "MSP": {
+              "RootCerts": [
+                "$ORG4_CA_CERT"
+              ],
+              "TLSRootCerts": [
+                "$ORG4_TLS_CA_CERT"
+              ],
+              "NodeOUs": {
+                "Enable": true,
+                "ClientOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "client",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "PeerOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "peer",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "AdminOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "admin",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "OrdererOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "orderer",
+                  "Certificate": "$ORG4_CA_CERT"
+                }
+              }
+            },
+            "Policies": {
+              "Readers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
+              },
+              "Writers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.client')"
+              },
+              "OrderingReaders": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "OrderingWriters": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "Admins": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin')"
+              },
+              "Endorsement": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.peer')"
+              }
+            },
+            "AnchorPeers": [
+              {
+                "Host": "peer0.org4.example.com",
+                "Port": 13051
+              }
+            ],
+            "OrdererEndpoints": [
+              "orderer0.org4.example.com:13050"
+            ]
+          }
+        }
+      },
+      {
+        "Command": "set-consenter",
+        "Parameters": {
+          "Consenter": {
+            "Host": "orderer0.org4.example.com",
+            "Port": 13050,
+            "ClientTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT",
+            "ServerTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT"
+          }
+        }
+      }
+    ]
+  }
+}
+EOF
+"add_org4_to_system-channel" # 200 OK with the proposal ID
+```
+
+Then, an administrator for `Org2MSP` votes for the proposal via the API server:
+
+```sh
+$ curl -X POST http://localhost:5001/api/v1/channel/proposals/add_org4_to_system-channel/vote
+""
+```
+
+Do the same for the remaining channels (ops-channel and mychannel):
+
+```sh
+$ curl -X POST http://localhost:5000/api/v1/channel/proposals/add_org4_to_ops-channel \
+-H "Expect:" \
+-H 'Content-Type: application/json; charset=utf-8' \
+-d @- <<EOF
+{
+  "proposal": {
+    "channelID": "ops-channel",
+    "description": "Add org4 to ops-channel",
+    "action": "update",
+    "opsProfile": [
+      {
+        "Command": "set-org",
+        "Parameters": {
+          "OrgType": "Application|Orderer",
+          "Org": {
+            "Name": "Org4MSP",
+            "ID": "Org4MSP",
+            "MSP": {
+              "RootCerts": [
+                "$ORG4_CA_CERT"
+              ],
+              "TLSRootCerts": [
+                "$ORG4_TLS_CA_CERT"
+              ],
+              "NodeOUs": {
+                "Enable": true,
+                "ClientOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "client",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "PeerOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "peer",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "AdminOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "admin",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "OrdererOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "orderer",
+                  "Certificate": "$ORG4_CA_CERT"
+                }
+              }
+            },
+            "Policies": {
+              "Readers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
+              },
+              "Writers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.client')"
+              },
+              "OrderingReaders": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "OrderingWriters": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "Admins": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin')"
+              },
+              "Endorsement": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.peer')"
+              }
+            },
+            "AnchorPeers": [
+              {
+                "Host": "peer0.org4.example.com",
+                "Port": 13051
+              }
+            ],
+            "OrdererEndpoints": [
+              "orderer0.org4.example.com:13050"
+            ]
+          }
+        }
+      },
+      {
+        "Command": "set-consenter",
+        "Parameters": {
+          "Consenter": {
+            "Host": "orderer0.org4.example.com",
+            "Port": 13050,
+            "ClientTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT",
+            "ServerTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT"
+          }
+        }
+      }
+    ]
+  }
+}
+EOF
+"add_org4_to_ops-channel" # 200 OK with the proposal ID
+```
+
+```sh
+$ curl -X POST http://localhost:5001/api/v1/channel/proposals/add_org4_to_ops-channel/vote
+""
+```
+
+```sh
+$ curl -X POST http://localhost:5000/api/v1/channel/proposals/add_org4_to_mychannel \
+-H "Expect:" \
+-H 'Content-Type: application/json; charset=utf-8' \
+-d @- <<EOF
+{
+  "proposal": {
+    "channelID": "mychannel",
+    "description": "Add org4 to mychannel",
+    "action": "update",
+    "opsProfile": [
+      {
+        "Command": "set-org",
+        "Parameters": {
+          "OrgType": "Application|Orderer",
+          "Org": {
+            "Name": "Org4MSP",
+            "ID": "Org4MSP",
+            "MSP": {
+              "RootCerts": [
+                "$ORG4_CA_CERT"
+              ],
+              "TLSRootCerts": [
+                "$ORG4_TLS_CA_CERT"
+              ],
+              "NodeOUs": {
+                "Enable": true,
+                "ClientOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "client",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "PeerOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "peer",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "AdminOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "admin",
+                  "Certificate": "$ORG4_CA_CERT"
+                },
+                "OrdererOUIdentifier": {
+                  "OrganizationalUnitIdentifier": "orderer",
+                  "Certificate": "$ORG4_CA_CERT"
+                }
+              }
+            },
+            "Policies": {
+              "Readers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.peer', 'Org4MSP.client')"
+              },
+              "Writers": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.client')"
+              },
+              "OrderingReaders": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "OrderingWriters": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin', 'Org4MSP.orderer')"
+              },
+              "Admins": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.admin')"
+              },
+              "Endorsement": {
+                "Type": "Signature",
+                "Rule": "OR('Org4MSP.peer')"
+              }
+            },
+            "AnchorPeers": [
+              {
+                "Host": "peer0.org4.example.com",
+                "Port": 13051
+              }
+            ],
+            "OrdererEndpoints": [
+              "orderer0.org4.example.com:13050"
+            ]
+          }
+        }
+      },
+      {
+        "Command": "set-consenter",
+        "Parameters": {
+          "Consenter": {
+            "Host": "orderer0.org4.example.com",
+            "Port": 13050,
+            "ClientTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT",
+            "ServerTLSCert": "$ORG4_ORDERER_SERVER_TLS_CERT"
+          }
+        }
+      }
+    ]
+  }
+}
+EOF
+"add_org4_to_mychannel" # 200 OK with the proposal ID
+```
+
+```sh
+$ curl -X POST http://localhost:5001/api/v1/channel/proposals/add_org4_to_mychannel/vote
+""
+```
+
+By using the following command, you can see that `Org4MSP` is added to each channel:
+
+```sh
+$ curl -X GET http://localhost:5001/api/v1/channel/getChannels | jq
+[
+  {
+    "docType": "channel",
+    "ID": "mychannel",
+    "channelType": "application",
+    "organizations": {
+      "Org1MSP": "",
+      "Org2MSP": "",
+      "Org4MSP": "" # Added
+    }
+  },
+  (...)
+]
+```
+
+Next, execute the following utility script to launch the peer, the ordering node, the OpsSC agent and the API server for `Org4MSP`:
+
+```sh
+# Launch the peer, the ordering node, the OpsSC agent and the API server for Org4MSP
+$ ./launch-org4-nodes-for-test-network.sh
+```
+
+This script internally fetches the system config block and then launches nodes for `Org4MSP` using the system config block.
+In actual use cases, an organization which already has joined in the network (`Org1MSP` or `Org2MSP`) should fetch the block and send it to `Org4MSP`.
+
+After launching the nodes, the agent for `Org4MSP` automatically joins the organization to the channels and deploys the OpsSC chaincodes on the peer.
+It also deploys the other existing chaincodes which has been deployed via OpsSC on the peer.
+
+By running the following commands, you can confirm whether the agent and API server for `Org4MSP` get ready:
+
+```sh
+## Check for the API server for Org4MSP
+$ curl -X GET http://localhost:5003/healthz
+OK
+## Check for the agent for Or4MSP (NOTE: Take about 2-3 minutes to be "OK")
+$ curl -X GET http://localhost:5503/healthz
+OK
+```
+
+By running the following commands, you can confirm that the nodes for `Org4MSP` get ready and
+deployed `basic` chaincode which were deployed the previous operations.
+
+```sh
+$ export PATH=${PWD}/../bin:$PATH
+$ export FABRIC_CFG_PATH=$PWD/../config/
+
+$ export CORE_PEER_TLS_ENABLED=true
+$ export CORE_PEER_LOCALMSPID="Org4MSP"
+$ export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/org4.example.com/peers/peer0.org4.example.com/tls/ca.crt
+$ export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/org4.example.com/users/Admin@org4.example.com/msp
+$ export CORE_PEER_ADDRESS=localhost:13051
+
+$ peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
 ```
 
 ### (Optional.) Tear down the test network
