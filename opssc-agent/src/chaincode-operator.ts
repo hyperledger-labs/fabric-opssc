@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2021 Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -247,15 +247,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     const installRequest: InstallRequest = {
       package: this.packagedChaincode
     };
-    try {
-      this.packageID = await this.lifecycleCommands.install(installRequest);
-    } catch (error) {
-      if (error.message != null && (error.message as string).includes('chaincode already successfully installed')) {
-        this.packageID = computePackageID(this.chaincodeLabel(), this.packagedChaincode);
-      } else {
-        throw error;
-      }
-    }
+    const result = await this.lifecycleCommands.install(installRequest);
+    this.packageID = result ? result : this.packageID = computePackageID(this.chaincodeLabel(), this.packagedChaincode);
     logger.info('[END] Install chaincode');
   }
 

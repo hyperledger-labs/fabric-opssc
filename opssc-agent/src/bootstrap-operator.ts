@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -180,19 +180,11 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
 
         // -- Install to multiple peers for an org
         logger.info('[START] Install chaincode');
-        let packageID;
         const installRequest = {
           package: packagedChaincode,
         };
-        try {
-          packageID = await lifecycleCommands.install(installRequest);
-        } catch (error) {
-          if (error.message != null && (error.message as string).includes('chaincode already successfully installed')) {
-            packageID = computePackageID(label, packagedChaincode);
-          } else {
-            throw error;
-          }
-        }
+        const result = await lifecycleCommands.install(installRequest);
+        const packageID = result ? result : computePackageID(label, packagedChaincode);
         logger.info('[END] Install chaincode');
 
         // -- Approve chaincode
