@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -24,7 +24,7 @@ export class ChannelOpsSteps extends BaseStepClass {
 
     const org = `org${orgIndex}`;
     const ports = BaseStepClass.SERVICE_PORT_MAP[org];
-    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./registerEnroll.sh ${orgIndex} ca-${org} ${ports.ca} ${ports.peer} ${ports.orderer}`;
+    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./registerEnroll.sh ${orgIndex} ca-${org} ${ports.ca} ${ports.orderer} ${ports.peer}`;
     execSync(commands);
   }
 
