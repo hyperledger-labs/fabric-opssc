@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -9,7 +9,7 @@ import { Contract, DefaultQueryHandlerStrategies, Gateway, GatewayOptions, Ident
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { buildPolicy } = require('./lib/Policy');
 import { finalPackage as finalPackageChaincode, package as packageChaincode } from './lib/Packager';
-import { Channel } from 'fabric-common';
+import { Channel, Endorser } from 'fabric-common';
 import crypto from 'crypto';
 import { logger } from './logger';
 
@@ -77,6 +77,7 @@ export interface ChaincodeRequest {
 
 
 const LIFECYCLE_SCC_NAME = '_lifecycle';
+const DEFAULT_QUERY_TIMEOUT_MINUTES = 300;
 
 /**
  * <p> ChaincodeLifecycleCommands is a class to perform _lifecycle operations.
@@ -131,31 +132,40 @@ export class ChaincodeLifecycleCommands {
   }
 
   /**
-   * <p> Install a chaincode to all peers for the target client organization. </p>
-   *
-   * <p> NOTE: Due to current implementation limitations, this method installs the chaincode on only one peer. The limitations will be fixed soon. </p>
+   * <p> Install a chaincode to all peers for the target client organization.
+   * This ensures that all peers has the chaincode installed, even if the chaincode are already installed on some of peers.</p>
    *
    * @async
    * @param {InstallRequest} request the request to install a chaincode
-   * @returns {Promise<string>} the installed package ID
+   * @returns {Promise<string|null>} the installed package ID (null if the chaincode are already installed on all peers)
    */
-  async install(request: InstallRequest): Promise<string> {
+  async install(request: InstallRequest): Promise<string|null> {
     await this.prepareLifecycleContract();
 
-    // FIXME: Currently, this installs the chaincode on only one peer because of the specification of the default query handlers.
-    // A custom query handler to query all peers should be implemented.
-    // Refer:
-    //   - https://github.com/hyperledger/fabric-sdk-node/blob/master/docs/tutorials/query-peers.md
-    //   - https://github.com/hyperledger/fabric-sdk-node/blob/master/test/ts-scenario/config/handlers/sample-query-handler.ts
-    const transaction = this.lifecycleSCC!.createTransaction('InstallChaincode');
-    const args = [lifecycle_protos.InstallChaincodeArgs.encode({ chaincode_install_package: request.package }).finish()];
+    let preferredPackageID: string | null = null;
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: To set bytes in args instead of a string array
-    const result = await transaction.evaluate(...args);
-    const { package_id, label } = lifecycle_protos.InstallChaincodeResult.decode(result);
-    logger.debug(`Install chaincode result: ${package_id}, ${label}`);
-    return package_id;
+    // Install to multiple peers for an org in parallel (Make the chaincode to be installed on all peers)
+    const args = [lifecycle_protos.InstallChaincodeArgs.encode({ chaincode_install_package: request.package }).finish()];
+    const peers = this.channel!.getEndorsers(this.identity.mspId);
+    await Promise.all(peers.map(async (peer) => {
+      try {
+        const result = await this.queryChaincode(LIFECYCLE_SCC_NAME, 'InstallChaincode', args, peer);
+        const { package_id, label } = lifecycle_protos.InstallChaincodeResult.decode(result);
+        logger.debug(`Install chaincode result: ${package_id}, ${label}, ${peer.name}`);
+        if (!preferredPackageID) {
+          preferredPackageID = package_id;
+        }
+        else if (preferredPackageID != package_id) {
+          throw new Error(`Package IDs are inconsistent (preferred: ${preferredPackageID}, current peer: ${package_id})`);
+        }
+      } catch (error) {
+        if (error.message == null || !(error.message as string).includes('chaincode already successfully installed')) {
+          throw error;
+        }
+        logger.warn(`Chaincode already successfully installed for ${peer.name}`);
+      }
+    }));
+    return preferredPackageID;
   }
 
   /**
@@ -323,7 +333,7 @@ export class ChaincodeLifecycleCommands {
         asLocalhost: this.discoverAsLocalhost
       },
       queryHandlerOptions: {
-        timeout: 300, // timeout in seconds
+        timeout: DEFAULT_QUERY_TIMEOUT_MINUTES,
         strategy: DefaultQueryHandlerStrategies.MSPID_SCOPE_SINGLE
       }
     };
@@ -331,6 +341,34 @@ export class ChaincodeLifecycleCommands {
     const gateway = new Gateway();
     await gateway.connect(this.connectionProfile, connectOpt);
     return gateway;
+  }
+
+  /*
+   * Internal method to query the given chaincode with the given peer.
+   * NOTE: This method internally uses low-level APIs in fabric-common because high-level APIs in fabric-network does not seem to provide APIs
+   * (1) with specifying query peers or (2) for querying all peers with fine controls.
+   *
+   * This method is used to install a chaincode to a specific peer.
+   */
+  private async queryChaincode(chaincodeName: string, functionName: string, args: Uint8Array[] | string[] | undefined, peer: Endorser): Promise<Buffer> {
+    const query = this.channel!.newQuery(chaincodeName);
+    const identityContext = this.gateway!.identityContext!;
+    query.build(identityContext, {
+      fcn: functionName,
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: To set bytes in args instead of a string array
+      args: args
+    });
+    query.sign(identityContext);
+    const response = await query.send({
+      targets: [peer],
+      requestTimeout: DEFAULT_QUERY_TIMEOUT_MINUTES * 1000, // timeout in milliseconds
+    });
+    if (response.queryResults.length < 1) {
+      throw new Error('Peer returned error: ' + response.responses[0].response.message);
+    }
+
+    return response.queryResults[0];
   }
 
   /*
