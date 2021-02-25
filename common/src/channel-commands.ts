@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -341,7 +341,7 @@ export class ChannelCommands {
   }
 
   private peerConfigs(): PeerConfig[] {
-    const regexp = /.+:\/\/(.+)/g;
+    const regexp = /.+:\/\/(.+)/;
     const peers = this.connectionProfile.peers;
     const peerNames = Object.keys(peers);
     if (peerNames.length < 1) throw new Error('Fail to get peer');
@@ -366,7 +366,7 @@ export class ChannelCommands {
   }
 
   private peerCmdOrdererArgs(): string[] {
-    const regexp = /.+:\/\/(.+)/g;
+    const regexp = /.+:\/\/(.+)/;
     const orderers = this.connectionProfile.orderers;
     const ordererNames = Object.keys(orderers);
     if (ordererNames.length < 1) throw new Error('Fail to get orderer');
