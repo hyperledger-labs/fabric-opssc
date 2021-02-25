@@ -26,6 +26,9 @@ type PeerConfig = {
   tlsCACertFilePath: string;
 }
 
+const DEFAULT_RETRY_MAX = 10;
+const DEFAULT_WAIT_MS = 800;
+
 /**
  * <p> ChannelCommands is a class to execute commands to operate channels.
  * This class internally calls "peer" binary and "fabric-configtx-cli".
@@ -111,7 +114,9 @@ export class ChannelCommands {
   }
 
   /**
-   * Join all the peers owned by the client organization described in the connection profile to the channel (execute "peer channel join").
+   * <p> Join all the peers owned by the client organization described in the connection profile to the channel (execute "peer channel join").
+   * This also confirms that each peer has joined the channel and waits for it (by executing "peer channel list").
+   * </p>
    *
    * @async
    * @param {string} channelID the target channel ID
@@ -127,7 +132,8 @@ export class ChannelCommands {
     const peerConfigs = this.peerConfigs();
     for (const targetPeer of peerConfigs) {
       try {
-        const command = ['peer', 'channel', 'join', '-b', blockPath].join(' ');
+        // Join the target peer to the channel
+        let command = ['peer', 'channel', 'join', '-b', blockPath].join(' ');
 
         execCommand(command, undefined, undefined, {
           FABRIC_LOGGING_SPEC: this.logLevel(),
@@ -138,6 +144,25 @@ export class ChannelCommands {
           CORE_PEER_ADDRESS: targetPeer.address,
           CORE_PEER_TLS_ROOTCERT_FILE: targetPeer.tlsCACertFilePath
         });
+
+        // Workaround: Wait for the target peer has joined in the channel
+        command = ['peer', 'channel', 'list'].join(' ');
+        for (let retry =  DEFAULT_RETRY_MAX; retry > 0; retry--) {
+          const channelList = execCommand(command, undefined, undefined, {
+            FABRIC_LOGGING_SPEC: this.logLevel(),
+            FABRIC_CFG_PATH: this.configPath(),
+            CORE_PEER_LOCALMSPID: this.mspID,
+            CORE_PEER_MSPCONFIGPATH: this.mspConfigPath,
+            CORE_PEER_TLS_ENABLED: 'true',
+            CORE_PEER_ADDRESS: targetPeer.address,
+            CORE_PEER_TLS_ROOTCERT_FILE: targetPeer.tlsCACertFilePath
+          }).split('\n');
+          if (channelList.includes(channelID)) {
+            break;
+          }
+          await new Promise((resolve) => setTimeout(resolve, Math.random() * DEFAULT_WAIT_MS));
+        }
+        throw new Error(`Fail to join peer '${targetPeer.address}' to channel '${channelID}': wait timeout`);
       } catch (error) {
         if (error.message != null) {
           if ((error.message as string).includes('already exists')) {
