@@ -1,5 +1,5 @@
 #
-# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -48,6 +48,8 @@ Feature: Channel ops on docker-based Fabric network
     # Bootstrap OpsSC agents and clients for org3
     When bootstrap opssc-api-servers for org3
     And bootstrap opssc-agents for org3
+    Then 2 chaincodes should be installed on org3's peer0
+    And 2 chaincodes should be installed on org3's peer1
 
     # New chaincode deployment
     When org3 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
@@ -59,6 +61,8 @@ Feature: Channel ops on docker-based Fabric network
     And chaincode (name: basic, seq: 1, channel: mychannel) should be committed over the fabric network
     And chaincode (name: basic, channel: mychannel) based on basic should be able to register the asset (ID: asset100) by invoking CreateAsset func
     And chaincode (name: basic, channel: mychannel) based on basic golang should be able to get the asset (ID: asset100) by querying ReadAsset func
+    And 3 chaincodes should be installed on org3's peer0
+    And 3 chaincodes should be installed on org3's peer1
 
  Scenario: Add a new organization with bootstraping on docker-based Fabric network by using OpsSC
 
@@ -111,6 +115,8 @@ Feature: Channel ops on docker-based Fabric network
     # Bootstrap OpsSC agents and clients for org3
     When bootstrap opssc-api-servers for org3
     And bootstrap opssc-agents for org3
+    Then 3 chaincodes should be installed on org3's peer0
+    And 3 chaincodes should be installed on org3's peer1
 
   Scenario: Create a new channel on docker-based Fabric network by using OpsSC
 
