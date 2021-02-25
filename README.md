@@ -916,7 +916,6 @@ For other more detailed usage, refer to the integration test.
 The current implementation has limitations. The main limitations are as follows:
 
 - The conditions for passing a proposal are assumed to be voted by a majority of the members of the target channel
-- Supports only configurations with one peer for each organization (will be improved soon)
 - Does not not yet support deploying Java chaincode
 - Does not not yet support using Channel participating API from v2.3.0
 

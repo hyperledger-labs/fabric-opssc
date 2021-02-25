@@ -41,23 +41,23 @@ The current OpsSC agent is set via environment variables.
 
 The following environment variables must be set:
 
-| Category           | Variable Name           | Default Value                                | Description                                                                                             |
-| ------------------ | ----------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Hyperledger Fabric | `ADMIN_MSPID`           | `Org1MSP`                                    | MSP ID for the organization to be operated                                                              |
-| Hyperledger Fabric | `ADMIN_CERT`            | `/opt/fabric/msp/signcerts`                  | Certificate for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
-| Hyperledger Fabric | `ADMIN_KEY`             | `/opt/fabric/msp/keystore`                   | Private key for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
-| Hyperledger Fabric | `MSP_CONFIG_PATH`       | `/opt/fabric/msp`                            | MSP config path for the client identity to interact with the OpsSC chaincodes and execute peer commands |
-| Hyperledger Fabric | `DISCOVER_AS_LOCALHOST` | `false`                                      | Whether to discover as localhost                                                                        |
-| Hyperledger Fabric | `CONNECTION_PROFILE`    | `/opt/fabric/config/connection-profile.yaml` | Connection profile path for the organization                                                            |
-| OpsSC              | `CHANNEL_NAME`          | `ops-channel`                                | Channel name for the OpsSC                                                                              |
-| OpsSC              | `CC_OPS_CC_NAME`        | `chaincode_ops`                              | Chaincode name of the chaincode OpsSC                                                                   |
-| OpsSC              | `CH_OPS_CC_NAME`        | `channel_ops`                                | Chaincode name of the channel OpsSC                                                                     |
-| Chaincode Ops      | `GIT_USER`              | None                                         | Git user to access to the chaincode repository (If not set, access without credentials)                 |
-| Chaincode Ops      | `GIT_PASSWORD`          | None                                         | Git password to access to the chaincode repository (If not set, access without credentials)             |
-| Chaincode Ops      | `GOPATH`                | None                                         | GOPATH                                                                                                  |
-| WebSocket Client   | `WS_ENABLED`            | `false`                                      | Whether to enable WebSocket client to send messages to the server                                       |
-| WebSocket Client   | `WS_URL`                | `ws://localhost:5000`                        | URL of the WebSocket server to connect to                                                               |
-| Logging            | `LOG_LEVEL`             | `info`                                       | Log level                                                                                               |
+| Category           | Variable Name           | Default Value                                | Description                                                                                                |
+| ------------------ | ----------------------- | -------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Hyperledger Fabric | `ADMIN_MSPID`           | `Org1MSP`                                    | MSP ID for the organization to be operated                                                                 |
+| Hyperledger Fabric | `ADMIN_CERT`            | `/opt/fabric/msp/signcerts`                  | Certificate for the client identity to interact with the OpsSC chaincodes and execute peer commands        |
+| Hyperledger Fabric | `ADMIN_KEY`             | `/opt/fabric/msp/keystore`                   | Private key for the client identity to interact with the OpsSC chaincodes and execute peer commands        |
+| Hyperledger Fabric | `MSP_CONFIG_PATH`       | `/opt/fabric/msp`                            | MSP config path for the client identity to interact with the OpsSC chaincodes and execute peer commands    |
+| Hyperledger Fabric | `DISCOVER_AS_LOCALHOST` | `false`                                      | Whether to discover as localhost                                                                           |
+| Hyperledger Fabric | `CONNECTION_PROFILE`    | `/opt/fabric/config/connection-profile.yaml` | Connection profile path for the organization (NOTE: should be written all peers owned by the organization) |
+| OpsSC              | `CHANNEL_NAME`          | `ops-channel`                                | Channel name for the OpsSC                                                                                 |
+| OpsSC              | `CC_OPS_CC_NAME`        | `chaincode_ops`                              | Chaincode name of the chaincode OpsSC                                                                      |
+| OpsSC              | `CH_OPS_CC_NAME`        | `channel_ops`                                | Chaincode name of the channel OpsSC                                                                        |
+| Chaincode Ops      | `GIT_USER`              | None                                         | Git user to access to the chaincode repository (If not set, access without credentials)                    |
+| Chaincode Ops      | `GIT_PASSWORD`          | None                                         | Git password to access to the chaincode repository (If not set, access without credentials)                |
+| Chaincode Ops      | `GOPATH`                | None                                         | GOPATH                                                                                                     |
+| WebSocket Client   | `WS_ENABLED`            | `false`                                      | Whether to enable WebSocket client to send messages to the server                                          |
+| WebSocket Client   | `WS_URL`                | `ws://localhost:5000`                        | URL of the WebSocket server to connect to                                                                  |
+| Logging            | `LOG_LEVEL`             | `info`                                       | Log level                                                                                                  |
 
 
 ## API specification
