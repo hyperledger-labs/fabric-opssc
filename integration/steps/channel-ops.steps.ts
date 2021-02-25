@@ -25,6 +25,10 @@ export class ChannelOpsSteps extends BaseStepClass {
     const org = `org${orgIndex}`;
     const ports = BaseStepClass.SERVICE_PORT_MAP[org];
     commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./registerEnroll.sh ${orgIndex} ca-${org} ${ports.ca} ${ports.orderer} ${ports.peer}`;
+    if (Number(orgIndex) === 3) {
+      // For preparing 2nd peer
+      commands = `${commands} ${ports.peer + 1000}`;
+    }
     execSync(commands);
   }
 
@@ -37,12 +41,6 @@ export class ChannelOpsSteps extends BaseStepClass {
     execSync(commands);
 
     commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.FABRIC_VERSION} docker-compose -f docker/docker-compose-peer-org${orgIndex}.yaml up -d`;
-    execSync(commands);
-  }
-
-  @when(/join peers for org(3|4) to (.+)/)
-  public async joinPeersForOrg(orgIndex: number, channelID: string) {
-    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./joinChannel.sh ${channelID} ${orgIndex}`;
     execSync(commands);
   }
 
@@ -193,6 +191,23 @@ export class ChannelOpsSteps extends BaseStepClass {
     expect(response.data.artifacts.configUpdate).to.not.equals(null);
     expect(response.data.artifacts.signatures).to.not.equals(null);
     expect(response.data.artifacts.signatures.length).to.not.equals(2);
+  }
+
+  @then(/(\d+) chaincodes should be installed on org(\d+)'s peer(\d+)/)
+  public async checkInstalledChaincodesOnPeer(ccNum: number, orgIndex: number, peerIndex: number) {
+    const ports = BaseStepClass.SERVICE_PORT_MAP[`org${orgIndex}`];
+    const envs = ['PATH=$PWD/../bin:$PATH',
+      'FABRIC_CFG_PATH=$PWD/../config/',
+      'CORE_PEER_TLS_ENABLED=true',
+      `CORE_PEER_MSPCONFIGPATH=$PWD/organizations/peerOrganizations/org${orgIndex}.example.com/users/Admin@org${orgIndex}.example.com/msp`,
+      `CORE_PEER_LOCALMSPID=Org${orgIndex}MSP`,
+      `CORE_PEER_TLS_ROOTCERT_FILE=$PWD/organizations/peerOrganizations/org${orgIndex}.example.com/peers/peer${peerIndex}.org${orgIndex}.example.com/tls/ca.crt`,
+      `CORE_PEER_ADDRESS=localhost:${ports.peer + peerIndex * 1000}`];
+    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ${envs.join(' ')} peer lifecycle chaincode queryinstalled --output json`;
+    const result = execSync(commands);
+    const installed = JSON.parse(result.toString());
+    expect(installed.installed_chaincodes).to.not.equals(null);
+    expect(installed.installed_chaincodes.length).to.equals(ccNum);
   }
 
   private createOpsProfileToAddOrg(org: string, channelID: string, peerPort: number, ordererPort: number): any {
