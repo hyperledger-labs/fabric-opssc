@@ -61,6 +61,26 @@ The example is:
 GIT_USER= GIT_PASSWORD= IT_REMOTE_CC_REPO=github.com/hyperledger/fabric-samples IT_REMOTE_BASIC_GO_CC_PATH=asset-transfer-basic/chaincode-go IT_REMOTE_BASIC_JS_CC_PATH=asset-transfer-basic/chaincode-javascript IT_REMOTE_BASIC_TS_CC_PATH=asset-transfer-basic/chaincode-typescript IT_REMOTE_COMMIT_ID=master npm test
 ```
 
+### Preserve the test network after running the last scenario
+
+By default, each scenario test cleans up the Fabric test network *before* and *after* it runs.
+By using the environment variables `PRESERVE_TEST_NETWORK`, you can preserve the test network after running the last scenario.
+This will be useful for debugging and cause analysis when the tests fail. Also, it may be useful for trial and error based on the test network.
+
+The example is:
+```bash
+$ PRESERVE_TEST_NETWORK=true npm test
+
+# You can see the preserved test network
+$ docker ps
+CONTAINER ID   IMAGE                                                                                                                                                                              COMMAND                  CREATED         STATUS         PORTS                              NAMES
+11dd7766c30c   dev-peer0.org1.example.com-basic_0226_183125_1-691b4a17fec6ac6efb41da73b2882349145a2ab695723f398041e3c8b09ca151-179a17e1cc36054ef4d71369002e419c7c26d1e23ee3634c600971b9c20454ee   "chaincode -peer.add…"   2 minutes ago   Up 2 minutes                                      dev-peer0.org1.example.com-basic_0226_183125_1-691b4a17fec6ac6efb41da73b2882349145a2ab695723f398041e3c8b09ca151
+(...)
+```
+
+Please note that only the test network of the last run scenario is preserved.
+If you want to preserve the network after running the specific scenario, you also need to use `--name` option.
+
 ### (Optional.) Tear down the test network
 
 Tear down the sample environment by using the following command:
