@@ -5,7 +5,7 @@
  */
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { after, before, binding, given} from 'cucumber-tsflow';
+import { after, before, binding, given } from 'cucumber-tsflow';
 import { expect } from 'chai';
 import axios from 'axios';
 import { execSync } from 'child_process';
@@ -15,8 +15,18 @@ import BaseStepClass from '../utils/base-step-class';
 export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
   @before('on-docker')
+  public beforeDockerScenarios() {
+    this.cleanupFabricNetwork();
+  }
+
   @after('on-docker')
-  public cleanupFabricNetwork() {
+  public afterDockerScenarios() {
+    if (process.env.PRESERVE_TEST_NETWORK !== 'true') {
+      this.cleanupFabricNetwork();
+    }
+  }
+
+  private cleanupFabricNetwork() {
     let commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org3.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org4.yaml down --remove-orphans`;
     execSync(commands);
 
