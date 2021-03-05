@@ -1,6 +1,6 @@
 {
   "name": "opssc-common",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Common features for OpsSC",
   "scripts": {
     "prepare": "tsc",
@@ -8,13 +8,13 @@
     "lint": "eslint --ext .ts .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Tatsuya Sato <Tatsuya.Sato@hal.hitachi.com>",
+  "author": "Tatsuya Sato <tatsuya.sato.so@hitachi.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "fabric-common": "^2.2.4",
-    "fabric-network": "^2.2.4",
-    "fabric-protos": "^2.2.4",
-    "fs-extra": "^9.0.1",
+    "fabric-common": "^2.2.5",
+    "fabric-network": "^2.2.5",
+    "fabric-protos": "^2.2.5",
+    "fs-extra": "^9.1.0",
     "ignore-walk": "^3.0.0",
     "js-yaml": "^3.14.1",
     "klaw": "^2.0.0",
@@ -23,12 +23,12 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@types/fs-extra": "^9.0.5",
-    "@types/js-yaml": "^3.12.5",
-    "@types/node": "^12.0.2",
-    "@typescript-eslint/eslint-plugin": "^4.9.1",
-    "@typescript-eslint/parser": "^4.9.1",
-    "eslint": "^7.11.0",
-    "typescript": "^3.9.6"
+    "@types/fs-extra": "9.0.7",
+    "@types/js-yaml": "^3.12.6",
+    "@types/node": "^12.20.11",
+    "@typescript-eslint/eslint-plugin": "^4.22.0",
+    "@typescript-eslint/parser": "^4.22.0",
+    "eslint": "^7.25.0",
+    "typescript": "^3.9.9"
   }
 }

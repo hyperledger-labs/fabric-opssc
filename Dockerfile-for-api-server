@@ -1,8 +1,10 @@
-# Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 FROM node:10
+
+ARG FABRIC_VERSION
 
 ADD opssc-api-server/src opt/app/src
 ADD common /opt/common
@@ -12,8 +14,8 @@ RUN cd /opt/app/src; npm --unsafe-perm install
 
 # Add fabric binaries
 RUN cd /
-RUN wget https://github.com/hyperledger/fabric/releases/download/v2.3.0/hyperledger-fabric-linux-amd64-2.3.0.tar.gz
-RUN tar -xzf hyperledger-fabric-linux-amd64-2.3.0.tar.gz
+RUN wget https://github.com/hyperledger/fabric/releases/download/v${FABRIC_VERSION}/hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
+RUN tar -xzf hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
 
 # Add fabric-configtx-cli
 ADD configtx-cli/bin/fabric-configtx-cli /usr/local/bin

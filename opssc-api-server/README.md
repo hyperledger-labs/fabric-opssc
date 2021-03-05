@@ -73,8 +73,8 @@ The current OpsSC API server is expected to run primarily as a Docker container.
 
 Build the docker image for API Server by running the following commands:
 ```sh
-cd fabric-opssc/opssc-api-server
-./scripts/build.sh
+$ cd fabric-opssc
+$ make docker-opssc-api-server
 
 $ docker images # Command to confirm the images are created
 REPOSITORY                                                     TAG                              IMAGE ID            CREATED             SIZE

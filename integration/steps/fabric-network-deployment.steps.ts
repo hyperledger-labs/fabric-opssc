@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -37,9 +37,15 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     execSync(commands);
   }
 
+  @given(/download Fabric binaries/)
+  public DownloadFabricBinaries() {
+    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH}/.. && curl -sSL https://bit.ly/2ysbOFE | bash -s -- ${BaseStepClass.fabricVersion()} ${BaseStepClass.fabricCAVersion()} -s -d`;
+    execSync(commands);
+  }
+
   @given(/bootstrap a Fabric network with CAs/)
   public bootstrapFabricNetwork() {
-    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./network.sh up -ca -i ${FabricNetworkDeploymentSteps.FABRIC_VERSION} -cai ${FabricNetworkDeploymentSteps.FABRIC_CA_VERSION}`;
+    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./network.sh up -ca -i ${BaseStepClass.fabricVersion()} -cai ${BaseStepClass.fabricCAVersion()}`;
     execSync(commands);
   }
 
@@ -71,7 +77,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   @given(/bootstrap opssc-api-servers for initial orgs/)
   public async bootstrapOpsSCAPIServers() {
     const dockerComposeFileName = 'docker-compose-opssc-api-servers.yaml';
-    const commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
+    const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
     execSync(commands);
 
     for (let n = FabricNetworkDeploymentSteps.RETRY; n >= 0; n--) {
@@ -91,7 +97,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   @given(/bootstrap opssc-agents for initial orgs/)
   public async bootstrapOpsSCAgents() {
     const dockerComposeFileName = 'docker-compose-opssc-agents.yaml';
-    const commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
+    const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
     execSync(commands);
 
     for (let n = FabricNetworkDeploymentSteps.RETRY; n >= 0; n--) {

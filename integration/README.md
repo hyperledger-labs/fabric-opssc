@@ -4,6 +4,7 @@
 
 The current integration tests are scenario tests are written in typescript and use Cucumber.
 The integration tests internally run (stand up and tear down) `samples-environments/fabric-samples/test-network`.
+Also, the tests download (replace) the Fabric binaries in `samples-environments/fabric-samples/bin` before each scenarios according to the test target Fabric version.
 
 ## Prerequisites
 
@@ -16,7 +17,7 @@ The integration tests internally run (stand up and tear down) `samples-environme
 
 ### Setup
 
-Setup the binaries and the docker images according to [Preparations](../README.md#preparations) in the top page.
+Setup the docker images according to [Preparations](../README.md#preparations) in the top page.
 
 Install all dependencies:
 
@@ -29,6 +30,21 @@ $ npm install
 
 ```bash
 $ npm test
+```
+
+### Run the scenario tests with specifying the version of Fabric
+
+The current OpsSC supports the latest versions of Fabric v2.3 and v2.2 series.
+The integration tests uses v2.3 by default but they can also be run using v2.2 as follows:
+
+```bash
+$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.2 1.4.9 -s -b # Download Fabric images for v2.2
+
+$ cd fabric-opssc
+$ make docker FABRIC_TWO_DIGIT_VERSION=2.2 # Make images of OpsSC agent and API server for v2.2
+
+$ cd integration
+$ FABRIC_TWO_DIGIT_VERSION=2.2 npm test # Run tests using Fabric v2.2
 ```
 
 ### Run the specified scenario test

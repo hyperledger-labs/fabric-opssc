@@ -1,10 +1,13 @@
 {
+  "name": "opssc-integration",
+  "version": "0.2.0",
+  "description": "Integration test for OpsSC",
   "scripts": {
     "test": "./node_modules/.bin/cucumber-js -p default",
     "dry-run": "./node_modules/.bin/cucumber-js -d -p default",
     "lint": "eslint --ext .ts ."
   },
-  "author": "Tatsuya Sato <Tatsuya.Sato@hal.hitachi.com>",
+  "author": "Tatsuya Sato <tatsuya.sato.so@hitachi.com>",
   "license": "Apache-2.0",
   "devDependencies": {
     "@types/chai": "^4.2.11",

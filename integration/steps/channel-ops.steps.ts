@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,7 +17,7 @@ export class ChannelOpsSteps extends BaseStepClass {
 
   @given(/prepare org(3|4)/)
   public async prepareOrg(orgIndex: number) {
-    let commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.FABRIC_CA_VERSION} docker-compose -f docker/docker-compose-ca-org${orgIndex}.yaml up -d`;
+    let commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.fabricCAVersion()} docker-compose -f docker/docker-compose-ca-org${orgIndex}.yaml up -d`;
     execSync(commands);
 
     await this.delay(3000);
@@ -37,17 +37,17 @@ export class ChannelOpsSteps extends BaseStepClass {
     let commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./fetchSystemConfigBlock.sh ${orgIndex}`;
     execSync(commands);
 
-    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.FABRIC_VERSION} docker-compose -f docker/docker-compose-orderer-org${orgIndex}.yaml up -d`;
+    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.fabricVersion()} docker-compose -f docker/docker-compose-orderer-org${orgIndex}.yaml up -d`;
     execSync(commands);
 
-    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.FABRIC_VERSION} docker-compose -f docker/docker-compose-peer-org${orgIndex}.yaml up -d`;
+    commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && IMAGE_TAG=${BaseStepClass.fabricVersion()} docker-compose -f docker/docker-compose-peer-org${orgIndex}.yaml up -d`;
     execSync(commands);
   }
 
   @when(/bootstrap opssc-api-servers for org(3|4)/)
   public async bootstrapOpsSCAPIServersForOrg(orgIndex: number) {
     const dockerComposeFileName = `docker-compose-opssc-api-servers-org${orgIndex}.yaml`;
-    const commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
+    const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
     execSync(commands);
 
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
@@ -67,7 +67,7 @@ export class ChannelOpsSteps extends BaseStepClass {
   @given(/bootstrap opssc-agents for org(3|4)/)
   public async bootstrapOpsSCAgents(orgIndex: number) {
     const dockerComposeFileName = `docker-compose-opssc-agents-org${orgIndex}.yaml`;
-    const commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
+    const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
     execSync(commands);
 
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {

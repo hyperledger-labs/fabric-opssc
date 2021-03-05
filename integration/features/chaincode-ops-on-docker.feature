@@ -1,11 +1,12 @@
 #
-# Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
 @on-docker
 Feature: Chaincode ops on docker-based Fabric network
   Background: Bootstrap a Fabric network with OpsSC on docker
+    Given download Fabric binaries
     Given bootstrap a Fabric network with CAs
 
     Given create mychannel channel

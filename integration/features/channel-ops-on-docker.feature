@@ -6,6 +6,7 @@
 @on-docker
 Feature: Channel ops on docker-based Fabric network
   Background: Bootstrap a Fabric network with OpsSC on docker
+    Given download Fabric binaries
     Given bootstrap a Fabric network with CAs
 
     Given create mychannel channel
