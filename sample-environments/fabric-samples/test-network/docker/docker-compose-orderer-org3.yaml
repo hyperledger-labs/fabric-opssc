@@ -10,6 +10,7 @@ volumes:
 
 networks:
   test:
+    name: fabric_test
 
 services:
   orderer0.org3.example.com:

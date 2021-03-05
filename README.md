@@ -40,8 +40,8 @@ Please refer to the following papers to understand the detail of the OpsSC conce
 - Linux
 - Go >= 1.14
 - Node.js >= 10.15
-- Docker
-- Docker Compose
+- Docker (assuming the current stable release)
+- Docker Compose (assuming the current stable release, OpsSC is tested with version 1.28.6)
 - Git
 - Curl (for trying the sample environment)
 - jq (for trying the sample environment)
@@ -79,14 +79,15 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 |       |- test-network        ... Docker-based sample environment (This is based on test-network in fabric-samples. This is internally used by the integration tests.)
 |- Dockerfile-for-agent        ... Docker image definition for the OpsSC agent
 |- Dockerfile-for-api-server   ... Docker image definition for the OpsSC API server
+|- Makefile                    ... Make file to build docker images
 ```
 
 ## Assumed Hyperledger Fabric environment
 
 The current implementation assumes the following Fabric network:
 
-- Hyperledger Fabric v2.3.0 or later
-  - Also it works in the latest commit in release-2.2.
+- Hyperledger Fabric v2.3.1 or later
+  - Also it works in v2.2.2 or later
 - Fabric network configuration
   - Using Fabric CAs
   - Using Raft orderers
@@ -136,7 +137,7 @@ By running the following commands, download the binaries and docker images for H
 
 ```sh
 $ cd ${FABRIC_OPSSC}/sample-environments/fabric-samples
-$ export FABRIC_VERSION=2.3.0
+$ export FABRIC_VERSION=2.3.1
 $ export FABRIC_CA_VERSION=1.4.9
 $ curl -sSL https://bit.ly/2ysbOFE | bash -s -- ${FABRIC_VERSION} ${FABRIC_CA_VERSION} -s
 
@@ -165,11 +166,8 @@ fabric-configtx-cli
 Build the docker images for OpsSC Agent and API Server by running the following commands:
 
 ```sh
-$ cd ${FABRIC_OPSSC}/opssc-agent
-$ ./scripts/build.sh
-
-$ cd ${FABRIC_OPSSC}/opssc-api-server
-$ ./scripts/build.sh
+$ cd ${FABRIC_OPSSC}
+$ make docker
 
 $ docker images # Command to confirm the images are created
 REPOSITORY                                                     TAG                              IMAGE ID            CREATED             SIZE
@@ -178,6 +176,9 @@ fabric-opssc/opssc-agent                                       latest           
 fabric-opssc/opssc-api-server                                  latest                           154c4a550823        44 hours ago        1.43GB
 (...)
 ```
+
+By default, the command builds images for Fabric v2.3 series.
+If you want to build images for v2.2 series, you should set the `FABRIC_TWO_DIGIT_VERSION` variable.
 
 ### Run the test network
 

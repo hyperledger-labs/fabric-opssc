@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -18,7 +18,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   // ----- REST API to get version information
   router.get('/version', async (req, res) => {
-    res.json('0.1.0');
+    res.json(process.env.npm_package_version);
   });
 
   // ----- Internal functions to create command instances

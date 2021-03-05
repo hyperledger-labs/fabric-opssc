@@ -1,5 +1,5 @@
 /*
-Copyright 2017-2020 Hitachi, Ltd. or Hitachi America, Ltd. All Rights Reserved.
+Copyright 2017-2020 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */

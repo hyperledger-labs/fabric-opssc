@@ -1,4 +1,4 @@
-# Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -7,12 +7,12 @@ version: '2'
 networks:
   test:
     external:
-      name: net_test
+      name: fabric_test
 
 services:
   opssc-agent.org3.example.com:
     container_name: opssc-agent.org3.example.com
-    image: fabric-opssc/opssc-agent:latest
+    image: fabric-opssc/opssc-agent:${IMAGE_TAG:-latest}
     environment:
       - ADMIN_MSPID=Org3MSP
       - ADMIN_CERT=/opt/fabric/msp/signcerts

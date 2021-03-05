@@ -78,8 +78,8 @@ The current OpsSC API agent is expected to run primarily as a Docker container.
 
 Build the docker image by running the following commands:
 ```sh
-cd fabric-opssc/opssc-agent
-./scripts/build.sh
+$ cd fabric-opssc
+$ make docker-opssc-agent
 
 $ docker images # Command to confirm the images are created
 REPOSITORY                                                     TAG                              IMAGE ID            CREATED             SIZE

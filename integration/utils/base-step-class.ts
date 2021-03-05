@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -17,10 +17,33 @@ type servicePorts = {
   agent: number
 }
 
+type FabricVersion = {
+  fabric: string,
+  fabricCA: string
+}
+
 export default class BaseStepClass {
 
-  protected static FABRIC_VERSION = '2.3.0';
-  protected static FABRIC_CA_VERSION = '1.4.9';
+  protected static OPSSC_VERSION = process.env.npm_package_version;
+
+  protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.3';
+
+  protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
+    '2.3': { fabric: '2.3.1', fabricCA: '1.4.9' },
+    '2.2': { fabric: '2.2.2', fabricCA: '1.4.9' },
+  }
+
+  protected static fabricVersion() {
+    return BaseStepClass.FABRIC_VERSION_MAP[BaseStepClass.FABRIC_TWO_DIGIT_VERSION].fabric;
+  }
+
+  protected static fabricCAVersion() {
+    return BaseStepClass.FABRIC_VERSION_MAP[BaseStepClass.FABRIC_TWO_DIGIT_VERSION].fabricCA;
+  }
+
+  protected static opsSCImageTag() {
+    return `${BaseStepClass.OPSSC_VERSION}-for-fabric-${BaseStepClass.FABRIC_TWO_DIGIT_VERSION}`;
+  }
 
   protected static TEST_NETWORK_PATH = '../sample-environments/fabric-samples/test-network';
 
