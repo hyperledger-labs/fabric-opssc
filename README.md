@@ -70,6 +70,7 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 |   |- channel_ops/            ... Source code for the OpsSC chaincode for operating channel (in Go)
 |- common/                     ... Source code for common features for the OpsSC agent and API server (in TypeScript)
 |- configtx-cli/               ... Source code for the Fabric ConfigTX CLI (in Go)
+|- docs/                       ... Documents for OpsSC (e.g., Design memo)
 |- integration/                ... Integration tests for the OpsSC (in TypeScript)
 |- opssc-agent/                ... Source code for the OpsSC agent (in TypeScript)
 |- opssc-api-server/           ... Source code for the OpsSC API server (in TypeScript)
