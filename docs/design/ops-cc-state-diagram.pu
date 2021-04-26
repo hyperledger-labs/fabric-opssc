@@ -1,0 +1,22 @@
+@startuml
+
+[*] --> Proposed : Request a Chaincode update proposal
+Proposed: - Issue newProposalEvent
+Proposed --> Approved : Num of Votes (agreed) >= MAJOLITY
+Proposed --> Rejected : (Num of Votes (disagreed) >= MAJOLITY) || Timeout
+
+Rejected --> [*]
+
+Approved: - Issue prepareToDeployEvent
+Approved --> Acknowledged : Num of system layer acknowledge == ALL \n (Complete to download, install, approve the Chaincode)
+Approved --> Failed : Timeout ??
+
+Acknowledged: - Issue deployEvent
+Acknowledged --> Committed : System layer commit == Success \n (Complete to commit the Chaincode)
+Acknowledged --> Failed : (System layer commit == Failure) || Timeout
+
+Committed --> [*]
+
+Failed --> [*]
+
+@enduml
