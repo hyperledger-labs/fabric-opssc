@@ -103,7 +103,7 @@ The current implementation assumes the following Fabric network:
 
 ## Try the OpsSC in the sample environment
 
-This repository includes a sample environment for running the OpsSC based on [test-network in fabric-samples](https://github.com/hyperledger/fabric-samples/tree/master/test-network).
+This repository includes a sample environment for running the OpsSC based on [test-network in fabric-samples](https://github.com/hyperledger/fabric-samples/tree/main/test-network).
 Running the OpsSC sample environment gives you a rough idea of how the OpsSC works and how to use it in a Fabric network.
 
 *NOTE:* This sample will collide with the original test-network in fabric-samples and destroy the environment. So, please tear down the existing test-network environment before trying the sample.
@@ -376,7 +376,7 @@ $ curl -X POST http://localhost:5000/api/v1/chaincode/proposals/deploy_basic \
     "chaincodePackage": {
       "repository": "github.com/hyperledger-labs/fabric-opssc",
       "pathToSourceFiles": "sample-environments/fabric-samples/asset-transfer-basic/chaincode-go",
-      "commitID": "master",
+      "commitID": "main",
       "type": "golang"
     },
     "chaincodeDefinition": {

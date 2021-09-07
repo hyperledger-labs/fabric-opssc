@@ -299,7 +299,7 @@ Logging severity levels are specified using case-insensitive strings chosen from
    FATAL | PANIC | ERROR | WARNING | INFO | DEBUG
 ```
 
-See [Hyperledger Fabric >> Operations Guides >> Logging Control](https://hyperledger-fabric.readthedocs.io/en/master/logging-control.html) for more detail.
+See [Hyperledger Fabric >> Operations Guides >> Logging Control](https://hyperledger-fabric.readthedocs.io/en/latest/logging-control.html) for more detail.
 
 ## Design memo: Current scope
 

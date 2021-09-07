@@ -58,7 +58,7 @@
       "chaincodePackage": {
         "repository": "github.com/hyperledger-labs/fabric-opssc",
         "pathToSourceFiles": "sample-environments/fabric-samples/asset-transfer-basic/chaincode-go",
-        "commitID": "master",
+        "commitID": "main",
         "type": "golang"
       },
       "chaincodeDefinition": {

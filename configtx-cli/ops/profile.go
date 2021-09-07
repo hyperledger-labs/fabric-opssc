@@ -1,7 +1,7 @@
 /*
 Copyright IBM Corp. All Rights Reserved.
 
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -16,8 +16,8 @@ import (
 )
 
 // Ops profile structures is based on configgen's config and msp/configbuilder
-// Ref: https://github.com/hyperledger/fabric/blob/master/internal/configtxgen/genesisconfig/config.go
-// Ref: https://github.com/hyperledger/fabric/blob/master/msp/configbuilder.go
+// Ref: https://github.com/hyperledger/fabric/blob/main/internal/configtxgen/genesisconfig/config.go
+// Ref: https://github.com/hyperledger/fabric/blob/main/msp/configbuilder.go
 
 // OrganizationProfile is a profile to add or update an organization.
 type OrganizationProfile struct {

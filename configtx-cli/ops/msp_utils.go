@@ -1,7 +1,7 @@
 /*
 Copyright IBM Corp. All Rights Reserved.
 
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -30,7 +30,7 @@ import (
 )
 
 // This code is based on msp/configbuilder in hyperledger/fabric
-// Ref: https://github.com/hyperledger/fabric/blob/master/msp/configbuilder.go
+// Ref: https://github.com/hyperledger/fabric/blob/main/msp/configbuilder.go
 
 // ProviderType indicates the type of an identity provider
 type ProviderType int

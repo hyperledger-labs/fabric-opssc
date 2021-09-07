@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -31,7 +31,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on basic (golang|javascript|typescript) template via opssc-api-server/)
   public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, lang: string) {
     const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
-    const commitID = process.env.IT_REMOTE_COMMIT_ID || 'master';
+    const commitID = process.env.IT_REMOTE_COMMIT_ID || 'main';
     let pathToSourceFiles;
     switch (lang) {
       case 'golang':
