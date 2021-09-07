@@ -74,7 +74,7 @@ Can run the scenario tests including the chaincode deployment by using OpsSC wit
 
 The example is:
 ```bash
-GIT_USER= GIT_PASSWORD= IT_REMOTE_CC_REPO=github.com/hyperledger/fabric-samples IT_REMOTE_BASIC_GO_CC_PATH=asset-transfer-basic/chaincode-go IT_REMOTE_BASIC_JS_CC_PATH=asset-transfer-basic/chaincode-javascript IT_REMOTE_BASIC_TS_CC_PATH=asset-transfer-basic/chaincode-typescript IT_REMOTE_COMMIT_ID=master npm test
+GIT_USER= GIT_PASSWORD= IT_REMOTE_CC_REPO=github.com/hyperledger/fabric-samples IT_REMOTE_BASIC_GO_CC_PATH=asset-transfer-basic/chaincode-go IT_REMOTE_BASIC_JS_CC_PATH=asset-transfer-basic/chaincode-javascript IT_REMOTE_BASIC_TS_CC_PATH=asset-transfer-basic/chaincode-typescript IT_REMOTE_COMMIT_ID=main npm test
 ```
 
 ### Preserve the test network after running the last scenario

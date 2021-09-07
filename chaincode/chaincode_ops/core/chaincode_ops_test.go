@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -1293,7 +1293,7 @@ func baseProposalAndInput(formattedTimeStamp string) (ChaincodeUpdateProposal, C
 		ChaincodeName: "basic",
 		ChaincodePackage: ChaincodePackage{
 			Repository:        "github.com/hyperledger/fabric-samples",
-			CommitID:          "master",
+			CommitID:          "main",
 			PathToSourceFiles: "asset-transfer-basic/chaincode-go",
 			Type:              "golang",
 		},
@@ -1312,7 +1312,7 @@ func baseProposalAndInput(formattedTimeStamp string) (ChaincodeUpdateProposal, C
 		ChaincodeName: "basic",
 		ChaincodePackage: ChaincodePackage{
 			Repository:        "github.com/hyperledger/fabric-samples",
-			CommitID:          "master",
+			CommitID:          "main",
 			PathToSourceFiles: "asset-transfer-basic/chaincode-go",
 			Type:              "golang",
 		},
