@@ -64,6 +64,8 @@ Feature: Channel ops on docker-based Fabric network
     And chaincode (name: basic, channel: mychannel) based on basic golang should be able to get the asset (ID: asset100) by querying ReadAsset func
     And 3 chaincodes should be installed on org3's peer0
     And 3 chaincodes should be installed on org3's peer1
+    ## -- No votes will be accepted after the decision
+    And org2 fails to approve the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with an error (the voting is already closed)
 
  Scenario: Add a new organization with bootstraping on docker-based Fabric network by using OpsSC
 
