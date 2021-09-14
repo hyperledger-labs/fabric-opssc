@@ -209,6 +209,30 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     expect(response.status).to.equals(200);
   }
 
+  @then(/(.+) fails to approve the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with an error \((.+)\)/)
+  public async failToApproveChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, errorMessage: string) {
+    const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
+    try {
+      const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/vote`,
+        {
+          updateRequest: {
+          }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    } catch (error) {
+      expect(error.response).to.not.equals(null);
+      expect(error.response.status).to.equals(500);
+      expect(error.response.data.message).to.includes(errorMessage);
+      return;
+    }
+    expect.fail('the request should fail');
+  }
+
   @then(/chaincode \(name: (.+), channel: (.+)\) based on basic (golang|javascript|typescript) should be able to get the asset \(ID: (.+)\) by querying ReadAsset func/)
   public async canQueryAssetTransferBasic(ccName: string, channelID: string, lang: string, assetID: string) {
     const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/utils/queryTransaction?channelID=${channelID}&ccName=${ccName}_${ChaincodeOpsSteps.SUFFIX}&func=ReadAsset&args=["${assetID}"]`);

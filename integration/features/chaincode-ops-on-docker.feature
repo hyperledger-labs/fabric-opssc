@@ -75,3 +75,7 @@ Feature: Chaincode ops on docker-based Fabric network
     And chaincode (name: basic-ts, seq: 1, channel: mychannel) should be committed over the fabric network
     And chaincode (name: basic-ts, channel: mychannel) based on basic should be able to register the asset (ID: asset101) by invoking CreateAsset func
     And chaincode (name: basic-ts, channel: mychannel) based on basic typescript should be able to get the asset (ID: asset101) by querying ReadAsset func
+
+    # Vote from each org cannot be updated
+    When org1 requests a proposal to deploy the chaincode (name: basic3, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
+    Then org1 fails to approve the proposal for chaincode (name: basic3, seq: 1, channel: mychannel) with an error (the state is already exists: Org1MSP)
