@@ -1,5 +1,5 @@
 /*
-Copyright 2017-2020 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+Copyright 2017-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -234,7 +234,7 @@ func (s *SmartContract) RequestProposal(ctx contractapi.TransactionContextInterf
 	}
 
 	// Vote for myself
-	if _, err = s.putHistory(ctx, proposal.ID, Vote, Agreed, ""); err != nil {
+	if _, err = s.putHistory(ctx, proposal.ID, Vote, Agreed, "", false); err != nil {
 		return nil, fmt.Errorf("failed to put the history that the org votes for: %v", err)
 	}
 
@@ -288,13 +288,13 @@ func (s *SmartContract) Vote(ctx contractapi.TransactionContextInterface, taskSt
 	if err != nil {
 		return fmt.Errorf("failed to get the proposal: %v", err)
 	}
-	// If the proposal status already got changed from "Proposed", return success immediately
+	// If the proposal status already got changed from "Proposed", return error
 	if proposal.Status != Proposed {
-		return nil
+		return fmt.Errorf("the voting is already closed")
 	}
 
 	// Put the task status as a history to stateDB
-	history, err := s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Vote, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data)
+	history, err := s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Vote, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data, false)
 	if err != nil {
 		return fmt.Errorf("failed to put the history: %v", err)
 	}
@@ -358,7 +358,7 @@ func (s *SmartContract) Acknowledge(ctx contractapi.TransactionContextInterface,
 	}
 
 	// Put the task status as a history to stateDB
-	history, err := s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Acknowledge, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data)
+	history, err := s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Acknowledge, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data, true)
 	if err != nil {
 		return fmt.Errorf("failed to put the history: %v", err)
 	}
@@ -413,7 +413,7 @@ func (s *SmartContract) NotifyCommitResult(ctx contractapi.TransactionContextInt
 	}
 
 	// TODO: Before the history registration, this function may need strict condition checking (transaction creator and/or whether to meet criteria)
-	_, err = s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Commit, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data)
+	_, err = s.putHistory(ctx, taskStatusUpdateRequest.ProposalID, Commit, taskStatusUpdateRequest.Status, taskStatusUpdateRequest.Data, true)
 	if err != nil {
 		return fmt.Errorf("failed to put the history: %v", err)
 	}
@@ -718,7 +718,7 @@ func (s *SmartContract) putProposal(ctx contractapi.TransactionContextInterface,
 	return nil
 }
 
-func (s *SmartContract) putHistory(ctx contractapi.TransactionContextInterface, proposalID string, taskID string, status string, data string) (*History, error) {
+func (s *SmartContract) putHistory(ctx contractapi.TransactionContextInterface, proposalID string, taskID string, status string, data string, overwritable bool) (*History, error) {
 
 	// Validate input
 	if proposalID == "" {
@@ -756,6 +756,17 @@ func (s *SmartContract) putHistory(ctx contractapi.TransactionContextInterface, 
 	compositeKey, err := ctx.GetStub().CreateCompositeKey(HistoryObjectType, []string{history.ProposalID, history.TaskID, history.OrgID})
 	if err != nil {
 		return nil, fmt.Errorf("error happend creating composite key for history: %v", err)
+	}
+
+	// Check whether there is the state on the state DB
+	if !overwritable {
+		obtainedJSON, err := ctx.GetStub().GetState(compositeKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read from world state: %v", err)
+		}
+		if obtainedJSON != nil {
+			return nil, fmt.Errorf("the state is already exists: %v", history.OrgID)
+		}
 	}
 
 	// Put state

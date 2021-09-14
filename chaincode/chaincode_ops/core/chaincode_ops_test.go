@@ -15,13 +15,13 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core/mocks"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/stretchr/testify/require"
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core/mocks"
 )
 
 var (
@@ -264,7 +264,7 @@ func TestVote(t *testing.T) {
 	require.Equal(t, []byte(nil), eventPayload)
 
 	// Case: Vote for the proposal and the votes pass the majority
-	chaincodeStub.GetStateReturnsOnCall(1, baseProposalJSON, nil)
+	chaincodeStub.GetStateReturnsOnCall(2, baseProposalJSON, nil)
 	historyOrg1 := History{
 		ObjectType: HistoryObjectType,
 		ProposalID: "request-1",
@@ -304,7 +304,7 @@ func TestVote(t *testing.T) {
 	require.Equal(t, "prepareToDeployEvent.request-1", eventName)
 	require.JSONEq(t, string(expectedEventDetailJSON), string(eventPayload))
 
-	// Case: Vote for the proposal and the the status is already approved
+	// Case: Fail to vote for the proposal and the the status is already approved
 	baseProposal, _ = baseProposalAndInput(formattedTS)
 	baseProposal.Status = Approved
 	baseProposalJSON, err = json.Marshal(baseProposal)
@@ -314,7 +314,45 @@ func TestVote(t *testing.T) {
 	iterator.HasNextReturnsOnCall(0, false)
 	chaincodeStub.GetStateByPartialCompositeKeyReturns(iterator, nil)
 	err = sc.Vote(transactionContext, request)
+	require.EqualError(t, err, "the voting is already closed")
+}
+
+func TestVoteWhenTryingUpdate(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+	chaincodeStub.CreateCompositeKeyStub = createComposeKey
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
+
+	sc := SmartContract{}
+
+	// Case: Fail to update the vote from the same org
+	request := TaskStatusUpdateRequest{
+		ProposalID: "request-1",
+	}
+	chaincodeStub.GetCreatorReturns(org1MSP, nil)
+	timestamp := ptypes.TimestampNow()
+	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
+	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
+	formattedTS := ts.Format(time.RFC3339)
+
+	baseProposal, _ := baseProposalAndInput(formattedTS)
+	baseProposalJSON, err := json.Marshal(baseProposal)
 	require.NoError(t, err)
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
+	historyOrg1 := History{
+		ObjectType: HistoryObjectType,
+		ProposalID: "request-1",
+		OrgID:      "Org1MSP",
+		TaskID:     Vote,
+		Status:     Agreed,
+		Time:       formattedTS,
+	}
+	historyOrg1JSON, err := json.Marshal(historyOrg1)
+	chaincodeStub.GetStateReturnsOnCall(1, historyOrg1JSON, nil)
+
+	err = sc.Vote(transactionContext, request)
+	require.EqualError(t, err, "failed to put the history: the state is already exists: Org1MSP")
 }
 
 func TestVoteWithInvalidInputParameters(t *testing.T) {
@@ -358,11 +396,16 @@ func TestVoteWhenPutProposalFails(t *testing.T) {
 	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
 	formattedTS := ts.Format(time.RFC3339)
 
+	// Prepare a state for GetProposal()
 	baseProposal, _ := baseProposalAndInput(formattedTS)
 	baseProposalJSON, err := json.Marshal(baseProposal)
 	require.NoError(t, err)
-	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
 
+	// Prepare a state for getting history (there is no state for the voting from Org2)
+	chaincodeStub.GetStateReturnsOnCall(1, nil, nil)
+
+	// Prepare states for GetHistories()
 	historyOrg1 := History{
 		ObjectType: HistoryObjectType,
 		ProposalID: "request-1",
@@ -407,11 +450,16 @@ func TestVoteWhenSetEventErrorOccurs(t *testing.T) {
 	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
 	formattedTS := ts.Format(time.RFC3339)
 
+	// Prepare a state for GetProposal()
 	baseProposal, _ := baseProposalAndInput(formattedTS)
 	baseProposalJSON, err := json.Marshal(baseProposal)
 	require.NoError(t, err)
-	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
 
+	// Prepare a state for getting history (there is no state for the voting from Org2)
+	chaincodeStub.GetStateReturnsOnCall(1, nil, nil)
+
+	// Prepare states for GetHistories()
 	iterator := &mocks.StateQueryIterator{}
 	iterator.HasNextReturnsOnCall(0, false)
 	chaincodeStub.GetStateByPartialCompositeKeyReturns(iterator, nil)
@@ -450,6 +498,13 @@ func TestVoteWhenPutHistoryFails(t *testing.T) {
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+1, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Vote(transactionContext, request)
 	require.EqualError(t, err, "failed to put the history: error happend creating composite key for history: failed to create composite key")
+
+	// Case: Internal state read error to check whether overwrite or not
+	getStateCount := chaincodeStub.GetStateCallCount()
+	chaincodeStub.GetStateReturnsOnCall(getStateCount, baseProposalJSON, nil)                           // proposal
+	chaincodeStub.GetStateReturnsOnCall(getStateCount+1, nil, fmt.Errorf("unable to retrieve history")) // history
+	err = sc.Vote(transactionContext, request)
+	require.EqualError(t, err, "failed to put the history: failed to read from world state: unable to retrieve history")
 }
 
 func TestVoteWhenGetProposalFails(t *testing.T) {
@@ -503,11 +558,16 @@ func TestVoteWhenChaincodeToChaincodeCallFails(t *testing.T) {
 	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
 	formattedTS := ts.Format(time.RFC3339)
 
+	// Prepare a state for GetProposal()
 	baseProposal, _ := baseProposalAndInput(formattedTS)
 	baseProposalJSON, err := json.Marshal(baseProposal)
 	require.NoError(t, err)
-	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
 
+	// Prepare a state for getting history (there is no state for the voting from Org2)
+	chaincodeStub.GetStateReturnsOnCall(1, nil, nil)
+
+	// Prepare states for GetHistories()
 	historyOrg1 := History{
 		ObjectType: HistoryObjectType,
 		ProposalID: "request-1",
