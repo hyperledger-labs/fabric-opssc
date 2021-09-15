@@ -77,12 +77,13 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     );
   }
 
-  @when(/(.+) approves the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
-  public async approveChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string) {
+  @when(/(.+) votes (for|against) the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
+  public async voteChaincodeDeploymentProposal(org: string, vote: string, ccName: string, sequence: number, channelID: string) {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
     const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/vote`,
       {
         updateRequest: {
+          status: (vote == 'for') ? 'agreed' : 'disagreed'
         }
       },
       {
