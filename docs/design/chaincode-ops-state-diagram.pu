@@ -3,20 +3,27 @@
 [*] --> Proposed : Request a Chaincode update proposal
 Proposed: - Issue newProposalEvent
 Proposed --> Approved : Num of Votes (agreed) >= MAJOLITY
-Proposed --> Rejected : (Num of Votes (disagreed) >= MAJOLITY) || Timeout
+Proposed --> Rejected : Num of Votes (disagreed) >= (ALL - MAJOLITY)
+Proposed --> Withdrawn : Request a withdrawal by the proposer
 
+Rejected: - Issue rejectedEvent
 Rejected --> [*]
+
+Withdrawn: - Issue withdrawnEvent
+Withdrawn --> [*]
 
 Approved: - Issue prepareToDeployEvent
 Approved --> Acknowledged : Num of system layer acknowledge == ALL \n (Complete to download, install, approve the Chaincode)
-Approved --> Failed : Timeout ??
+Approved --> Failed
 
 Acknowledged: - Issue deployEvent
 Acknowledged --> Committed : System layer commit == Success \n (Complete to commit the Chaincode)
-Acknowledged --> Failed : (System layer commit == Failure) || Timeout
+Acknowledged --> Failed
 
+Committed: - Issue committedEvent
 Committed --> [*]
 
 Failed --> [*]
+note left of Failed : Out of scope for now
 
 @enduml
