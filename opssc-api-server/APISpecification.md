@@ -141,7 +141,7 @@
   * **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
-### Vote for the proposal
+### Vote for/against the proposal
 
 * **URL**
 
@@ -157,16 +157,47 @@
 
 * **Data Params**
 
+  By default (if No data params are specified), the request votes for the proposal.
+
   * **Optional:**
 
     ```json
     {
       "updateRequest": {
-        "status": "success",
+        "status": "agreed", // ["agreed"|"disagreed"]`
         "data": "messages"
       }
     }
     ```
+
+* **Success Response**
+
+  * **Code:** 200 <br />
+    **Content:** None
+
+* **Error Response:**
+
+  * **Code:** 500 Internal Server Error <br />
+    **Content:** `{ "message" : "..." }`
+
+
+### Withdraw the proposal
+
+* **URL**
+
+  `/api/v1/chaincode/proposals/:id/withdraw`
+
+* **Method:**
+
+  `POST`
+
+* **URL Params**
+
+  None
+
+* **Data Params**
+
+  None
 
 * **Success Response**
 
