@@ -76,12 +76,21 @@ Feature: Chaincode ops on docker-based Fabric network
     And chaincode (name: basic-ts, channel: mychannel) based on basic should be able to register the asset (ID: asset101) by invoking CreateAsset func
     And chaincode (name: basic-ts, channel: mychannel) based on basic typescript should be able to get the asset (ID: asset101) by querying ReadAsset func
 
+    # Chaincode update proposal is withdrawn
+    When org1 requests a proposal to deploy the chaincode (name: basic4, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
+    And org1 withdraws the proposal for chaincode (name: basic4, seq: 1, channel: mychannel) with opssc-api-server
+    Then the proposal status for chaincode (name: basic4, seq: 1, channel: mychannel) should be withdrawn
+
     # Vote from each org cannot be updated
     When org1 requests a proposal to deploy the chaincode (name: basic3, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
     Then org1 fails to approve the proposal for chaincode (name: basic3, seq: 1, channel: mychannel) with an error (the state is already exists: Org1MSP)
+    ## -- A proposal is not withdrawn with the request of anyone other than the proposer
+    And org2 fails to withdraw the proposal for chaincode (name: basic3, seq: 1, channel: mychannel) with an error (only the proposer (Org1MSP) can withdraw the proposal)
 
     # Chaincode update rejected
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 3, channel: mychannel) based on basic golang template via opssc-api-server
     And org2 votes against the proposal for chaincode (name: basic, seq: 3, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 3, channel: mychannel) should be voted (with disagreed) by 1 or more orgs
     And the proposal status for chaincode (name: basic, seq: 3, channel: mychannel) should be rejected
+    ## -- A proposal is not withdrawn after the decision
+    Then org1 fails to withdraw the proposal for chaincode (name: basic, seq: 3, channel: mychannel) with an error (the voting is already closed)
