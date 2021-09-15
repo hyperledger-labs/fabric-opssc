@@ -9,7 +9,7 @@ import { ChaincodeLifecycleCommands } from 'opssc-common/chaincode-lifecycle-com
 import { ChannelCommands } from 'opssc-common/channel-commands';
 import { OpsSCConfig } from 'opssc-common/config';
 import { FabricClient } from 'opssc-common/fabric-client';
-import { ChaincodeUpdateProposalInput, ChannelUpdateProposalInput, HistoryQueryParams, TaskStatusUpdate } from 'opssc-common/opssc-types';
+import { ChaincodeUpdateProposalInput, ChannelUpdateProposalInput, HistoryQueryParams, VoteTaskStatusUpdate } from 'opssc-common/opssc-types';
 import { logger } from '../logger';
 
 export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCConfig): Router {
@@ -198,11 +198,11 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   router.post('/chaincode/proposals/:id/vote', async (req, res) => {
     try {
-      let taskStatusUpdate:TaskStatusUpdate = {
+      let taskStatusUpdate:VoteTaskStatusUpdate = {
         proposalID: req.params.id
       };
       if (req.body.updateRequest) {
-        taskStatusUpdate = req.body.updateRequest as TaskStatusUpdate;
+        taskStatusUpdate = req.body.updateRequest as VoteTaskStatusUpdate;
         taskStatusUpdate.proposalID = req.params.id;
       }
       const result = await invokeChaincodeOpsSC('Vote', JSON.stringify(taskStatusUpdate));
