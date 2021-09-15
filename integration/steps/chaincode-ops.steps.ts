@@ -94,6 +94,19 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     );
   }
 
+  @when(/(.+) withdraws the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
+  public async withdrawChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string) {
+    const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
+    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/withdraw`,
+      {
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+  }
 
   @then(/the proposal status for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) should be (.+)/)
   public async checkStatusForChaincodeDeploymentProposal(ccName: string, sequence: number, channelID: string, status: string) {
@@ -218,6 +231,28 @@ export class ChaincodeOpsSteps extends BaseStepClass {
         {
           updateRequest: {
           }
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+    } catch (error) {
+      expect(error.response).to.not.equals(null);
+      expect(error.response.status).to.equals(500);
+      expect(error.response.data.message).to.includes(errorMessage);
+      return;
+    }
+    expect.fail('the request should fail');
+  }
+
+  @then(/(.+) fails to withdraw the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with an error \((.+)\)/)
+  public async failToWithdrawChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, errorMessage: string) {
+    const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
+    try {
+      const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/withdraw`,
+        {
         },
         {
           headers: {
