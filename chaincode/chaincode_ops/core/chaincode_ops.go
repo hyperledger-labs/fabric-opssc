@@ -107,6 +107,7 @@ const (
 	DeployEvent          = "deployEvent"
 	CommittedEvent       = "committedEvent"
 	RejectedEvent        = "rejectedEvent"
+	WithdrawnEvent       = "withdrawnEvent"
 )
 
 // Task IDs
@@ -123,7 +124,8 @@ const (
 	Rejected     = "rejected"
 	Acknowledged = "acknowledged"
 	Committed    = "committed"
-	Failed       = "failed"
+	Failed       = "failed" // Unsupported
+	Withdrawn    = "withdrawn"
 )
 
 // Status for Vote Tasks
@@ -341,6 +343,54 @@ func (s *SmartContract) Vote(ctx contractapi.TransactionContextInterface, taskSt
 	// Case C:
 	if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", NewVoteEvent, proposal.ID), []byte(nil)); err != nil {
 		return fmt.Errorf("error happened emitting event: %v", err)
+	}
+	return nil
+}
+
+// WithdrawProposal withdraws the chaincode update proposal.
+// This only accepts the request from the proposing organization.
+// This function is only available before the decision of the proposal.
+//
+// Arguments:
+//   0: proposalID - the ID for the chaincode update proposal
+//
+// Returns:
+//   0: error
+//
+// Events:
+//   name: withdrawnEvent(<proposalID>)
+//   payload: nil
+//
+func (s *SmartContract) WithdrawProposal(ctx contractapi.TransactionContextInterface, proposalID string) error {
+
+	// Validate input
+	if proposalID == "" {
+		return fmt.Errorf("the required parameter 'proposalID' is empty")
+	}
+
+	// Get proposal from StateDB
+	proposal, err := s.GetProposal(ctx, proposalID)
+	if err != nil {
+		return ErrProposalNotFound
+	}
+
+	// If the proposal status already got changed from "Proposed", return error
+	if proposal.Status != Proposed {
+		return fmt.Errorf("the voting is already closed")
+	}
+
+	// If the proposal is not created by the requester, return error
+	mspID, err := s.getMSPID(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to get MSP ID: %v", err)
+	}
+	if proposal.Creator != mspID {
+		return fmt.Errorf("only the proposer (%v) can withdraw the proposal", proposal.Creator)
+	}
+
+	// Update the proposal status to withdrawn (and issue the withdrawnEvent)
+	if err = s.updateStatusToWithdrawn(ctx, *proposal); err != nil {
+		return fmt.Errorf("failed to update the status: %v", err)
 	}
 	return nil
 }
@@ -720,6 +770,21 @@ func (s *SmartContract) updateStatusToRejected(ctx contractapi.TransactionContex
 
 	// -- Set Event
 	if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", RejectedEvent, proposal.ID), nil); err != nil {
+		return fmt.Errorf("error happened emitting event: %v", err)
+	}
+	return nil
+}
+
+func (s *SmartContract) updateStatusToWithdrawn(ctx contractapi.TransactionContextInterface, proposal ChaincodeUpdateProposal) error {
+	proposal.Status = Withdrawn
+
+	// Put proposal to stateDB
+	if err := s.putProposal(ctx, proposal); err != nil {
+		return err
+	}
+
+	// -- Set Event
+	if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", WithdrawnEvent, proposal.ID), nil); err != nil {
 		return fmt.Errorf("error happened emitting event: %v", err)
 	}
 	return nil
