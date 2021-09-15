@@ -317,6 +317,74 @@ func TestVote(t *testing.T) {
 	require.EqualError(t, err, "the voting is already closed")
 }
 
+func TestVoteWhenRejected(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+	chaincodeStub.CreateCompositeKeyStub = createComposeKey
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
+
+	sc := SmartContract{}
+
+	// Case: The proposal is rejected
+	request := TaskStatusUpdateRequest{
+		ProposalID: "request-1",
+		Status:     Disagreed,
+	}
+	chaincodeStub.GetCreatorReturns(org2MSP, nil)
+	timestamp := ptypes.TimestampNow()
+	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
+	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
+	formattedTS := ts.Format(time.RFC3339)
+
+	baseProposal, _ := baseProposalAndInput(formattedTS)
+	baseProposalJSON, err := json.Marshal(baseProposal)
+	require.NoError(t, err)
+
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
+	historyOrg1 := History{
+		ObjectType: HistoryObjectType,
+		ProposalID: "request-1",
+		OrgID:      "Org1MSP",
+		TaskID:     Vote,
+		Status:     Agreed,
+		Time:       formattedTS,
+	}
+	chaincodeStub.GetStateReturnsOnCall(1, nil, nil) // No history for org2
+
+	historyOrg1JSON, err := json.Marshal(historyOrg1)
+	iterator := &mocks.StateQueryIterator{}
+	iterator.HasNextReturnsOnCall(0, true)
+	iterator.HasNextReturnsOnCall(1, false)
+	iterator.NextReturnsOnCall(0, &queryresult.KV{Value: historyOrg1JSON}, nil)
+	chaincodeStub.GetStateByPartialCompositeKeyReturns(iterator, nil)
+
+	err = sc.Vote(transactionContext, request)
+	require.NoError(t, err)
+	key, state := chaincodeStub.PutStateArgsForCall(0)
+	require.Equal(t, "history_request-1_vote_Org2MSP", key)
+	historyOrg2 := History{
+		ObjectType: HistoryObjectType,
+		ProposalID: "request-1",
+		OrgID:      "Org2MSP",
+		TaskID:     Vote,
+		Status:     Disagreed,
+		Time:       formattedTS,
+	}
+	historyOrg2JSON, err := json.Marshal(historyOrg2)
+	require.NoError(t, err)
+	require.JSONEq(t, string(historyOrg2JSON), string(state))
+	key, state = chaincodeStub.PutStateArgsForCall(1)
+	baseProposal.Status = Rejected
+	baseProposalJSON, err = json.Marshal(baseProposal)
+	require.NoError(t, err)
+	require.JSONEq(t, string(baseProposalJSON), string(state))
+
+	eventName, eventPayload := chaincodeStub.SetEventArgsForCall(0)
+	require.Equal(t, "rejectedEvent.request-1", eventName)
+	require.Equal(t, []byte(nil), eventPayload)
+}
+
 func TestVoteWhenTryingUpdate(t *testing.T) {
 	chaincodeStub := &mocks.ChaincodeStub{}
 	transactionContext := &mocks.TransactionContext{}

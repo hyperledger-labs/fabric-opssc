@@ -106,6 +106,7 @@ const (
 	PrepareToDeployEvent = "prepareToDeployEvent"
 	DeployEvent          = "deployEvent"
 	CommittedEvent       = "committedEvent"
+	RejectedEvent        = "rejectedEvent"
 )
 
 // Task IDs
@@ -299,21 +300,47 @@ func (s *SmartContract) Vote(ctx contractapi.TransactionContextInterface, taskSt
 		return fmt.Errorf("failed to put the history: %v", err)
 	}
 
-	// If (1) the proposal status remains "Proposed" and (2) the proposal is voted by MAJORITY,
-	// then update the proposal status to "approved" and issue prepareToCommitEvent (the event is internally set)
-	isVotedByMajority, err := s.meetCriteria(ctx, *history, MAJORITY, proposal.ChannelID)
-	if err != nil {
-		return fmt.Errorf("failed to do meetCriteria: %v", err)
+	// [State Transition]
+	// Prerequisite Proposal Status: "Proposed"
+	//
+	// Conditions:
+	//   - Case A: (1) voting status is "Agreed" AND (2) voted by MAJORITY
+	//         -> Update proposal status to "Approved" and issue PrepareToCommitEvent (the event is set in the internal function)
+	//
+	//   - Case B: (1) voting status is "Disagreed" AND (2) the number of "Agreed" can not satisfy MAJORITY
+	//         -> Update proposal status to "Rejected" and issue RejectedEvent (the event is set in the internal function)
+	//
+	//   - Case C: Others
+	//         -> Not update proposal status and issue NewVoteEvent
+	switch taskStatusUpdateRequest.Status {
+	// Case A:
+	case Agreed:
+		votePassed, err := s.meetCriteria(ctx, *history, MAJORITY, false, proposal.ChannelID)
+		if err != nil {
+			return fmt.Errorf("failed to do meetCriteria: %v", err)
+		}
+		if votePassed {
+			if err = s.updateStatusToApproved(ctx, *proposal); err != nil {
+				return fmt.Errorf("failed to update the status: %v", err)
+			}
+			return nil
+		}
+	// Case B:
+	case Disagreed:
+		voteRejected, err := s.meetCriteria(ctx, *history, MAJORITY, true, proposal.ChannelID)
+		if err != nil {
+			return fmt.Errorf("failed to do meetCriteria: %v", err)
+		}
+		if voteRejected {
+			if err = s.updateStatusToRejected(ctx, *proposal); err != nil {
+				return fmt.Errorf("failed to update the status: %v", err)
+			}
+			return nil
+		}
 	}
-	if taskStatusUpdateRequest.Status == Agreed && isVotedByMajority {
-		if err = s.updateStatusToApproved(ctx, *proposal); err != nil {
-			return fmt.Errorf("failed to update the status: %v", err)
-		}
-	} else {
-		// -- Set Event
-		if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", NewVoteEvent, proposal.ID), []byte(nil)); err != nil {
-			return fmt.Errorf("error happened emitting event: %v", err)
-		}
+	// Case C:
+	if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", NewVoteEvent, proposal.ID), []byte(nil)); err != nil {
+		return fmt.Errorf("error happened emitting event: %v", err)
 	}
 	return nil
 }
@@ -365,7 +392,7 @@ func (s *SmartContract) Acknowledge(ctx contractapi.TransactionContextInterface,
 
 	// If (1) the proposal status remains "Approved" and (2) the proposal is acknowledged by ALL orgs,
 	// then update proposal status to "Acknowledged" and issue commitEvent (the event is internally set)
-	isAcknowledgedByAllOrgs, err := s.meetCriteria(ctx, *history, ALL, proposal.ChannelID)
+	isAcknowledgedByAllOrgs, err := s.meetCriteria(ctx, *history, ALL, false, proposal.ChannelID)
 	if err != nil {
 		return fmt.Errorf("failed to do meetCriteria: %v", err)
 	}
@@ -553,7 +580,7 @@ func (s *SmartContract) GetProposal(ctx contractapi.TransactionContextInterface,
 // -- Internal logics
 
 // Function to check whether to meet criteria for the proposal state transitions
-func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface, currentHistory History, criteria string, targetChannel string) (bool, error) {
+func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface, currentHistory History, criteria string, checkUnachivable bool, targetChannel string) (bool, error) {
 	iterator, err := ctx.GetStub().GetStateByPartialCompositeKey(HistoryObjectType, []string{currentHistory.ProposalID, currentHistory.TaskID})
 	if err != nil {
 		return false, fmt.Errorf("error happened reading keys from ledger: %v", err)
@@ -566,18 +593,23 @@ func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface
 		return false, fmt.Errorf("failed to call count organization in channel (code: %d, message: %v)",
 			response.Status, response.Message)
 	}
-	criteriaNum, err := strconv.Atoi(string(response.Payload))
+	totalOrgNum, err := strconv.Atoi(string(response.Payload))
 	if err != nil {
 		return false, fmt.Errorf("failed to call count organization in channel: %v", err)
 	}
 
+	criteriaNum := totalOrgNum
 	switch criteria {
 	case MAJORITY:
 		criteriaNum = criteriaNum/2 + 1
 	case ALL:
 		// use total org num
 	default:
-		return false, nil
+		return false, fmt.Errorf("invalid criteria type: %v", criteria)
+	}
+
+	if checkUnachivable {
+		criteriaNum = totalOrgNum - criteriaNum
 	}
 
 	orgs := map[string]string{}
@@ -673,6 +705,21 @@ func (s *SmartContract) updateStatusToApproved(ctx contractapi.TransactionContex
 
 	// -- Set Event
 	if err = ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", PrepareToDeployEvent, proposal.ID), eventDetailJSON); err != nil {
+		return fmt.Errorf("error happened emitting event: %v", err)
+	}
+	return nil
+}
+
+func (s *SmartContract) updateStatusToRejected(ctx contractapi.TransactionContextInterface, proposal ChaincodeUpdateProposal) error {
+	proposal.Status = Rejected
+
+	// Put proposal to stateDB
+	if err := s.putProposal(ctx, proposal); err != nil {
+		return err
+	}
+
+	// -- Set Event
+	if err := ctx.GetStub().SetEvent(fmt.Sprintf("%s.%s", RejectedEvent, proposal.ID), nil); err != nil {
 		return fmt.Errorf("error happened emitting event: %v", err)
 	}
 	return nil

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -101,7 +101,13 @@ export interface TaskStatusUpdate {
   data?: string;
 }
 
-export type TaskStatus = 'success' | 'failure'
+export interface VoteTaskStatusUpdate extends TaskStatusUpdate{
+  status?: VoteTaskStatus;
+}
+
+export type TaskStatus = VoteTaskStatus | AgentTaskStatus
+export type VoteTaskStatus = 'agreed' | 'disagreed'
+export type AgentTaskStatus = 'success' | 'failure'
 
 export interface HistoryQueryParams {
 	proposalID: string;
