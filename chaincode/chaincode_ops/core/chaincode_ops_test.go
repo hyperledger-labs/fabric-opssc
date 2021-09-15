@@ -1190,6 +1190,85 @@ func TestNotifyCommitResultWhenGetProposalFails(t *testing.T) {
 	require.EqualError(t, err, "failed to get the proposal: error happend creating composite key for proposal: failed to create composite key")
 }
 
+func TestWithdrawProposal(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+	chaincodeStub.CreateCompositeKeyStub = createComposeKey
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
+
+	sc := SmartContract{}
+
+	// Case: withdraw the proposal
+	chaincodeStub.GetCreatorReturns(org1MSP, nil)
+	timestamp := ptypes.TimestampNow()
+	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
+	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
+	formattedTS := ts.Format(time.RFC3339)
+
+	baseProposal, _ := baseProposalAndInput(formattedTS)
+	baseProposalJSON, err := json.Marshal(baseProposal)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturnsOnCall(0, baseProposalJSON, nil)
+
+	err = sc.WithdrawProposal(transactionContext, "request-1")
+	require.NoError(t, err)
+
+	_, state := chaincodeStub.PutStateArgsForCall(0)
+	baseProposal.Status = Withdrawn
+	baseProposalJSON, err = json.Marshal(baseProposal)
+	require.NoError(t, err)
+	require.JSONEq(t, string(baseProposalJSON), string(state))
+
+	eventName, eventPayload := chaincodeStub.SetEventArgsForCall(0)
+	require.Equal(t, "withdrawnEvent.request-1", eventName)
+	require.Equal(t, []byte(nil), eventPayload)
+}
+
+func TestWithdrawProposalFails(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+	chaincodeStub.CreateCompositeKeyStub = createComposeKey
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
+
+	sc := SmartContract{}
+
+	// Case: Failure due to invalid parameters
+	err := sc.WithdrawProposal(transactionContext, "")
+	require.EqualError(t, err, "the required parameter 'proposalID' is empty")
+
+	// Case: Failure that the proposal is not found
+	err = sc.WithdrawProposal(transactionContext, "request-1")
+	require.EqualError(t, err, "proposal not found")
+
+	// Case: Failure due to the request of anyone other than the proposer
+	chaincodeStub.GetCreatorReturns(org2MSP, nil)
+	timestamp := ptypes.TimestampNow()
+	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
+	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
+	formattedTS := ts.Format(time.RFC3339)
+
+	baseProposal, _ := baseProposalAndInput(formattedTS)
+	baseProposalJSON, err := json.Marshal(baseProposal)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+
+	err = sc.WithdrawProposal(transactionContext, "request-1")
+	require.EqualError(t, err, "only the proposer (Org1MSP) can withdraw the proposal")
+
+	// Case: Failure due to the voting is closed
+	chaincodeStub.GetCreatorReturns(org1MSP, nil)
+	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+	baseProposal, _ = baseProposalAndInput(formattedTS)
+	baseProposal.Status = Acknowledged
+	baseProposalJSON, err = json.Marshal(baseProposal)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturns(baseProposalJSON, nil)
+	err = sc.WithdrawProposal(transactionContext, "request-1")
+	require.EqualError(t, err, "the voting is already closed")
+}
+
 func TestGetAllProposals(t *testing.T) {
 
 	chaincodeStub := &mocks.ChaincodeStub{}
