@@ -28,7 +28,7 @@ Feature: Chaincode ops on docker-based Fabric network
 
     # New chaincode deployment (golang)
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -39,7 +39,7 @@ Feature: Chaincode ops on docker-based Fabric network
 
     # Chaincode update
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 2, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic, seq: 2, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic, seq: 2, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -50,13 +50,13 @@ Feature: Chaincode ops on docker-based Fabric network
 
     # Chaincode update for one not yet deployed
     When org1 requests a proposal to deploy the chaincode (name: basic2, seq: 2, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic2, seq: 2, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic2, seq: 2, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic2, seq: 2, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic2, seq: 2, channel: mychannel) should be acknowledged (with failure) by 2 or more orgs
 
     # New chaincode deployment (javascript)
     When org1 requests a proposal to deploy the chaincode (name: basic-js, seq: 1, channel: mychannel) based on basic javascript template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic-js, seq: 1, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic-js, seq: 1, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic-js, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic-js, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic-js, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -67,7 +67,7 @@ Feature: Chaincode ops on docker-based Fabric network
 
     # New chaincode deployment (typescript)
     When org1 requests a proposal to deploy the chaincode (name: basic-ts, seq: 1, channel: mychannel) based on basic typescript template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic-ts, seq: 1, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic-ts, seq: 1, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic-ts, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic-ts, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic-ts, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -79,3 +79,9 @@ Feature: Chaincode ops on docker-based Fabric network
     # Vote from each org cannot be updated
     When org1 requests a proposal to deploy the chaincode (name: basic3, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
     Then org1 fails to approve the proposal for chaincode (name: basic3, seq: 1, channel: mychannel) with an error (the state is already exists: Org1MSP)
+
+    # Chaincode update rejected
+    When org1 requests a proposal to deploy the chaincode (name: basic, seq: 3, channel: mychannel) based on basic golang template via opssc-api-server
+    And org2 votes against the proposal for chaincode (name: basic, seq: 3, channel: mychannel) with opssc-api-server
+    Then the proposal for chaincode (name: basic, seq: 3, channel: mychannel) should be voted (with disagreed) by 1 or more orgs
+    And the proposal status for chaincode (name: basic, seq: 3, channel: mychannel) should be rejected

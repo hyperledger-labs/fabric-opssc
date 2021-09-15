@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2021 Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -54,7 +54,7 @@ Feature: Channel ops on docker-based Fabric network
 
     # New chaincode deployment
     When org3 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
-    And org1 approves the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
+    And org1 votes for the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be acknowledged (with success) by 3 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -74,7 +74,7 @@ Feature: Channel ops on docker-based Fabric network
 
     # New chaincode deployment
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -85,7 +85,7 @@ Feature: Channel ops on docker-based Fabric network
 
     # Chaincode update
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 2, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic, seq: 2, channel: mychannel) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic, seq: 2, channel: mychannel) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be committed (with success) by 1 or more orgs
@@ -129,7 +129,7 @@ Feature: Channel ops on docker-based Fabric network
 
     # New chaincode deployment
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel2) based on basic golang template via opssc-api-server
-    And org2 approves the proposal for chaincode (name: basic, seq: 1, channel: mychannel2) with opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic, seq: 1, channel: mychannel2) with opssc-api-server
     Then the proposal for chaincode (name: basic, seq: 1, channel: mychannel2) should be voted (with agreed) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel2) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 1, channel: mychannel2) should be committed (with success) by 1 or more orgs
