@@ -208,6 +208,19 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
       const result = await invokeChaincodeOpsSC('Vote', JSON.stringify(taskStatusUpdate));
       res.json(result);
     } catch (e) {
+      logger.error(e.message);
+      res.status(500).json({
+        message: e.toString()
+      });
+    }
+  });
+
+  router.post('/chaincode/proposals/:id/withdraw', async (req, res) => {
+    try {
+      const result = await invokeChaincodeOpsSC('WithdrawProposal', req.params.id);
+      res.json(result);
+    } catch (e) {
+      logger.error(e.message);
       res.status(500).json({
         message: e.toString()
       });
