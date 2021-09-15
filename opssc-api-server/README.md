@@ -47,7 +47,8 @@ The current OpsSC API server provides the following API to enable administrators
 | Chaincode | Get all update proposals                                               | `/api/v1/chaincode/proposals`                 | `GET`  |
 | Chaincode | Request a new update proposal                                          | `/api/v1/chaincode/proposals/:id`             | `POST` |
 | Chaincode | Get the proposal with the given ID                                     | `/api/v1/chaincode/proposals/:id`             | `GET`  |
-| Chaincode | Vote for the proposal                                                  | `/api/v1/chaincode/proposals/:id/vote`        | `POST` |
+| Chaincode | Vote for/against the proposal                                          | `/api/v1/chaincode/proposals/:id/vote`        | `POST` |
+| Chaincode | Withdraw the proposal                                                  | `/api/v1/chaincode/proposals/:id/withdraw`    | `POST` |
 | Chaincode | Get the task histories with the given proposal                         | `/api/v1/chaincode/:id/histories`             | `GET`  |
 | Chaincode | Get the list of installed chaincodes                                   | `/api/v1/chaincode/getInstalledChaincodes`    | `GET`  |
 | Chaincode | Get the chaincode definition with the given channel and chaincode name | `/api/v1/chaincode/queryChaincodeDefinition`  | `GET`  |
