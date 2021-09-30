@@ -28,26 +28,13 @@ const TaskTypeFuncs = {
 @binding()
 export class ChaincodeOpsSteps extends BaseStepClass {
 
-  @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on basic (golang|javascript|typescript) template via opssc-api-server/)
-  public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, lang: string) {
+  @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
+  public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
     const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
     const commitID = process.env.IT_REMOTE_COMMIT_ID || 'main';
-    let pathToSourceFiles;
-    switch (lang) {
-      case 'golang':
-        pathToSourceFiles = process.env.IT_REMOTE_BASIC_GO_CC_PATH || 'sample-environments/fabric-samples/asset-transfer-basic/chaincode-go';
-        break;
-      case 'javascript':
-        pathToSourceFiles = process.env.IT_REMOTE_BASIC_JS_CC_PATH || 'sample-environments/fabric-samples/asset-transfer-basic/chaincode-javascript';
-        break;
-      case 'typescript':
-        pathToSourceFiles = process.env.IT_REMOTE_BASIC_TS_CC_PATH || 'sample-environments/fabric-samples/asset-transfer-basic/chaincode-typescript';
-        break;
-      default:
-        expect.fail(`currently, ${lang} is not supported`);
-    }
+    const [pathToSourceFiles, validationParameter, collections] = this.createCCParameters(ccTemplate, lang);
 
-    const proposal = {
+    let proposal = {
       ID: `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`,
       channelID: channelID,
       chaincodeName: `${ccName}_${ChaincodeOpsSteps.SUFFIX}`,
@@ -61,7 +48,8 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       {
         sequence: sequence,
         initRequired: false,
-        validationParameter: Buffer.from('/Channel/Application/Endorsement').toString('base64'),
+        validationParameter: validationParameter,
+        collections: collections
       }
     };
     // console.log(proposal) // For debug
@@ -75,6 +63,92 @@ export class ChaincodeOpsSteps extends BaseStepClass {
         }
       }
     );
+  }
+
+  private createCCParameters(ccTemplate: string, lang: string):  [string, string, string|undefined] {
+    switch (ccTemplate) {
+      case 'basic':
+        return this.createBasicCCParameters(lang);
+      case 'private':
+        return this.createPrivateCCParameters(lang);
+      default:
+        expect.fail(`currently, ${ccTemplate} is not supported`);
+    }
+  }
+
+  private createBasicCCParameters(lang: string): [string, string, string|undefined] {
+    const basePath = 'sample-environments/fabric-samples/asset-transfer-basic';
+    const validationParameterBase64 = Buffer.from('/Channel/Application/Endorsement').toString('base64');
+    const collectionsBase64 = undefined;
+    switch (lang) {
+      case 'golang':
+        return [process.env.IT_REMOTE_BASIC_GO_CC_PATH || `${basePath}/chaincode-go`, validationParameterBase64, collectionsBase64];
+      case 'javascript':
+        return [process.env.IT_REMOTE_BASIC_JS_CC_PATH || `${basePath}/chaincode-javascript`, validationParameterBase64, collectionsBase64];
+      case 'typescript':
+        return [process.env.IT_REMOTE_BASIC_TS_CC_PATH || `${basePath}/chaincode-typescript`, validationParameterBase64, collectionsBase64];
+      default:
+        expect.fail(`currently, ${lang} is not supported`);
+    }
+  }
+
+  private createPrivateCCParameters(lang: string): [string, string, string|undefined] {
+    const basePath = 'sample-environments/fabric-samples/asset-transfer-private-data';
+    const validationParameter = JSON.stringify(
+      {
+        identities: [
+          { role: { name: 'peer', mspId: 'Org1MSP' } },
+          { role: { name: 'peer', mspId: 'Org2MSP' } }
+        ],
+        policy: {
+          '1-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }]
+        }
+      });
+    const validationParameterBase64 = Buffer.from(validationParameter).toString('base64');
+    const collections = JSON.stringify(
+      [
+        {
+          name: 'assetCollection',
+          member_orgs_policy: `OR('Org1MSP.member', 'Org2MSP.member')`,
+          required_peer_count: 1,
+          maximum_peer_count: 1,
+          block_to_live:1000000,
+          member_only_read: true,
+          member_only_write: true
+        },
+        {
+          name: 'Org1MSPPrivateCollection',
+          member_orgs_policy: `OR('Org1MSP.member')`,
+          required_peer_count: 0,
+          maximum_peer_count: 1,
+          block_to_live:3,
+          member_only_read: true,
+          member_only_write: false,
+          endorsement_policy: {
+            signature_policy: `OR('Org1MSP.member')`
+          }
+        },
+        {
+          name: 'Org2MSPPrivateCollection',
+          member_orgs_policy: `OR('Org2MSP.member')`,
+          required_peer_count: 0,
+          maximum_peer_count: 1,
+          block_to_live:3,
+          member_only_read: true,
+          member_only_write: false,
+          endorsement_policy: {
+            signature_policy: `OR('Org2MSP.member')`
+          }
+         }
+       ]
+    );
+    const collectionsBase64 = Buffer.from(collections).toString('base64');
+    switch (lang) {
+      case 'golang':
+        return [process.env.IT_REMOTE_PRIVATE_GO_CC_PATH || `${basePath}/chaincode-go`, validationParameterBase64, collectionsBase64];
+      default:
+        expect.fail(`currently, ${lang} is not supported`);
+    }
   }
 
   @when(/(.+) votes (for|against) the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
@@ -181,6 +255,13 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       console.log('.');
     }
     expect.fail(`The chaincode definition has not been committed.\nLast acquired committed: ${JSON.stringify(committed, null, 2)}`);
+  }
+
+  @then(/chaincode \(name: (.+), channel: (.+)\) should be set the collections for private template/)
+  public async checkCollectionsForAssetTransferPrivate(ccName: string, channelID: string) {
+    const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/queryChaincodeDefinition?channelID=${channelID}&chaincodeName=${ccName}_${ChaincodeOpsSteps.SUFFIX}`);
+    expect(response.data.collections).to.not.equals(null);
+    expect(response.data.collections).to.deep.equals(this.createExpectedCollections());
   }
 
   @then(/(\d+) chaincodes should be committed on (.+)/)
@@ -291,5 +372,140 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       default:
         expect.fail(`currently, ${lang} is not supported`);
     }
+  }
+
+  private createExpectedCollections(): any {
+    return {
+      "config": [
+        {
+          "static_collection_config": {
+            "name": "assetCollection",
+            "member_orgs_policy": {
+              "signature_policy": {
+                "rule": {
+                  "n_out_of": {
+                    "n": 1,
+                    "rules": [
+                      {
+                        "signed_by": 0
+                      },
+                      {
+                        "signed_by": 1
+                      }
+                    ]
+                  }
+                },
+                "identities": [
+                  {
+                    "principal": "CgdPcmcxTVNQEAA="
+                  },
+                  {
+                    "principal": "CgdPcmcyTVNQEAA="
+                  }
+                ]
+              }
+            },
+            "required_peer_count": 1,
+            "maximum_peer_count": 1,
+            "block_to_live": "1000000",
+            "member_only_read": true,
+            "member_only_write": true,
+            "endorsement_policy": {}
+          }
+        },
+        {
+          "static_collection_config": {
+            "name": "Org1MSPPrivateCollection",
+            "member_orgs_policy": {
+              "signature_policy": {
+                "rule": {
+                  "n_out_of": {
+                    "n": 1,
+                    "rules": [
+                      {
+                        "signed_by": 0
+                      }
+                    ]
+                  }
+                },
+                "identities": [
+                  {
+                    "principal": "CgdPcmcxTVNQEAA="
+                  }
+                ]
+              }
+            },
+            "maximum_peer_count": 1,
+            "block_to_live": "3",
+            "member_only_read": true,
+            "endorsement_policy": {
+              "signature_policy": {
+                "rule": {
+                  "n_out_of": {
+                    "n": 1,
+                    "rules": [
+                      {
+                        "signed_by": 0
+                      }
+                    ]
+                  }
+                },
+                "identities": [
+                  {
+                    "principal": "CgdPcmcxTVNQEAA="
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "static_collection_config": {
+            "name": "Org2MSPPrivateCollection",
+            "member_orgs_policy": {
+              "signature_policy": {
+                "rule": {
+                  "n_out_of": {
+                    "n": 1,
+                    "rules": [
+                      {
+                        "signed_by": 0
+                      }
+                    ]
+                  }
+                },
+                "identities": [
+                  {
+                    "principal": "CgdPcmcyTVNQEAA="
+                  }
+                ]
+              }
+            },
+            "maximum_peer_count": 1,
+            "block_to_live": "3",
+            "member_only_read": true,
+            "endorsement_policy": {
+              "signature_policy": {
+                "rule": {
+                  "n_out_of": {
+                    "n": 1,
+                    "rules": [
+                      {
+                        "signed_by": 0
+                      }
+                    ]
+                  }
+                },
+                "identities": [
+                  {
+                    "principal": "CgdPcmcyTVNQEAA="
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    };
   }
 }
