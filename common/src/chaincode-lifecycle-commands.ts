@@ -8,6 +8,7 @@ import { protos as fabric_common_protos, lifecycle as lifecycle_protos } from 'f
 import { Contract, DefaultQueryHandlerStrategies, Gateway, GatewayOptions, Identity } from 'fabric-network';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { buildPolicy } = require('./lib/Policy');
+import { CollectionLib } from './lib/collection_pb_lib';
 import { finalPackage as finalPackageChaincode, package as packageChaincode } from './lib/Packager';
 import { Channel, Endorser } from 'fabric-common';
 import crypto from 'crypto';
@@ -178,6 +179,8 @@ export class ChaincodeLifecycleCommands {
   async approve(request: ChaincodeRequest): Promise<void> {
     await this.prepareLifecycleContract();
 
+    const collectionLib = new CollectionLib;
+
     const source = new lifecycle_protos.ChaincodeSource();
     if (request.chaincode.package_id) {
       const localPackage = new lifecycle_protos.ChaincodeSource.Local();
@@ -208,10 +211,18 @@ export class ChaincodeLifecycleCommands {
       approveChaincodeDefinitionForMyOrgArgs.init_required = request.chaincode.init_required;
     }
     if (request.chaincode.collections) {
-      approveChaincodeDefinitionForMyOrgArgs.collections = request.chaincode.collections;
+      const p_collection = collectionLib.__build_collection_config_package(request.chaincode.collections);
+      if (p_collection === null) throw new Error('Fail to build collection config package');
+      approveChaincodeDefinitionForMyOrgArgs.collections =  fabric_common_protos.CollectionConfigPackage.create(p_collection);
     }
 
-    const args = [lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.encode(approveChaincodeDefinitionForMyOrgArgs).finish()];
+    const b_approveChaincodeDefinitionForMyOrgArgs = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.encode(approveChaincodeDefinitionForMyOrgArgs).finish();
+    const args = [b_approveChaincodeDefinitionForMyOrgArgs];
+
+    // For debug:
+		// const p_test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.decode(b_approveChaincodeDefinitionForMyOrgArgs);
+		// const test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.toObject(p_test, { defaults: false, bytes: String });
+		// console.log('debug approve chaincode definition', test, JSON.stringify(test));
 
     const transaction = this.lifecycleSCC!.createTransaction('ApproveChaincodeDefinitionForMyOrg');
     transaction.setEndorsingPeers(this.channel!.getEndorsers(this.identity.mspId));
@@ -231,6 +242,8 @@ export class ChaincodeLifecycleCommands {
   async commit(request: ChaincodeRequest): Promise<void> {
     await this.prepareLifecycleContract();
 
+    const collectionLib = new CollectionLib;
+
     const commitChaincodeDefinitionArgs: lifecycle_protos.ICommitChaincodeDefinitionArgs = {
       sequence: request.chaincode.sequence,
       name: request.chaincode.name,
@@ -249,10 +262,18 @@ export class ChaincodeLifecycleCommands {
       commitChaincodeDefinitionArgs.init_required = request.chaincode.init_required;
     }
     if (request.chaincode.collections) {
-      commitChaincodeDefinitionArgs.collections = request.chaincode.collections;
+      const p_collection = collectionLib.__build_collection_config_package(request.chaincode.collections);
+      if (p_collection === null) throw new Error('Fail to build collection config package');
+      commitChaincodeDefinitionArgs.collections = fabric_common_protos.CollectionConfigPackage.create(p_collection);
     }
 
-    const args = [lifecycle_protos.CommitChaincodeDefinitionArgs.encode(commitChaincodeDefinitionArgs).finish()];
+    const b_commitChaincodeDefinitionForMyOrgArgs = lifecycle_protos.CommitChaincodeDefinitionArgs.encode(commitChaincodeDefinitionArgs).finish();
+    const args = [b_commitChaincodeDefinitionForMyOrgArgs];
+
+    // For debug:
+		// const p_test = lifecycle_protos.CommitChaincodeDefinitionArgs.decode(b_commitChaincodeDefinitionForMyOrgArgs);
+		// const test = lifecycle_protos.CommitChaincodeDefinitionArgs.toObject(p_test, { defaults: false, bytes: String });
+		// console.log('debug committed chaincode definition', test, JSON.stringify(test));
 
     const transaction = this.lifecycleSCC!.createTransaction('CommitChaincodeDefinition');
 
