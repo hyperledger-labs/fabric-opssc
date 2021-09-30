@@ -12,17 +12,16 @@
  * limitations under the License.
 */
 // This code is based on https://github.com/hyperledger-labs/fabric-operations-console/blob/main/packages/stitch/src/libs/proto_handlers/policy_pb_lib.ts
-//declare const window: any;
 
-// Libs from protoc
-import { SignaturePolicyEnvelope as Policy_SignaturePolicyEnvelope } from '../../protoc/output/common/policies_pb';
-import { ImplicitMetaPolicy as Policies_ImplicitMetaPolicy } from '../../protoc/output/common/policies_pb';
-import { MSPPrincipal as MSP_Principle_MSPPrincipal } from '../../protoc/output/msp/msp_principal_pb';
-import { SignaturePolicy as Policy_SignaturePolicy } from '../../protoc/output/common/policies_pb';
-import { MSPRole as MSP_Principle_MSPRole } from '../../protoc/output/msp/msp_principal_pb';
+import { common } from 'fabric-protos';
+import { logger } from '../logger';
+import { pp } from './misc';
 
-// Libs built by us
-import { logger, pp, __pb_root } from '../misc';
+import Policy_SignaturePolicyEnvelope = common.SignaturePolicyEnvelope;
+import Policies_ImplicitMetaPolicy = common.ImplicitMetaPolicy;
+import MSP_Principle_MSPPrincipal = common.MSPPrincipal;
+import Policy_SignaturePolicy = common.SignaturePolicy;
+import MSP_Principle_MSPRole = common.MSPRole;
 
 export { rules_map, roles_map, Bse, find_role };
 export class PolicyLib {
@@ -39,9 +38,9 @@ export class PolicyLib {
 	*/
 	p_build_signature_policy_envelope(opts: Bse) {
 		const p_signaturePolicyEnvelope = new Policy_SignaturePolicyEnvelope();
-		p_signaturePolicyEnvelope.setVersion(opts.version);
-		p_signaturePolicyEnvelope.setRule(opts.p_rule);
-		p_signaturePolicyEnvelope.setIdentitiesList(opts.p_identities);
+		p_signaturePolicyEnvelope.version = opts.version;
+		p_signaturePolicyEnvelope.rule = opts.p_rule;
+		p_signaturePolicyEnvelope.identities = opts.p_identities;
 		return p_signaturePolicyEnvelope;
 	}
 
@@ -57,12 +56,12 @@ export class PolicyLib {
 	p_build_signature_policy(opts: Bsp) {
 		const p_signaturePolicy = new Policy_SignaturePolicy();
 		if (opts.n_out_of !== null) {
-			p_signaturePolicy.setNOutOf(opts.n_out_of);
+			p_signaturePolicy.n_out_of = opts.n_out_of;
 		} else if (opts.signed_by !== null) {					// remember this is a number, so 0 is possible/valid
-			p_signaturePolicy.setSignedBy(opts.signed_by);
+			p_signaturePolicy.signed_by = opts.signed_by;
 		}
 
-		logger.debug('[stitch] policy - has n_out_of:', p_signaturePolicy.hasNOutOf(), 'has signed_by:', p_signaturePolicy.hasSignedBy(), opts.signed_by);
+		logger.debug('[protobuf-handler] policy - has n_out_of:', !p_signaturePolicy, 'has signed_by:', !p_signaturePolicy, opts.signed_by);
 		return p_signaturePolicy;
 	}
 
@@ -80,8 +79,8 @@ export class PolicyLib {
 		if (isNaN(opts.n)) {
 			logger.error('cannot build "n-of" policy b/c "n" is not a number', opts.n);
 		} else {
-			p_n_out_of.setN(opts.n);
-			p_n_out_of.setRulesList(opts.rules_list);
+			p_n_out_of.n = opts.n;
+			p_n_out_of.rules = opts.rules_list;
 		}
 		return p_n_out_of;
 	}
@@ -99,12 +98,12 @@ export class PolicyLib {
 		for (let i in opts.msp_ids) {
 
 			const p_MSPRole = new MSP_Principle_MSPRole();
-			p_MSPRole.setRole(MSP_Principle_MSPRole.MSPRoleType.MEMBER);
-			p_MSPRole.setMspIdentifier(opts.msp_ids[i]);
+			p_MSPRole.role = MSP_Principle_MSPRole.MSPRoleType.MEMBER;
+			p_MSPRole.msp_identifier = opts.msp_ids[i];
 
 			const p_MSPPrincipal = new MSP_Principle_MSPPrincipal();
-			p_MSPPrincipal.setPrincipalClassification(MSP_Principle_MSPPrincipal.Classification.ROLE);
-			p_MSPPrincipal.setPrincipal(p_MSPRole.serializeBinary());
+			p_MSPPrincipal.principal_classification = MSP_Principle_MSPPrincipal.Classification.ROLE;
+			p_MSPPrincipal.principal = MSP_Principle_MSPRole.encode(p_MSPRole).finish();
 
 			const p_signaturePolicy = this.p_build_signature_policy({ signed_by: Number(i), n_out_of: null });
 			signed_by_list.push(p_signaturePolicy);		// its import that these two arrays get built together
@@ -128,50 +127,48 @@ export class PolicyLib {
 	p_build_msp_role(opts: Bmr) {
 		const role_name = (opts && opts.role) ? opts.role.toUpperCase() : null;
 		if (!role_name || roles_map[role_name] === undefined) {
-			logger.error('[stitch] cannot find or invalid "role". cannot build MSPRole for signature policy. role:', role_name);
+			logger.error('[protobuf-handler] cannot find or invalid "role". cannot build MSPRole for signature policy. role:', role_name);
 			return null;
 		} else if (!opts.msp_identifier) {
-			logger.error('[stitch] undefined msp id. cannot build MSPRole for signature policy');
+			logger.error('[protobuf-handler] undefined msp id. cannot build MSPRole for signature policy');
 			return null;
 		} else {
 			const p_MSPRole = new MSP_Principle_MSPRole();
-			p_MSPRole.setRole(roles_map[role_name]);
-			p_MSPRole.setMspIdentifier(opts.msp_identifier);
+			p_MSPRole.role = roles_map[role_name];
+			p_MSPRole.msp_identifier = opts.msp_identifier;
 			return p_MSPRole;
 		}
 	}
 
 	// --------------------------------------------------------------------------------
-	// build a MSPRole msg - returns binary - [call load_pb() before calling this function]
+	// build a MSPRole msg - returns binary
 	// --------------------------------------------------------------------------------
-	__b_build_msp_role(opts: { mspIdentifier: string, role: string }) {
+	__b_build_msp_role(opts: { msp_identifier: string, role: string }) {
 		const role_name = (opts && opts.role) ? opts.role.toUpperCase() : null;
-		const MSPRole = __pb_root.lookupType('common.MSPRole');
 
 		if (!role_name || roles_map[role_name] === undefined) {
-			logger.error('[stitch] cannot find or invalid "role". cannot build MSPRole for signature policy. role:', role_name);
+			logger.error('[protobuf-handler] cannot find or invalid "role". cannot build MSPRole for signature policy. role:', role_name);
 			return null;
-		} else if (!opts.mspIdentifier) {
-			logger.error('[stitch] undefined msp id. cannot build MSPRole for signature policy');
+		} else if (!opts.msp_identifier) {
+			logger.error('[protobuf-handler] undefined msp id. cannot build MSPRole for signature policy');
 			return null;
 		}
 
 		// use fromObject instead of create b/c role_name will be a string, not enum
-		let message = MSPRole.fromObject({ role: role_name, mspIdentifier: opts.mspIdentifier });		// remember this protobufjs expects camelCase keys
-		const b_MSPRole = <Uint8Array>MSPRole.encode(message).finish();
+		let message = MSP_Principle_MSPRole.create({ role: roles_map[role_name], msp_identifier: opts.msp_identifier });
+		const b_MSPRole = <Uint8Array>MSP_Principle_MSPRole.encode(message).finish();
 		return b_MSPRole;
 	}
 
 	// --------------------------------------------------------------------------------
-	// build a MSPPrincipal msg - returns message - [call load_pb() before calling this function]
+	// build a MSPPrincipal msg - returns message
 	// --------------------------------------------------------------------------------
 	__build_msp_principal(opts: { principal_classification: number, b_principal: Uint8Array }) {
-		const MSPPrincipal = __pb_root.lookupType('common.MSPPrincipal');
 		const p_opts = {
-			principalClassification: opts.principal_classification,			// remember this protobufjs expects camelCase keys
+			principal_classification: opts.principal_classification,
 			principal: opts.b_principal
 		};
-		let message = MSPPrincipal.create(p_opts);
+		let message = MSP_Principle_MSPPrincipal.create(p_opts);
 		return message;
 	}
 
@@ -206,7 +203,7 @@ export class PolicyLib {
 	p_build_custom_e_policy_envelope_fabricSDK(opts: Bcp) {
 		const principal_list = [];
 		if (!opts || !opts.identities || !opts.policy) {			// basic input check
-			logger.error('[stitch] cannot find "identities" or "policy" field in endorsement policy. :', opts);
+			logger.error('[protobuf-handler] cannot find "identities" or "policy" field in endorsement policy. :', opts);
 			return null;
 		}
 
@@ -225,7 +222,7 @@ export class PolicyLib {
 
 		const p_signaturePolicy = this.p_build_policy(opts.policy, 0);	// create signature policy from policy
 		if (!p_signaturePolicy) {
-			logger.error('[stitch] policy field could not be built. the provided endorsement policy is not understood.');
+			logger.error('[protobuf-handler] policy field could not be built. the provided endorsement policy is not understood.');
 			return null;
 		} else {
 			const bsp_opts = {
@@ -234,7 +231,7 @@ export class PolicyLib {
 				p_identities: principal_list
 			};
 			const p_signaturePolicyEnvelope = this.p_build_signature_policy_envelope(bsp_opts);
-			logger.debug('[stitch] p_signaturePolicyEnvelope?:', p_signaturePolicyEnvelope.toObject());
+			logger.debug('[protobuf-handler] p_signaturePolicyEnvelope?:', p_signaturePolicyEnvelope.toObject());
 			return p_signaturePolicyEnvelope;
 		}
 	}*/
@@ -242,7 +239,7 @@ export class PolicyLib {
 	// recursive function to format a policy
 	p_build_policy(policy: any, depth: number) {
 		if (depth >= 10000) {
-			logger.error('[stitch] policy - field is too deeply nested, might be circular? aborting', depth);
+			logger.error('[protobuf-handler] policy - field is too deeply nested, might be circular? aborting', depth);
 			return null;
 		} else if (!policy || Object.keys(policy).length === 0) {
 			return null;						// sub policy does not exist - this is okay
@@ -254,7 +251,7 @@ export class PolicyLib {
 					signed_by: Number(policy['signed-by']),
 					n_out_of: null
 				};
-				logger.debug('[stitch] policy - making a signed_by', bsp_opts2);
+				logger.debug('[protobuf-handler] policy - making a signed_by', bsp_opts2);
 				const p_signaturePolicy = this.p_build_signature_policy(bsp_opts2);
 				return p_signaturePolicy;
 			} else {
@@ -273,14 +270,14 @@ export class PolicyLib {
 				}
 
 				const p_outOfAny = this.p_build_n_out_of({ n: signature_number, rules_list: subPolicies });
-				logger.debug('[stitch] policy - signature_number', signature_number, 'p_outOfAny: ', (p_outOfAny) ? pp(p_outOfAny.toObject()) : null);
+				logger.debug('[protobuf-handler] policy - signature_number', signature_number, 'p_outOfAny: ', (p_outOfAny) ? pp(p_outOfAny) : null);
 
 				// final step, build the signature policy
 				const bsp_opts2 = {
 					signed_by: null,
 					n_out_of: p_outOfAny
 				};
-				logger.debug('[stitch] policy - making a n_out_of', bsp_opts2);
+				logger.debug('[protobuf-handler] policy - making a n_out_of', bsp_opts2);
 				const p_signaturePolicy = this.p_build_signature_policy(bsp_opts2);
 				return p_signaturePolicy;
 			}
@@ -294,42 +291,42 @@ export class PolicyLib {
 		let rule = rules_map.MAJORITY;					// default rule
 		const rule_name = (opts && opts.rule) ? opts.rule.toUpperCase() : null;
 		if (!rule_name || rules_map[rule_name] === undefined) {
-			logger.error('[stitch] cannot find or invalid "rule". cannot build implicitMetaPolicy for signature policy. rule:', rule_name);
+			logger.error('[protobuf-handler] cannot find or invalid "rule". cannot build implicitMetaPolicy for signature policy. rule:', rule_name);
 			return null;
 		} else {
 			rule = rules_map[rule_name];
 		}
 
 		const p_implicitMetaPolicy = new Policies_ImplicitMetaPolicy();
-		p_implicitMetaPolicy.setRule(rule);
+		p_implicitMetaPolicy.rule = rule;
 		if (opts.sub_policy) {
-			p_implicitMetaPolicy.setSubPolicy(opts.sub_policy);
+			p_implicitMetaPolicy.sub_policy = opts.sub_policy;
 		} else if (opts.subPolicy) {
-			p_implicitMetaPolicy.setSubPolicy(opts.subPolicy);
+			p_implicitMetaPolicy.sub_policy = opts.subPolicy;
 		} else {
-			logger.warn('[stitch] there is no "subPolicy" field set for your implicit meta policy');
+			logger.warn('[protobuf-handler] there is no "subPolicy" field set for your implicit meta policy');
 		}
 
 		return p_implicitMetaPolicy;
 	}
 
 	// --------------------------------------------------------------------------------
-	// build a signature policy protobuf as binary - [call load_pb() before calling this function]
+	// build a signature policy protobuf as binary
 	// --------------------------------------------------------------------------------
 	__b_build_signature_policy_envelope(json: Bs2) {
-		const SignaturePolicyEnvelope = __pb_root.lookupType('common.SignaturePolicyEnvelope');
-		return <Uint8Array>SignaturePolicyEnvelope.encode(this.__build_signature_policy_envelope_alt(json)).finish();
+		const envelope_alt = this.__build_signature_policy_envelope_alt(json);
+		return envelope_alt ? <Uint8Array>Policy_SignaturePolicyEnvelope.encode(envelope_alt).finish() : null;
 	}
 
 	// --------------------------------------------------------------------------------
-	// build a custom cc policy - using Fabric's format - [call load_pb() before calling this function]
+	// build a custom cc policy - using Fabric's format
 	// --------------------------------------------------------------------------------
 	// ! see docs/sig_policy_syntax.md for more information and examples !
 	/*
 	json: {
 		version: 0,
 		identities: [{
-			principalClassification: 0,
+			principal_classification: 0,
 			principal: {
 				mspIdentifier: 'PeerOrg1',
 				role: 'ADMIN'
@@ -348,10 +345,10 @@ export class PolicyLib {
 	/* removed 05/04/2020 - use __build_signature_policy_envelope_alt instead
 	__build_signature_policy_envelope(json: Bs2) {
 		if (!json.rule) {
-			logger.error('[stitch] "rule" field not found in signature policy envelope');
+			logger.error('[protobuf-handler] "rule" field not found in signature policy envelope');
 			return null;
 		} else if (!json.identities) {
-			logger.error('[stitch] "identities" field not found in signature policy envelope');
+			logger.error('[protobuf-handler] "identities" field not found in signature policy envelope');
 			return null;
 		} else {
 
@@ -371,7 +368,7 @@ export class PolicyLib {
 
 			const SignaturePolicyEnvelope = __pb_root.lookupType('common.SignaturePolicyEnvelope');
 			let p_signaturePolicyEnvelope = SignaturePolicyEnvelope.fromObject(json);
-			logger.debug('[stitch] p_signaturePolicyEnvelope?:', SignaturePolicyEnvelope.toObject(p_signaturePolicyEnvelope));
+			logger.debug('[protobuf-handler] p_signaturePolicyEnvelope?:', SignaturePolicyEnvelope.toObject(p_signaturePolicyEnvelope));
 			return p_signaturePolicyEnvelope;
 		}
 	}*/
@@ -379,10 +376,10 @@ export class PolicyLib {
 	// same as above, but it only use protobuf.js to build a signature policy envelope
 	__build_signature_policy_envelope_alt(json: Bs2) {
 		if (!json.rule) {
-			logger.error('[stitch] "rule" field not found in signature policy envelope');
+			logger.error('[protobuf-handler] "rule" field not found in signature policy envelope');
 			return null;
 		} else if (!json.identities) {
-			logger.error('[stitch] "identities" field not found in signature policy envelope');
+			logger.error('[protobuf-handler] "identities" field not found in signature policy envelope');
 			return null;
 		} else {
 			const p_mspPrincipals = [];
@@ -392,7 +389,7 @@ export class PolicyLib {
 				if (json.identities[i].principal) {
 					const b_MSPRole = this.__b_build_msp_role(json.identities[i].principal);
 					if (b_MSPRole) {
-						const classification = json.identities[i].principalClassification || 0;	// default to 0, for the "ROLE" classification
+						const classification = json.identities[i].principal_classification || 0;	// default to 0, for the "ROLE" classification
 						const p_mspPrincipal = this.__build_msp_principal({ principal_classification: classification, b_principal: b_MSPRole });
 						p_mspPrincipals.push(p_mspPrincipal);				// create array of MSPPrincipal
 					}
@@ -404,20 +401,18 @@ export class PolicyLib {
 				identities: p_mspPrincipals, 								// repeated MSPPrincipal
 				rule: json.rule, 											// SignaturePolicy
 			};
-			const SignaturePolicyEnvelope = __pb_root.lookupType('common.SignaturePolicyEnvelope');
-			let p_signaturePolicyEnvelope = SignaturePolicyEnvelope.fromObject(spe);
-			logger.debug('[stitch] p_signaturePolicyEnvelope?:', SignaturePolicyEnvelope.toObject(p_signaturePolicyEnvelope));
+			let p_signaturePolicyEnvelope = Policy_SignaturePolicyEnvelope.fromObject(spe);
+			logger.debug('[protobuf-handler] p_signaturePolicyEnvelope?:', Policy_SignaturePolicyEnvelope.toObject(p_signaturePolicyEnvelope));
 			return p_signaturePolicyEnvelope;
 		}
 	}
 
 	// --------------------------------------------------------------------------------
-	// decode - [call load_pb() before calling this function]
+	// decode
 	// --------------------------------------------------------------------------------
 	__decode_signature_policy_envelope(pb: Uint8Array, full: boolean) {
-		const SignaturePolicyEnvelope = __pb_root.lookupType('common.SignaturePolicyEnvelope');
-		const message = SignaturePolicyEnvelope.decode(pb);
-		let obj = SignaturePolicyEnvelope.toObject(message, { defaults: false });
+		const message = Policy_SignaturePolicyEnvelope.decode(pb);
+		let obj = Policy_SignaturePolicyEnvelope.toObject(message, { defaults: false });
 
 		if (obj && full === true) {				// fully decode is requested
 			obj = this.decode_identities(obj.identities);
@@ -447,37 +442,34 @@ export class PolicyLib {
 	}
 
 	// --------------------------------------------------------------------------------
-	// decode - [call load_pb() before calling this function]
+	// decode
 	// --------------------------------------------------------------------------------
 	__decode_msp_role(pb: Uint8Array) {
-		const MSPRole = __pb_root.lookupType('common.MSPRole');
-		const message = MSPRole.decode(pb);
-		const obj = MSPRole.toObject(message, { defaults: false });
+		const message = MSP_Principle_MSPRole.decode(pb);
+		const obj = MSP_Principle_MSPRole.toObject(message, { defaults: false });
 		return obj;
 	}
 
 	// --------------------------------------------------------------------------------
-	// decode - [call load_pb() before calling this function]
+	// decode
 	// --------------------------------------------------------------------------------
 	__decode_implicit_policy(pb: Uint8Array) {
-		const ImplicitMetaPolicy = __pb_root.lookupType('common.ImplicitMetaPolicy');
-		const message = ImplicitMetaPolicy.decode(pb);
-		const obj = ImplicitMetaPolicy.toObject(message, { defaults: true });		// must be true to work...
+		const message = Policies_ImplicitMetaPolicy.decode(pb);
+		const obj = Policies_ImplicitMetaPolicy.toObject(message, { defaults: true });		// must be true to work...
 		return obj;
 	}
 
 	// -------------------------------------------------
-	// build a protos.ApplicationPolicy message - returns message - [call load_pb() before calling this function]
+	// build a protos.ApplicationPolicy message - returns message
 	// -------------------------------------------------
 	__build_application_policy(signature_policy: any, channel_config_policy_reference: any) {
-		const ApplicationPolicy = __pb_root.lookupType('protos.ApplicationPolicy');
 		const opts: any = {};
 		if (signature_policy) {														// message is of type "oneof", only 1 field should be set
-			opts.signaturePolicy = signature_policy;
+			opts.signature_policy = signature_policy;
 		} else {
-			opts.channelConfigPolicyReference = channel_config_policy_reference;
+			opts.channel_config_policy_reference = channel_config_policy_reference;
 		}
-		let message = ApplicationPolicy.create(opts);								// remember protobufjs expects camelCase keys
+		let message = common.ApplicationPolicy.create(opts);
 		return message;
 	}
 }
