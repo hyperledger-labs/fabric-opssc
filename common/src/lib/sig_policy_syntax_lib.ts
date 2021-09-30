@@ -13,9 +13,9 @@
 */
 // This code is based on https://github.com/hyperledger-labs/fabric-operations-console/blob/main/packages/stitch/src/libs/sig_policy_syntax_lib.ts
 
-// Libs built by us
-import { logger, underscores_2_camelCase } from './misc';
-import { MixedPolicySyntax } from './proto_handlers/collection_pb_lib';
+import { underscores_2_camelCase } from './misc';
+import { MixedPolicySyntax } from './collection_pb_lib';
+import { logger } from '../logger';
 
 // exports
 export { conformPolicySyntax };
@@ -68,7 +68,7 @@ export { conformPolicySyntax };
 */
 /*
 ----------------
-[FABRIC-SYNTAX] - nested rules are supported (each entry in "rules" is either a "nOutOf" or "signedBy" object)
+[FABRIC-SYNTAX] - nested rules are supported (each entry in "rules" is either a "n_out_of" or "signed_by" object)
 ----------------
 	input = {
 			version: 0,										// [optional] - defaults 0
@@ -86,13 +86,13 @@ export { conformPolicySyntax };
 				}
 			}],
 			rule: {
-				nOutOf: {
+				n_out_of: {
 					n: 2,
 					rules: [{
-						signedBy: 0
+						signed_by: 0
 					},
 					{
-						signedBy: 1
+						signed_by: 1
 					}]
 				}
 			}
@@ -112,12 +112,12 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 	// ---- Peer CLI Syntax ----- //
 	if (typeof input === 'string') {												// peer cli syntax is a simple string
 		const msps = cli_syntax_find_msp_ids(input);
-		logger.debug('[stitch] detected peer cli syntax - found msps in policy:', msps, identityPositionMap);
+		logger.debug('[protobuf-handler] detected peer cli syntax - found msps in policy:', msps, identityPositionMap);
 		for (let i in msps) {
 			policy_obj.identities.push({											// first build the identities list
-				principalClassification: 0,											// use principal_classification of 0, b/c atm we only use "ROLE" classification
+				principal_classification: 0,											// use principal_classification of 0, b/c atm we only use "ROLE" classification
 				principal: {
-					mspIdentifier: msps[i].mspId,
+					msp_identifier: msps[i].msp_id,
 					role: msps[i].role.toUpperCase()
 				}
 			});
@@ -127,7 +127,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 
 	// ---- Fabric Syntax ----- //
 	else if (input.identities && input.rule) {
-		logger.debug('[stitch] detected fabric syntax - found msps in policy:', input.identities);
+		logger.debug('[protobuf-handler] detected fabric syntax - found msps in policy:', input.identities);
 		policy_obj.version = input.version || policy_obj.version;
 		policy_obj.identities = underscores_2_camelCase(input.identities, null);
 		policy_obj.rule = underscores_2_camelCase(input.rule, null);
@@ -135,7 +135,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 
 	// ---- Fabric SDK Syntax ----- //
 	else if (input.identities && input.policy) {
-		logger.debug('[stitch] detected fabric-sdk syntax - found msps in policy:', input.identities);
+		logger.debug('[protobuf-handler] detected fabric-sdk syntax - found msps in policy:', input.identities);
 		policy_obj.version = input.version || policy_obj.version;
 		policy_obj.identities = fmt_sdk_identities(underscores_2_camelCase(input.identities, null));
 		policy_obj.rule = fmt_sdk_rule(input.policy, 0);
@@ -143,7 +143,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 
 	// ---- Unknown Syntax ----- //
 	else {
-		logger.error('[stitch] unknown signature policy syntax - unable to build protobuf');
+		logger.error('[protobuf-handler] unknown signature policy syntax - unable to build protobuf');
 		policy_obj.identities = null;
 		policy_obj.rule = null;
 	}
@@ -153,7 +153,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 		// error already logged
 		return null;
 	} else {
-		logger.info('[stitch] built signature policy object using Fabric syntax:', JSON.stringify(policy_obj, null, 2));
+		logger.info('[protobuf-handler] built signature policy object using Fabric syntax:', JSON.stringify(policy_obj, null, 2));
 		return policy_obj;
 	}
 
@@ -169,7 +169,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 			if (msp && pos >= 0) {
 				if (typeof identityPositionMap[msp] === 'undefined') {				// only add if we haven't seen it yet
 					ret.push({
-						mspId: msp.substring(0, pos),
+						msp_id: msp.substring(0, pos),
 						role: msp.substring(pos + 1),
 					});
 					identityPositionMap[msp] = ret.length - 1;
@@ -199,11 +199,11 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 	// -------------------------------------------------
 	function build_rules_from_cli(str: string, words: string[], ruleObj: any, depth: number): any {
 		if (depth >= 1000) {													// watch dog, make sure we don't end up looping forever
-			logger.error('[stitch] cannot build policy, too deep', depth);
+			logger.error('[protobuf-handler] cannot build policy, too deep', depth);
 			throw Error('cannot parse policy, too deep');
 		}
 		if (!words || words.length === 0) {										// check if we are at the end
-			logger.debug('[stitch] a single rule is done, no more words to check', ruleObj, depth);
+			logger.debug('[protobuf-handler] a single rule is done, no more words to check', ruleObj, depth);
 			return ruleObj;
 		}
 
@@ -230,34 +230,34 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 
 		// ---- Skip Character ---- //
 		else if (onWord.length === 1 && skippable_chars.includes(onWord)) {		// these characters are meaningless here
-			logger.debug('[stitch] on skippable word: "' + onWord + '"');
+			logger.debug('[protobuf-handler] on skippable word: "' + onWord + '"');
 			return build_rules_from_cli(str, words.slice(1), ruleObj, ++depth);
 		}
 
 		// ---- N Number Word ---- // (OutOf will have a integer parameter)
 		else if (Number.isInteger(Number(onWord))) {
 			if (onCmd !== _OUTOF) {
-				logger.error('[stich] parsing error. unexpected range for command:', onCmd, 'range:', onWord);
+				logger.error('[protobuf-handler] parsing error. unexpected range for command:', onCmd, 'range:', onWord);
 				throw Error('invalid policy');
 			} else {
-				logger.debug('[stitch] on a n number word, skipping: "' + onWord + '"');
+				logger.debug('[protobuf-handler] on a n number word, skipping: "' + onWord + '"');
 				return build_rules_from_cli(str, words.slice(1), ruleObj, ++depth);
 			}
 		}
 
 		// ---- Probably a MSP Word ---- //
-		logger.debug('[stitch] on suspected msp word:', onWord);
-		if (!ruleObj.nOutOf.rules) { ruleObj.nOutOf.rules = []; }
+		logger.debug('[protobuf-handler] on suspected msp word:', onWord);
+		if (!ruleObj.n_out_of.rules) { ruleObj.n_out_of.rules = []; }
 		let msp = onWord;
 		if (msp && typeof identityPositionMap[msp] !== 'undefined') {			// if its in the map, its definitely a msp word
-			ruleObj.nOutOf.rules.push({ signedBy: identityPositionMap[msp] });	// the value of signedBy its the array position of this msp
-			logger.debug('[stitch] added msp to inner ruleObj:', JSON.stringify(ruleObj, null, 2));
+			ruleObj.n_out_of.rules.push({ signed_by: identityPositionMap[msp] });	// the value of signed_by its the array position of this msp
+			logger.debug('[protobuf-handler] added msp to inner ruleObj:', JSON.stringify(ruleObj, null, 2));
 			return build_rules_from_cli(str, words.slice(1), ruleObj, ++depth);
 		}
 
 		// ---- Unknown Word ---- //
 		else {
-			logger.error('[stich] parsing error. msp is unknown which is impossible. maybe unknown command.', msp);
+			logger.error('[protobuf-handler] parsing error. msp is unknown which is impossible. maybe unknown command.', msp);
 			throw Error('invalid policy');
 		}
 
@@ -268,40 +268,40 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 		// parse the logic command like AND(), OR(), OUTOF()
 		// -------------------------------------------------
 		function parse_logic_cmd() {
-			logger.debug('[stitch] on logic command word:', ucOnWord);
-			logger.debug('[stitch] orig words:', words);
+			logger.debug('[protobuf-handler] on logic command word:', ucOnWord);
+			logger.debug('[protobuf-handler] orig words:', words);
 
 			// find the end of this condition
 			const parsed = getCondition(words.join(''));
 			if (!parsed) {
-				logger.error('[stich] unable to parse sig policy for a single condition. missing parentheses?', parsed);
+				logger.error('[protobuf-handler] unable to parse sig policy for a single condition. missing parentheses?', parsed);
 				throw Error('invalid policy');
 			} else {
-				logger.debug('[stitch] parsed logic condition:', parsed);
+				logger.debug('[protobuf-handler] parsed logic condition:', parsed);
 				const single_condition = parsed.condition;
 				sc_words = single_condition.match(break_words_regexp) || [];
-				logger.debug('[stitch] parsed words', sc_words);
+				logger.debug('[protobuf-handler] parsed words', sc_words);
 			}
 
 			// build rules for THIS command
 			const ruleObjInner = {
-				nOutOf: {
+				n_out_of: {
 					n: 99,															// set later, n is the number of rules that must be met
-					rules: [],														// rules can contain a signedBy object or a recursive nOutOf object
+					rules: [],														// rules can contain a signed_by object or a recursive n_out_of object
 				}
 			};
 			build_rules_from_cli(str, sc_words.slice(1), ruleObjInner, ++depth);	// go build the rules for this command
-			ruleObjInner.nOutOf.n = setN(ucOnWord, words, ruleObjInner);			// now that the rules are built, set the n value
+			ruleObjInner.n_out_of.n = setN(ucOnWord, words, ruleObjInner);			// now that the rules are built, set the n value
 
 			// check the n value
 			if (ucOnWord === _OUTOF) {
-				if (ruleObjInner.nOutOf.n > ruleObjInner.nOutOf.rules.length) {
-					logger.error('[stich] invalid value for "OutOf". requires ' + ruleObjInner.nOutOf.n +
-						' rules to be met but there are only ' + ruleObjInner.nOutOf.rules.length + 'rules');
+				if (ruleObjInner.n_out_of.n > ruleObjInner.n_out_of.rules.length) {
+					logger.error('[protobuf-handler] invalid value for "OutOf". requires ' + ruleObjInner.n_out_of.n +
+						' rules to be met but there are only ' + ruleObjInner.n_out_of.rules.length + 'rules');
 					throw Error('invalid value for "OutOf" [1]');
 				}
-				if (!Number.isInteger(ruleObjInner.nOutOf.n)) {
-					logger.error('[stich] invalid value for "OutOf". must be an integer');
+				if (!Number.isInteger(ruleObjInner.n_out_of.n)) {
+					logger.error('[protobuf-handler] invalid value for "OutOf". must be an integer');
 					throw Error('invalid value for "OutOf" [2]');
 				}
 			}
@@ -310,9 +310,9 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 			if (!ruleObj) {
 				ruleObj = ruleObjInner;												// ths is the very first rule in the outer most command
 			} else {
-				ruleObj.nOutOf.rules.push(ruleObjInner);							// add rules to PREV command
+				ruleObj.n_out_of.rules.push(ruleObjInner);							// add rules to PREV command
 			}
-			logger.debug('[stitch] finished inner ruleObj:', JSON.stringify(ruleObj, null, 2), parsed ? parsed.resume : null);
+			logger.debug('[protobuf-handler] finished inner ruleObj:', JSON.stringify(ruleObj, null, 2), parsed ? parsed.resume : null);
 
 			// see if we need to resume a past command, else we are done and can return this rule object
 			if (parsed && parsed.resume) {
@@ -331,11 +331,11 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 				return 1;									// OR's need only 1 rule met, n=1
 			}
 			if (uc_logic === _AND) {
-				if (!rules_obj || !rules_obj.nOutOf || !rules_obj.nOutOf.rules) {
-					logger.error('[stich] invalid policy. cannot set n for "AND" bc the rules are missing.', rules_obj);
+				if (!rules_obj || !rules_obj.n_out_of || !rules_obj.n_out_of.rules) {
+					logger.error('[protobuf-handler] invalid policy. cannot set n for "AND" bc the rules are missing.', rules_obj);
 					throw Error('invalid policy for "AND" [1]');
 				}
-				return rules_obj.nOutOf.rules.length;		// AND's must have all rules met, n=length of rules
+				return rules_obj.n_out_of.rules.length;		// AND's must have all rules met, n=length of rules
 			}
 			if (uc_logic === _OUTOF) {
 				return Number(policy_words[2]);				// OutOf's n is in input, 3rd word -> [0]='OutOf', [1]='(', [2]=n
@@ -376,7 +376,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 		const ret = [];
 		for (let i in identities) {
 			if (!identities[i].role || !identities[i].role.mspId || !identities[i].role.name) {
-				logger.error('[stitch] cannot build policy b/c missing "mspId" or "name" in identities position:', i);
+				logger.error('[protobuf-handler] cannot build policy b/c missing "mspId" or "name" in identities position:', i);
 				policy_obj.identities = null;
 				break;
 			} else {
@@ -397,7 +397,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 	// -------------------------------------------------
 	function fmt_sdk_rule(policy: any, depth: number) {
 		if (depth >= 1000) {
-			logger.error('[stitch] sdk-policy-syntax - policy is too deeply nested or might be circular? aborting', depth);
+			logger.error('[protobuf-handler] sdk-policy-syntax - policy is too deeply nested or might be circular? aborting', depth);
 			return null;
 		} else if (!policy || Object.keys(policy).length === 0) {
 			return null;																	// sub policy does not exist - this is okay
@@ -405,7 +405,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 
 		// "signed-by" type of policy
 		if (policy['signed-by'] >= 0) {
-			return { signedBy: policy['signed-by'] };										// return mostly as is, use camelCase
+			return { signed_by: policy['signed-by'] };										// return mostly as is, use camelCase
 		}
 
 		// "n-of" type of policy
@@ -423,7 +423,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 			}
 
 			return {																		// return using fabric's syntax
-				nOutOf: {
+				n_out_of: {
 					n: signature_number,
 					rules: subPolicies
 				}
