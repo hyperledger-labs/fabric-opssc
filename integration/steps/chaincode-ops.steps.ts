@@ -276,11 +276,6 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     expect(response.data).to.not.equals(null);
     switch (lang) {
       case 'golang':
-        expect(response.data.color).to.equals('blue');
-        expect(response.data.size).to.equals(5);
-        expect(response.data.owner).to.equals('Tomoko');
-        expect(response.data.appraisedValue).to.equals(300);
-        break;
       case 'typescript':
         expect(response.data.Color).to.equals('blue');
         expect(response.data.Size).to.equals(5);
