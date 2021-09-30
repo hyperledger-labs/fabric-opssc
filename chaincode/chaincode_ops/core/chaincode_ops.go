@@ -38,6 +38,7 @@ type ChaincodeDefinition struct {
 	Sequence            int64  `json:"sequence"`
 	InitRequired        bool   `json:"initRequired"`
 	ValidationParameter string `json:"validationParameter"`
+	Collections         string `json:"collections,omitempty" metadata:",optional"`
 }
 
 // ChaincodeUpdateProposal describes a new chaincode update proposal that is stored as a state in the ledger.
