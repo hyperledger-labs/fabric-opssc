@@ -17,6 +17,7 @@ export type ChaincodeDefinition = {
   sequence: number;
   initRequired: boolean;
   validationParameter: string;
+  collections?: string;
 }
 
 export type ChaincodeUpdateProposal = {

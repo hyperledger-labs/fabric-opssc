@@ -268,7 +268,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         version: this.proposal.chaincodeDefinition.sequence.toString(),
         validation_parameter: this.decodeValidationParameterFromBase64(),
         init_required: this.proposal.chaincodeDefinition.initRequired,
-        package_id: this.packageID
+        package_id: this.packageID,
+        collections: this.decodeCollectionsFromBase64(),
       }
     };
     await this.lifecycleCommands.approve(chaincodeRequest);
@@ -294,6 +295,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         version: this.proposal.chaincodeDefinition.sequence.toString(),
         validation_parameter: this.decodeValidationParameterFromBase64(),
         init_required: this.proposal.chaincodeDefinition.initRequired,
+        collections: this.decodeCollectionsFromBase64(),
       }
     };
     await this.lifecycleCommands.commit(chaincodeRequest);
@@ -316,6 +318,20 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     }
     return decodedValidationParameter;
   }
+
+  private decodeCollectionsFromBase64(): any {
+    if (this.proposal.chaincodeDefinition.collections === undefined) return undefined;
+
+    const collectionsAsString = Buffer.from(this.proposal.chaincodeDefinition.collections.toString(), 'base64').toString();
+    logger.info('Private collections:\n%s', collectionsAsString);
+    try {
+      return JSON.parse(collectionsAsString);
+    } catch (e) {
+      logger.error('Private collections can not be parsed as JSON.');
+      throw e;
+    }
+  }
+
 
   protected getGoPath(): string {
     return this.config.goPath || '';
