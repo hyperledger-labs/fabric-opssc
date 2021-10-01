@@ -23,7 +23,6 @@ import MSP_Principle_MSPPrincipal = common.MSPPrincipal;
 import Policy_SignaturePolicy = common.SignaturePolicy;
 import MSP_Principle_MSPRole = common.MSPRole;
 
-export { rules_map, roles_map, Bse, find_role };
 export class PolicyLib {
 
 	// --------------------------------------------------------------------------------
@@ -288,14 +287,12 @@ export class PolicyLib {
 	// build a implicit meta policy protobuf
 	// --------------------------------------------------------------------------------
 	p_build_implicit_meta_policy(opts: Bmp) {
-		let rule = rules_map.MAJORITY;					// default rule
 		const rule_name = (opts && opts.rule) ? opts.rule.toUpperCase() : null;
 		if (!rule_name || rules_map[rule_name] === undefined) {
 			logger.error('[protobuf-handler] cannot find or invalid "rule". cannot build implicitMetaPolicy for signature policy. rule:', rule_name);
 			return null;
-		} else {
-			rule = rules_map[rule_name];
 		}
+		const	rule = rules_map[rule_name];
 
 		const p_implicitMetaPolicy = new Policies_ImplicitMetaPolicy();
 		p_implicitMetaPolicy.rule = rule;
@@ -548,3 +545,5 @@ interface Bmr {
 	role: string | null;
 	msp_identifier: string | null;
 }
+
+export { rules_map, roles_map, Bse, find_role };
