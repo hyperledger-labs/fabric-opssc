@@ -262,7 +262,6 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 		}
 
 		// all done
-		return null;
 
 		// -------------------------------------------------
 		// parse the logic command like AND(), OR(), OUTOF()
@@ -312,10 +311,10 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 			} else {
 				ruleObj.n_out_of.rules.push(ruleObjInner);							// add rules to PREV command
 			}
-			logger.debug('[protobuf-handler] finished inner ruleObj:', JSON.stringify(ruleObj, null, 2), parsed ? parsed.resume : null);
+			logger.debug('[protobuf-handler] finished inner ruleObj:', JSON.stringify(ruleObj, null, 2), parsed.resume);
 
 			// see if we need to resume a past command, else we are done and can return this rule object
-			if (parsed && parsed.resume) {
+			if (parsed.resume) {
 				const resume_words = parsed.resume.match(break_words_regexp) || [];
 				return build_rules_from_cli(str, resume_words.slice(1), ruleObj, ++depth);
 			} else {
@@ -331,7 +330,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 				return 1;									// OR's need only 1 rule met, n=1
 			}
 			if (uc_logic === _AND) {
-				if (!rules_obj || !rules_obj.n_out_of || !rules_obj.n_out_of.rules) {
+				if (!rules_obj.n_out_of || !rules_obj.n_out_of.rules) {
 					logger.error('[protobuf-handler] invalid policy. cannot set n for "AND" bc the rules are missing.', rules_obj);
 					throw Error('invalid policy for "AND" [1]');
 				}
