@@ -29,11 +29,19 @@ Please refer to the following files to get the detail of OpsSC for Hyperledger F
 
 ### Other related materials
 
-To get the overview of the OpsSC, please refer to pp.19-24 and pp.31-38 of [the presentation material in Hyperledger Global Forum 2020](https://static.sched.com/hosted_files/hgf20/c4/Practical_Tools_for_Enterprise_Uses_of_Fabric.pub.pdf).
+Please refer to the following slides to get the overview of the OpsSC:
+- [1] [Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x](https://static.sched.com/hosted_files/hgf2021/a3/HyperledgerGlobalForum_OpsSC_pub.pdf), Hyperledger Global Forum 2021.
+- [2] [Practical Tools for Enterprise Uses of Hyperledger Fabric (Audit and System Operations)](https://static.sched.com/hosted_files/hgf20/c4/Practical_Tools_for_Enterprise_Uses_of_Fabric.pub.pdf), Hyperledger Global Forum 2020.
+  - OpsSC is presented in pp.19-24 and pp.31-38.
 
-Please refer to the following papers to understand the detail of the OpsSC concept.
-- [1] [Smart-Contract Based System Operations for Permissioned Blockchain](https://ieeexplore.ieee.org/document/8328745), BSC 2018, pp.1-6.
-- [2] [Design and Evaluation of Smart-Contract-based System Operations for Permissioned Blockchain-based Systems](https://arxiv.org/ftp/arxiv/papers/1901/1901.11249.pdf), arXiv:1901.11249, pp.1-11, 2019.
+Please refer to the following papers to understand the detail of the OpsSC concept:
+- [3] [Smart-Contract Based System Operations for Permissioned Blockchain](https://ieeexplore.ieee.org/document/8328745), BSC 2018, pp.1-6.
+- [4] [Design and Evaluation of Smart-Contract-based System Operations for Permissioned Blockchain-based Systems](https://arxiv.org/ftp/arxiv/papers/1901/1901.11249.pdf), arXiv:1901.11249, pp.1-11, 2019.
+
+## Feedback and contribution welcome!
+
+- [Hyperledger Chat](https://chat.hyperledger.org/channel/fabric-opssc)
+- [GitHub Issues](https://github.com/hyperledger-labs/fabric-opssc/issues)
 
 ## Prerequisites
 
@@ -927,6 +935,19 @@ The current implementation has limitations. The main limitations are as follows:
 - Improving test coverage
 - Support deploying external chaincode servers (for chaincode operations)
 - Porting the OpsSC API server and agent implementations from Node SDK-based to Go SDK-based (after the GA is released)
+
+## Changes
+
+### v0.2.0 (Oct. 5, 2021)
+- Support chaincode deployment with private data for chaincode_ops
+- Enhance voting functions for chaincode_ops - ([Design memo](./docs/design#design-of-state-transitions-for-operational-proposals-in-opssc))
+- Support both Hyperledger Fabric v2.3 and v2.2 series
+- Support system configurations when there are multiple peers in an organization
+
+### v0.1.0 (Jan. 9, 2021)
+- The initial version of Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x
+  - Support chaincode operations (chaincode_ops): Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x.
+  - Support channel operations (channel_ops): Streamline channel configuration updates across multiple organizations (e.g., creating a channel, adding an organization, adding an orderer etc.)
 
 ## Authors
 
