@@ -6,9 +6,8 @@
 
 import { protos as fabric_common_protos, lifecycle as lifecycle_protos } from 'fabric-protos';
 import { Contract, DefaultQueryHandlerStrategies, Gateway, GatewayOptions, Identity } from 'fabric-network';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { buildPolicy } = require('./lib/Policy');
 import { CollectionLib } from './lib/collection_pb_lib';
+import { createEndorsementPolicyDefinition } from './lib/application_policy_lib';
 import { finalPackage as finalPackageChaincode, package as packageChaincode } from './lib/Packager';
 import { Channel, Endorser } from 'fabric-common';
 import crypto from 'crypto';
@@ -427,33 +426,6 @@ export class ChaincodeLifecycleCommands {
       this.gateway = null;
     }
   }
-}
-
-/*
- * createEndorsementPolicyDefinition is an internal method to create ProtoBuffer encoded endorsement policy.
- * This is based on the implementation of fabric-client/lib/Chaincode.js in v2.0.0-beta.2
- * in https://github.com/hyperledger/fabric-sdk-node.
- */
-function createEndorsementPolicyDefinition(policy: any): Uint8Array {
-
-  // Case: Return as is if already encoded
-  if (policy instanceof Uint8Array) {
-    return policy as Uint8Array;
-  }
-
-  // Case: Build and encode the policy if string or json object
-  const application_policy = new fabric_common_protos.ApplicationPolicy();
-
-  if (typeof policy === 'string') {
-    application_policy.channel_config_policy_reference = policy;
-  } else if (policy instanceof Object) {
-    const signature_policy = buildPolicy(null, policy, true);
-    application_policy.signature_policy = signature_policy;
-  } else {
-    throw new Error('The endorsement policy is not valid');
-  }
-
-  return fabric_common_protos.ApplicationPolicy.encode(application_policy).finish();
 }
 
 /**
