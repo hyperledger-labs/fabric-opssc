@@ -13,7 +13,6 @@
 */
 // This code is based on https://github.com/hyperledger-labs/fabric-operations-console/blob/main/packages/stitch/src/libs/sig_policy_syntax_lib.ts
 
-import { underscores_2_camelCase } from './misc';
 import { MixedPolicySyntax } from './collection_pb_lib';
 import { logger } from '../logger';
 
@@ -129,15 +128,15 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 	else if (input.identities && input.rule) {
 		logger.debug('[protobuf-handler] detected fabric syntax - found msps in policy:', input.identities);
 		policy_obj.version = input.version || policy_obj.version;
-		policy_obj.identities = underscores_2_camelCase(input.identities, null);
-		policy_obj.rule = underscores_2_camelCase(input.rule, null);
+		policy_obj.identities = input.identities;
+		policy_obj.rule = input.rule;
 	}
 
 	// ---- Fabric SDK Syntax ----- //
 	else if (input.identities && input.policy) {
 		logger.debug('[protobuf-handler] detected fabric-sdk syntax - found msps in policy:', input.identities);
 		policy_obj.version = input.version || policy_obj.version;
-		policy_obj.identities = fmt_sdk_identities(underscores_2_camelCase(input.identities, null));
+		policy_obj.identities = fmt_sdk_identities(input.identities);
 		policy_obj.rule = fmt_sdk_rule(input.policy, 0);
 	}
 
@@ -380,9 +379,9 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
 				break;
 			} else {
 				ret.push({
-					principalClassification: 0,				// use principal_classification of 0, b/c atm we only use "ROLE" classification
+					principal_classification: 0,				// use principal_classification of 0, b/c atm we only use "ROLE" classification
 					principal: {
-						mspIdentifier: identities[i].role.mspId,
+						msp_identifier: identities[i].role.mspId,
 						role: identities[i].role.name.toUpperCase()
 					}
 				});
