@@ -78,14 +78,29 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   private createBasicCCParameters(lang: string): [string, string, string|undefined] {
     const basePath = 'sample-environments/fabric-samples/asset-transfer-basic';
-    const validationParameterBase64 = Buffer.from('/Channel/Application/Endorsement').toString('base64');
     const collectionsBase64 = undefined;
+    let validationParameter;
+    let validationParameterBase64;
     switch (lang) {
       case 'golang':
+        validationParameterBase64 = Buffer.from('/Channel/Application/Endorsement').toString('base64'); // PEER-CLI-SYNTAX
         return [process.env.IT_REMOTE_BASIC_GO_CC_PATH || `${basePath}/chaincode-go`, validationParameterBase64, collectionsBase64];
       case 'javascript':
+        validationParameter = JSON.stringify( // SDK-SYNTAX
+          {
+            identities: [
+              { role: { name: 'peer', mspId: 'Org1MSP' } },
+              { role: { name: 'peer', mspId: 'Org2MSP' } }
+            ],
+            policy: {
+              '2-of': [{ 'signed-by': 0 }, { 'signed-by': 1 }]
+            }
+          });
+        validationParameterBase64 = Buffer.from(validationParameter).toString('base64');
         return [process.env.IT_REMOTE_BASIC_JS_CC_PATH || `${basePath}/chaincode-javascript`, validationParameterBase64, collectionsBase64];
       case 'typescript':
+        validationParameter = `AND('Org1MSP.peer', 'Org2MSP.peer')`; // PEER-CLI-SYNTAX
+        validationParameterBase64 = Buffer.from(validationParameter).toString('base64');
         return [process.env.IT_REMOTE_BASIC_TS_CC_PATH || `${basePath}/chaincode-typescript`, validationParameterBase64, collectionsBase64];
       default:
         expect.fail(`currently, ${lang} is not supported`);
@@ -94,7 +109,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   private createPrivateCCParameters(lang: string): [string, string, string|undefined] {
     const basePath = 'sample-environments/fabric-samples/asset-transfer-private-data';
-    const validationParameter = JSON.stringify(
+    const validationParameter = JSON.stringify( // SDK-SYNTAX
       {
         identities: [
           { role: { name: 'peer', mspId: 'Org1MSP' } },
@@ -109,35 +124,58 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       [
         {
           name: 'assetCollection',
-          member_orgs_policy: `OR('Org1MSP.member', 'Org2MSP.member')`,
+          member_orgs_policy: `OR('Org1MSP.member', 'Org2MSP.member')`, // PEER-CLI-SYNTAX
           required_peer_count: 1,
           maximum_peer_count: 1,
-          block_to_live:1000000,
+          block_to_live: 1000000,
           member_only_read: true,
           member_only_write: true
         },
         {
           name: 'Org1MSPPrivateCollection',
-          member_orgs_policy: `OR('Org1MSP.member')`,
+          member_orgs_policy: { // FABRIC-SYNTAX
+            identities: [{
+              principal_classification: 0,
+              principal: {
+                msp_identifier: 'Org1MSP',
+                role: 'MEMBER'
+              },
+            }],
+            rule: {
+              n_out_of: {
+                n: 1,
+                rules: [{
+                  signed_by: 0
+                }]
+              }
+            }
+          },
           required_peer_count: 0,
           maximum_peer_count: 1,
-          block_to_live:3,
+          block_to_live: 3,
           member_only_read: true,
           member_only_write: false,
           endorsement_policy: {
-            signature_policy: `OR('Org1MSP.member')`
+            signature_policy: `OR('Org1MSP.member')` // PEER-CLI-SYNTAX
           }
         },
         {
           name: 'Org2MSPPrivateCollection',
-          member_orgs_policy: `OR('Org2MSP.member')`,
+          member_orgs_policy: `OR('Org2MSP.member')`, // PEER-CLI-SYNTAX
           required_peer_count: 0,
           maximum_peer_count: 1,
-          block_to_live:3,
+          block_to_live: 3,
           member_only_read: true,
           member_only_write: false,
           endorsement_policy: {
-            signature_policy: `OR('Org2MSP.member')`
+            signature_policy: { // SDK-SYNTAX
+              identities: [
+                { role: { name: 'member', mspId: 'Org2MSP' } }
+              ],
+              policy: {
+                '1-of': [{ 'signed-by': 0 }]
+              }
+            }
           }
          }
        ]
