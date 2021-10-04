@@ -1,6 +1,7 @@
 vendor/
 node_modules
 common/src/*.js
+common/src/*/*.js
 opssc-agent/src/*.js
 opssc-api-server/src/*.js
 */jsdoc
