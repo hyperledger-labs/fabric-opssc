@@ -775,7 +775,7 @@ The server internally creates the signature by using the content of the proposal
 
   * **Code:** 200 <br />
     **Content:** The version of the API server <br />
-    `"0.1.0"`
+    `"0.2.0"`
 
 * **Error Response:**
 
