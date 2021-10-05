@@ -219,9 +219,9 @@ export class ChaincodeLifecycleCommands {
     const args = [b_approveChaincodeDefinitionForMyOrgArgs];
 
     // For debug:
-		// const p_test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.decode(b_approveChaincodeDefinitionForMyOrgArgs);
-		// const test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.toObject(p_test, { defaults: false, bytes: String });
-		// console.log('debug approve chaincode definition', test, JSON.stringify(test));
+    // const p_test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.decode(b_approveChaincodeDefinitionForMyOrgArgs);
+    // const test = lifecycle_protos.ApproveChaincodeDefinitionForMyOrgArgs.toObject(p_test, { defaults: false, bytes: String });
+    // console.log('debug approve chaincode definition', test, JSON.stringify(test));
 
     const transaction = this.lifecycleSCC!.createTransaction('ApproveChaincodeDefinitionForMyOrg');
     transaction.setEndorsingPeers(this.channel!.getEndorsers(this.identity.mspId));
@@ -270,9 +270,9 @@ export class ChaincodeLifecycleCommands {
     const args = [b_commitChaincodeDefinitionForMyOrgArgs];
 
     // For debug:
-		// const p_test = lifecycle_protos.CommitChaincodeDefinitionArgs.decode(b_commitChaincodeDefinitionForMyOrgArgs);
-		// const test = lifecycle_protos.CommitChaincodeDefinitionArgs.toObject(p_test, { defaults: false, bytes: String });
-		// console.log('debug committed chaincode definition', test, JSON.stringify(test));
+    // const p_test = lifecycle_protos.CommitChaincodeDefinitionArgs.decode(b_commitChaincodeDefinitionForMyOrgArgs);
+    // const test = lifecycle_protos.CommitChaincodeDefinitionArgs.toObject(p_test, { defaults: false, bytes: String });
+    // console.log('debug committed chaincode definition', test, JSON.stringify(test));
 
     const transaction = this.lifecycleSCC!.createTransaction('CommitChaincodeDefinition');
 

@@ -34,7 +34,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     const commitID = process.env.IT_REMOTE_COMMIT_ID || 'main';
     const [pathToSourceFiles, validationParameter, collections] = this.createCCParameters(ccTemplate, lang);
 
-    let proposal = {
+    const proposal = {
       ID: `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`,
       channelID: channelID,
       chaincodeName: `${ccName}_${ChaincodeOpsSteps.SUFFIX}`,
@@ -99,7 +99,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
         validationParameterBase64 = Buffer.from(validationParameter).toString('base64');
         return [process.env.IT_REMOTE_BASIC_JS_CC_PATH || `${basePath}/chaincode-javascript`, validationParameterBase64, collectionsBase64];
       case 'typescript':
-        validationParameter = `AND('Org1MSP.peer', 'Org2MSP.peer')`; // PEER-CLI-SYNTAX
+        validationParameter = 'AND(\'Org1MSP.peer\', \'Org2MSP.peer\')'; // PEER-CLI-SYNTAX
         validationParameterBase64 = Buffer.from(validationParameter).toString('base64');
         return [process.env.IT_REMOTE_BASIC_TS_CC_PATH || `${basePath}/chaincode-typescript`, validationParameterBase64, collectionsBase64];
       default:
@@ -124,7 +124,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       [
         {
           name: 'assetCollection',
-          member_orgs_policy: `OR('Org1MSP.member', 'Org2MSP.member')`, // PEER-CLI-SYNTAX
+          member_orgs_policy: 'OR(\'Org1MSP.member\', \'Org2MSP.member\')', // PEER-CLI-SYNTAX
           required_peer_count: 1,
           maximum_peer_count: 1,
           block_to_live: 1000000,
@@ -156,12 +156,12 @@ export class ChaincodeOpsSteps extends BaseStepClass {
           member_only_read: true,
           member_only_write: false,
           endorsement_policy: {
-            signature_policy: `OR('Org1MSP.member')` // PEER-CLI-SYNTAX
+            signature_policy: 'OR(\'Org1MSP.member\')' // PEER-CLI-SYNTAX
           }
         },
         {
           name: 'Org2MSPPrivateCollection',
-          member_orgs_policy: `OR('Org2MSP.member')`, // PEER-CLI-SYNTAX
+          member_orgs_policy: 'OR(\'Org2MSP.member\')', // PEER-CLI-SYNTAX
           required_peer_count: 0,
           maximum_peer_count: 1,
           block_to_live: 3,
@@ -177,8 +177,8 @@ export class ChaincodeOpsSteps extends BaseStepClass {
               }
             }
           }
-         }
-       ]
+        }
+      ]
     );
     const collectionsBase64 = Buffer.from(collections).toString('base64');
     switch (lang) {
@@ -414,83 +414,83 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   private createExpectedCollections(): any {
     return {
-      "config": [
+      'config': [
         {
-          "static_collection_config": {
-            "name": "assetCollection",
-            "member_orgs_policy": {
-              "signature_policy": {
-                "rule": {
-                  "n_out_of": {
-                    "n": 1,
-                    "rules": [
+          'static_collection_config': {
+            'name': 'assetCollection',
+            'member_orgs_policy': {
+              'signature_policy': {
+                'rule': {
+                  'n_out_of': {
+                    'n': 1,
+                    'rules': [
                       {
-                        "signed_by": 0
+                        'signed_by': 0
                       },
                       {
-                        "signed_by": 1
+                        'signed_by': 1
                       }
                     ]
                   }
                 },
-                "identities": [
+                'identities': [
                   {
-                    "principal": "CgdPcmcxTVNQEAA="
+                    'principal': 'CgdPcmcxTVNQEAA='
                   },
                   {
-                    "principal": "CgdPcmcyTVNQEAA="
+                    'principal': 'CgdPcmcyTVNQEAA='
                   }
                 ]
               }
             },
-            "required_peer_count": 1,
-            "maximum_peer_count": 1,
-            "block_to_live": "1000000",
-            "member_only_read": true,
-            "member_only_write": true,
-            "endorsement_policy": {}
+            'required_peer_count': 1,
+            'maximum_peer_count': 1,
+            'block_to_live': '1000000',
+            'member_only_read': true,
+            'member_only_write': true,
+            'endorsement_policy': {}
           }
         },
         {
-          "static_collection_config": {
-            "name": "Org1MSPPrivateCollection",
-            "member_orgs_policy": {
-              "signature_policy": {
-                "rule": {
-                  "n_out_of": {
-                    "n": 1,
-                    "rules": [
+          'static_collection_config': {
+            'name': 'Org1MSPPrivateCollection',
+            'member_orgs_policy': {
+              'signature_policy': {
+                'rule': {
+                  'n_out_of': {
+                    'n': 1,
+                    'rules': [
                       {
-                        "signed_by": 0
+                        'signed_by': 0
                       }
                     ]
                   }
                 },
-                "identities": [
+                'identities': [
                   {
-                    "principal": "CgdPcmcxTVNQEAA="
+                    'principal': 'CgdPcmcxTVNQEAA='
                   }
                 ]
               }
             },
-            "maximum_peer_count": 1,
-            "block_to_live": "3",
-            "member_only_read": true,
-            "endorsement_policy": {
-              "signature_policy": {
-                "rule": {
-                  "n_out_of": {
-                    "n": 1,
-                    "rules": [
+            'maximum_peer_count': 1,
+            'block_to_live': '3',
+            'member_only_read': true,
+            'endorsement_policy': {
+              'signature_policy': {
+                'rule': {
+                  'n_out_of': {
+                    'n': 1,
+                    'rules': [
                       {
-                        "signed_by": 0
+                        'signed_by': 0
                       }
                     ]
                   }
                 },
-                "identities": [
+                'identities': [
                   {
-                    "principal": "CgdPcmcxTVNQEAA="
+                    'principal': 'CgdPcmcxTVNQEAA='
                   }
                 ]
               }
@@ -498,45 +498,45 @@ export class ChaincodeOpsSteps extends BaseStepClass {
           }
         },
         {
-          "static_collection_config": {
-            "name": "Org2MSPPrivateCollection",
-            "member_orgs_policy": {
-              "signature_policy": {
-                "rule": {
-                  "n_out_of": {
-                    "n": 1,
-                    "rules": [
+          'static_collection_config': {
+            'name': 'Org2MSPPrivateCollection',
+            'member_orgs_policy': {
+              'signature_policy': {
+                'rule': {
+                  'n_out_of': {
+                    'n': 1,
+                    'rules': [
                       {
-                        "signed_by": 0
+                        'signed_by': 0
                       }
                     ]
                   }
                 },
-                "identities": [
+                'identities': [
                   {
-                    "principal": "CgdPcmcyTVNQEAA="
+                    'principal': 'CgdPcmcyTVNQEAA='
                   }
                 ]
               }
             },
-            "maximum_peer_count": 1,
-            "block_to_live": "3",
-            "member_only_read": true,
-            "endorsement_policy": {
-              "signature_policy": {
-                "rule": {
-                  "n_out_of": {
-                    "n": 1,
-                    "rules": [
+            'maximum_peer_count': 1,
+            'block_to_live': '3',
+            'member_only_read': true,
+            'endorsement_policy': {
+              'signature_policy': {
+                'rule': {
+                  'n_out_of': {
+                    'n': 1,
+                    'rules': [
                       {
-                        "signed_by": 0
+                        'signed_by': 0
                       }
                     ]
                   }
                 },
-                "identities": [
+                'identities': [
                   {
-                    "principal": "CgdPcmcyTVNQEAA="
+                    'principal': 'CgdPcmcyTVNQEAA='
                   }
                 ]
               }
