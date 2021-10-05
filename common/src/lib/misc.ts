@@ -22,66 +22,67 @@ export { underscores_2_camelCase, pp };
 // --------------------------------------------------------------------------------
 // pretty print JSON - truncates long objects!
 // --------------------------------------------------------------------------------
+// eslint-disable-next-line @typescript-eslint/ban-types
 function pp(value: object | undefined | null) {
-	try {
-		let temp = JSON.stringify(value, null, '\t');
-		if (temp && temp.length >= 25000) {
-			temp = temp.substring(0, 25000) + '... [too long, truncated the rest]';
-		}
-		return temp;
-	} catch (e) {
-		return value;
-	}
+  try {
+    let temp = JSON.stringify(value, null, '\t');
+    if (temp && temp.length >= 25000) {
+      temp = temp.substring(0, 25000) + '... [too long, truncated the rest]';
+    }
+    return temp;
+  } catch (e) {
+    return value;
+  }
 }
 
 // --------------------------------------------------------------------------------
 // change key's in an object from using underscores to camel case (existing case is preserved where applicable)
 // --------------------------------------------------------------------------------
 function underscores_2_camelCase(orig: any, _iter: number | null): any {
-	if (!_iter) { _iter = 1; }
-	if (typeof orig !== 'object') {
-		logger.warn('[protobuf-handler] underscores_2_camelCase() is expecting an object. not:', orig);
-		return null;
-	} else if (_iter >= 1000) {
-		logger.error('[protobuf-handler] too many recursive loops, cannot convert obj:', orig, _iter);
-		return null;
-	} else {
-		const ret: any = {};
+  if (!_iter) { _iter = 1; }
+  if (typeof orig !== 'object') {
+    logger.warn('[protobuf-handler] underscores_2_camelCase() is expecting an object. not:', orig);
+    return null;
+  } else if (_iter >= 1000) {
+    logger.error('[protobuf-handler] too many recursive loops, cannot convert obj:', orig, _iter);
+    return null;
+  } else {
+    const ret: any = {};
 
-		if (Array.isArray(orig)) {				// if its an array, see if array contains objects
-			let arr = [];
-			for (let i in orig) {															// iter on array contents
-				if (typeof orig[i] === 'object') {
-					arr.push(underscores_2_camelCase(orig[i], ++_iter));					// recursive
-				} else {
-					arr.push(orig[i]);
-				}
-			}
-			return arr;
-		} else {
-			for (let key in orig) {
-				const parts = key.split('_');
-				const formatted = [];														// ts won't let me overwrite parts
-				for (let i in parts) {
-					if (Number(i) === 0) {
-						formatted.push(parts[i]);											// first word is already good
-					} else {
-						formatted.push(parts[i][0].toUpperCase() + parts[i].substring(1));	// convert first letter to uppercase
-					}
-				}
+    if (Array.isArray(orig)) {				// if its an array, see if array contains objects
+      const arr = [];
+      for (const i in orig) {															// iter on array contents
+        if (typeof orig[i] === 'object') {
+          arr.push(underscores_2_camelCase(orig[i], ++_iter));					// recursive
+        } else {
+          arr.push(orig[i]);
+        }
+      }
+      return arr;
+    } else {
+      for (const key in orig) {
+        const parts = key.split('_');
+        const formatted = [];														// ts won't let me overwrite parts
+        for (const i in parts) {
+          if (Number(i) === 0) {
+            formatted.push(parts[i]);											// first word is already good
+          } else {
+            formatted.push(parts[i][0].toUpperCase() + parts[i].substring(1));	// convert first letter to uppercase
+          }
+        }
 
-				if (formatted.length === 0) {
-					logger.warn('[protobuf-handler] underscores_2_camelCase() cannot format key:', parts);
-				} else {
-					const newKey = formatted.join('');
-					if (typeof orig[key] === 'object') {
-						ret[newKey] = underscores_2_camelCase(orig[key], ++_iter);			// recursive
-					} else {
-						ret[newKey] = orig[key];
-					}
-				}
-			}
-		}
-		return ret;
-	}
+        if (formatted.length === 0) {
+          logger.warn('[protobuf-handler] underscores_2_camelCase() cannot format key:', parts);
+        } else {
+          const newKey = formatted.join('');
+          if (typeof orig[key] === 'object') {
+            ret[newKey] = underscores_2_camelCase(orig[key], ++_iter);			// recursive
+          } else {
+            ret[newKey] = orig[key];
+          }
+        }
+      }
+    }
+    return ret;
+  }
 }
