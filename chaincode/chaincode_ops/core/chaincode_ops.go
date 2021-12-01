@@ -94,10 +94,16 @@ type DeploymentEventDetail struct {
 	OperationTargets []string                `json:"operationTargets"`
 }
 
+type VotingConfig struct {
+	ObjectType       string `json:"docType"` //docType is used to distinguish the various types of objects in state database
+	MaxMaliciousOrgs int    `json:"maxMaliciousOrgs"`
+}
+
 // Object types
 const (
-	ProposalObjectType = "proposal"
-	HistoryObjectType  = "history"
+	ProposalObjectType     = "proposal"
+	HistoryObjectType      = "history"
+	VotingConfigObjectType = "votingConfig"
 )
 
 // Chaincode event names
@@ -156,7 +162,7 @@ var (
 
 // RequestProposal requests a new chaincode update proposal.
 //
-// Arguments::
+// Arguments:
 //   0: input - the request input for the chaincode update proposal
 //
 // Returns:
@@ -164,6 +170,10 @@ var (
 //   1: error
 //
 // Events:
+//   (if the request can be approved without any other votes)
+//   name: PrepareToCommitEvent(<proposalID>)
+//   payload: DeploymentEventDetail
+//   (else)
 //   name: newProposalEvent(<proposalID>)
 //   payload: the created proposal
 //
@@ -238,11 +248,25 @@ func (s *SmartContract) RequestProposal(ctx contractapi.TransactionContextInterf
 	}
 
 	// Vote for myself
-	if _, err = s.putHistory(ctx, proposal.ID, Vote, Agreed, "", false); err != nil {
+	history, err := s.putHistory(ctx, proposal.ID, Vote, Agreed, "", false)
+	if err != nil {
 		return nil, fmt.Errorf("failed to put the history that the org votes for: %v", err)
 	}
 
-	// Set NewProposalEvent
+	// If the vote from this organization alone meets the MAJORITY condition,
+	// Update proposal status to "Approved" and issue PrepareToCommitEvent (the event is set in the internal function)
+	votePassed, err := s.meetCriteria(ctx, *history, MAJORITY, false, proposal.ChannelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to do meetCriteria: %v", err)
+	}
+	if votePassed {
+		if err = s.updateStatusToApproved(ctx, proposal); err != nil {
+			return nil, fmt.Errorf("failed to update the status: %v", err)
+		}
+		return &proposal, nil
+	}
+
+	// Else issue NewProposalEvent
 	proposalJSON, err := json.Marshal(proposal)
 	if err != nil {
 		return nil, fmt.Errorf("error happened unmarshalling a proposal JSON representation to struct: %v", err)
@@ -257,7 +281,7 @@ func (s *SmartContract) RequestProposal(ctx contractapi.TransactionContextInterf
 // This function records the vote as a state into the ledger.
 // Also, if the proposal is voted by MAJORITY, this changes the status of the proposal from proposed to approved.
 //
-// Arguments::
+// Arguments:
 //   0: taskStatusUpdateRequest - the request input for voting for/against the chaincode update proposal
 //
 // Returns:
@@ -400,7 +424,7 @@ func (s *SmartContract) WithdrawProposal(ctx contractapi.TransactionContextInter
 // This function records the result of the task as a state into the ledger.
 // Also, if the proposal is acknowledged by ALL organizations, this changes the status of the proposal from approved to acknowledged.
 //
-// Arguments::
+// Arguments:
 //   0: taskStatusUpdateRequest - the task status executed by agents for preparing the deployment based on the chaincode update proposal
 //
 // Returns:
@@ -459,7 +483,7 @@ func (s *SmartContract) Acknowledge(ctx contractapi.TransactionContextInterface,
 // This function records the result of the task as a state into the ledger.
 // Also, if the proposal is acknowledged by ALL organizations, this changes the status of the proposal from acknowledged to committed.
 //
-// Arguments::
+// Arguments:
 //   0: taskStatusUpdateRequest - the task status executed by agents for commiting the deployment based on the chaincode update proposal
 //
 // Returns:
@@ -542,6 +566,84 @@ func (s *SmartContract) GetAllProposals(ctx contractapi.TransactionContextInterf
 		proposals[proposalJSON.Key] = proposal
 	}
 	return proposals, nil
+}
+
+// SetMaxMaliciousOrgsInVotes sets number of max malicious orgs in votes.
+//
+// Arguments:
+//   0: number - number of max malicious orgs in votes
+//
+// Returns:
+//   0: error
+//
+func (s *SmartContract) SetMaxMaliciousOrgsInVotes(ctx contractapi.TransactionContextInterface, number int) error {
+
+	// Validate arguments
+	if number < 0 {
+		return fmt.Errorf("number of max malicious orgs in votes should be greater than 0")
+	}
+
+	// struct to JSON
+	votingConfigJSON, err := json.Marshal(VotingConfig{
+		ObjectType:       VotingConfigObjectType,
+		MaxMaliciousOrgs: number,
+	})
+	if err != nil {
+		return fmt.Errorf("error happened marshalling the voting config: %v", err)
+	}
+
+	// Put votingConfig to StateDB
+	err = ctx.GetStub().PutState(VotingConfigObjectType, votingConfigJSON)
+	if err != nil {
+		return fmt.Errorf("error happened persisting the voting config on the ledger: %v", err)
+	}
+
+	return nil
+}
+
+// UnsetMaxMaliciousOrgsInVotes unsets number of max malicious orgs in votes.
+//
+// Arguments: None
+//
+// Returns:
+//   0: error
+//
+func (s *SmartContract) UnsetMaxMaliciousOrgsInVotes(ctx contractapi.TransactionContextInterface) error {
+
+	// Delete votingConfig to StateDB
+	err := ctx.GetStub().DelState(VotingConfigObjectType)
+	if err != nil {
+		return fmt.Errorf("error happened delete the voting config from the ledger: %v", err)
+	}
+
+	return nil
+}
+
+// GetVotingConfig returns the voting config.
+//
+// Arguments: None
+//
+// Returns:
+//   0: the voting config (if voting config is not set, the func returns null)
+//   1: error
+//
+func (s *SmartContract) GetVotingConfig(ctx contractapi.TransactionContextInterface) (*VotingConfig, error) {
+
+	votingConfigJSON, err := ctx.GetStub().GetState(VotingConfigObjectType)
+	if err != nil {
+		return nil, fmt.Errorf("error happened reading voting config: %v", err)
+	}
+
+	if votingConfigJSON == nil {
+		return nil, nil
+	}
+
+	var votingConfig VotingConfig
+	err = json.Unmarshal(votingConfigJSON, &votingConfig)
+	if err != nil {
+		return nil, fmt.Errorf("error happened unmarshalling a voting config JSON representation to struct: %v", err)
+	}
+	return &votingConfig, nil
 }
 
 func buildAttributesForGetHistories(params HistoryQueryParams) []string {
@@ -653,6 +755,14 @@ func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface
 	switch criteria {
 	case MAJORITY:
 		criteriaNum = criteriaNum/2 + 1
+
+		votingConfig, err := s.GetVotingConfig(ctx)
+		if err != nil {
+			return false, err
+		}
+		if votingConfig != nil {
+			criteriaNum = votingConfig.MaxMaliciousOrgs*2 + 1
+		}
 	case ALL:
 		// use total org num
 	default:
@@ -817,7 +927,6 @@ func (s *SmartContract) putProposal(ctx contractapi.TransactionContextInterface,
 
 	// struct to JSON
 	proposalJSON, err := json.Marshal(proposal)
-	fmt.Println(string(proposalJSON))
 	if err != nil {
 		return fmt.Errorf("error happened marshalling the new proposal: %v", err)
 	}
