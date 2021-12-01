@@ -87,6 +87,7 @@ func TestRequestProposal(t *testing.T) {
 	transactionContext := &mocks.TransactionContext{}
 	transactionContext.GetStubReturns(chaincodeStub)
 	chaincodeStub.CreateCompositeKeyStub = createComposeKey
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
 
 	sc := SmartContract{}
 
@@ -96,8 +97,11 @@ func TestRequestProposal(t *testing.T) {
 	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
 	ts := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
 	formattedTS := ts.Format(time.RFC3339)
-
 	expectedProposal, input := baseProposalAndInput(formattedTS)
+
+	iterator := &mocks.StateQueryIterator{}
+	iterator.HasNextReturnsOnCall(0, false)
+	chaincodeStub.GetStateByPartialCompositeKeyReturns(iterator, nil)
 
 	actual, err := sc.RequestProposal(transactionContext, input)
 	require.NoError(t, err)
@@ -127,6 +131,39 @@ func TestRequestProposal(t *testing.T) {
 	}
 	expectedJSON, err = json.Marshal(expectedHistory)
 	require.NoError(t, err)
+	require.JSONEq(t, string(expectedJSON), string(state))
+
+	// Case: the propsal can be approved without any other votes
+	expectedProposal, input = baseProposalAndInput(formattedTS)
+	input.ID = "request-2"
+	config := VotingConfig{
+		ObjectType:       VotingConfigObjectType,
+		MaxMaliciousOrgs: 0,
+	}
+	configJSON, err := json.Marshal(config)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturns(configJSON, nil)
+
+	getStateCount := chaincodeStub.GetStateCallCount()
+	chaincodeStub.GetStateReturnsOnCall(getStateCount, nil, nil)          // GetProposal
+	chaincodeStub.GetStateReturnsOnCall(getStateCount+1, nil, nil)        // GetHistory
+	chaincodeStub.GetStateReturnsOnCall(getStateCount+2, configJSON, nil) // GetVotingConfig
+	_, err = sc.RequestProposal(transactionContext, input)
+	require.NoError(t, err)
+
+	key, state = chaincodeStub.PutStateArgsForCall(3)
+	require.Equal(t, "history_request-2_vote_Org1MSP", key)
+	expectedHistory.ProposalID = input.ID
+	expectedJSON, err = json.Marshal(expectedHistory)
+	require.NoError(t, err)
+	require.JSONEq(t, string(expectedJSON), string(state))
+
+	expectedProposal.ID = input.ID
+	expectedProposal.Status = Approved
+	expectedJSON, err = json.Marshal(expectedProposal)
+	require.NoError(t, err)
+	key, state = chaincodeStub.PutStateArgsForCall(4)
+	require.Equal(t, "proposal_request-2", key)
 	require.JSONEq(t, string(expectedJSON), string(state))
 
 	// Case: Fail to request when the proposal ID is empty
@@ -264,7 +301,8 @@ func TestVote(t *testing.T) {
 	require.Equal(t, []byte(nil), eventPayload)
 
 	// Case: Vote for the proposal and the votes pass the majority
-	chaincodeStub.GetStateReturnsOnCall(2, baseProposalJSON, nil)
+	getStateCount := chaincodeStub.GetStateCallCount()
+	chaincodeStub.GetStateReturnsOnCall(getStateCount, baseProposalJSON, nil)
 	historyOrg1 := History{
 		ObjectType: HistoryObjectType,
 		ProposalID: "request-1",
@@ -274,6 +312,7 @@ func TestVote(t *testing.T) {
 		Time:       formattedTS,
 	}
 	historyOrg1JSON, err := json.Marshal(historyOrg1)
+	require.NoError(t, err)
 	iterator = &mocks.StateQueryIterator{}
 	iterator.HasNextReturnsOnCall(0, true)
 	iterator.HasNextReturnsOnCall(1, false)
@@ -1531,4 +1570,80 @@ func baseProposalAndInput(formattedTimeStamp string) (ChaincodeUpdateProposal, C
 	}
 
 	return proposal, proposalInput
+}
+
+func TestSetMaxMaliciousOrgsInVotes(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+
+	sc := SmartContract{}
+
+	// Case: Set voting config
+	expectedConfig := VotingConfig{
+		ObjectType:       VotingConfigObjectType,
+		MaxMaliciousOrgs: 2,
+	}
+	expectedJSON, err := json.Marshal(expectedConfig)
+	require.NoError(t, err)
+
+	err = sc.SetMaxMaliciousOrgsInVotes(transactionContext, 2)
+	require.NoError(t, err)
+	key, state := chaincodeStub.PutStateArgsForCall(0)
+	require.Equal(t, "votingConfig", key)
+	require.JSONEq(t, string(expectedJSON), string(state))
+
+	// Case: Fail to set voting config when the number is invalid
+	err = sc.SetMaxMaliciousOrgsInVotes(transactionContext, -1)
+	require.EqualError(t, err, "number of max malicious orgs in votes should be greater than 0")
+}
+
+func TestUnsetMaxMaliciousOrgsInVotes(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+
+	sc := SmartContract{}
+
+	// Case: UnSet voting config
+	err := sc.UnsetMaxMaliciousOrgsInVotes(transactionContext)
+	require.NoError(t, err)
+
+	// Case: Fail when an internal error occurs
+	chaincodeStub.DelStateReturns(fmt.Errorf("fail to delete voting config"))
+	err = sc.UnsetMaxMaliciousOrgsInVotes(transactionContext)
+	require.EqualError(t, err, "error happened delete the voting config from the ledger: fail to delete voting config")
+}
+
+func TestGetVotingConfig(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+	sc := &SmartContract{}
+
+	// Case: Get null
+	chaincodeStub.GetStateReturns(nil, nil)
+	actual, err := sc.GetVotingConfig(transactionContext)
+	require.NoError(t, err)
+	require.Nil(t, actual)
+
+	// Case: Get the voting config
+	expected := VotingConfig{
+		ObjectType:       VotingConfigObjectType,
+		MaxMaliciousOrgs: 0,
+	}
+	expectedJSON, err := json.Marshal(expected)
+	require.NoError(t, err)
+
+	chaincodeStub.GetStateReturns(expectedJSON, nil)
+	actual, err = sc.GetVotingConfig(transactionContext)
+	require.NoError(t, err)
+	actualJSON, err := json.Marshal(actual)
+	require.NoError(t, err)
+	require.JSONEq(t, string(expectedJSON), string(actualJSON))
+
+	// Case: Internal state read error
+	chaincodeStub.GetStateReturns(nil, fmt.Errorf("unable to retrieve voting config"))
+	_, err = sc.GetVotingConfig(transactionContext)
+	require.EqualError(t, err, "error happened reading voting config: unable to retrieve voting config")
 }
