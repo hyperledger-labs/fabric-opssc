@@ -13,9 +13,9 @@
 #   - integration-test - runs integration tests for a specific fabric version
 
 BASE_VERSION = 0.2.0
-FABRIC_TWO_DIGIT_VERSION ?= 2.3
+FABRIC_TWO_DIGIT_VERSION ?= 2.4
 
-SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.3 2.2
+SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.3 2.2
 
 .PHONY: build-and-tests-all
 build-and-tests-all: $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
