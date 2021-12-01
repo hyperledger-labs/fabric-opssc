@@ -34,8 +34,9 @@ $ npm test
 
 ### Run the scenario tests with specifying the version of Fabric
 
-The current OpsSC supports the latest versions of Fabric v2.3 and v2.2 series.
-The integration tests uses v2.3 by default but they can also be run using v2.2 as follows:
+The current OpsSC supports the latest versions of Fabric v2.4, v2.3 and v2.2 series.
+The integration tests use v2.4 by default but they can also be run using other series.
+An example of specifying v2.2 is shown below:
 
 ```bash
 $ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.4 1.5.2 -s -b # Download Fabric images for v2.2

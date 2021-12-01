@@ -15,7 +15,7 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "fabric-network": "^2.2.9",
+    "fabric-network": "^2.2.10",
     "js-yaml": "^3.14.0",
     "morgan": "^1.9.1",
     "opssc-common": "file:../../common/src",
