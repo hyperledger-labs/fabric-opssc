@@ -25,8 +25,11 @@ const TaskTypeFuncs = {
   }
 };
 
+
 @binding()
 export class ChaincodeOpsSteps extends BaseStepClass {
+
+  protected static CC_NAME = 'chaincode_ops';
 
   @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
   public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
@@ -340,6 +343,35 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       }
     );
     expect(response.status).to.equals(200);
+  }
+
+  @when(/consortium sets max malicious orgs in votes \(number: (\d+)\)/)
+  public async setMaxMaliciousOrgsInVotes(number: number) {
+    const status = await this.invokeChaincodeOpsFunc('SetMaxMaliciousOrgsInVotes', [`${number}`]);
+    expect(status).to.equals(200);
+  }
+
+  @when(/consortium unsets max malicious orgs in votes/)
+  public async unsetMaxMaliciousOrgsInVotes() {
+    const status = await this.invokeChaincodeOpsFunc('UnsetMaxMaliciousOrgsInVotes', []);
+    expect(status).to.equals(200);
+  }
+
+  private async invokeChaincodeOpsFunc(funcName: string, args: string[]): Promise<number> {
+    const response = await axios.post(`${this.getAPIEndpoint()}/api/v1/utils/invokeTransaction`,
+      {
+        channelID: ChaincodeOpsSteps.OPS_CHANNEL,
+        ccName: ChaincodeOpsSteps.CC_NAME,
+        func: funcName,
+        args: args,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.status;
   }
 
   @then(/(.+) fails to approve the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with an error \((.+)\)/)

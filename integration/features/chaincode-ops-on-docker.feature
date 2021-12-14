@@ -47,16 +47,21 @@ Feature: Chaincode ops on docker-based Fabric network
     And chaincode (name: private, seq: 1, channel: mychannel) should be committed over the fabric network
     And chaincode (name: private, channel: mychannel) should be set the collections for private template
 
+    # Set max malicious orgs in votes to 0
+    When consortium sets max malicious orgs in votes (number: 0)
+
     # Chaincode update
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 2, channel: mychannel) based on basic golang template via opssc-api-server
-    And org2 votes for the proposal for chaincode (name: basic, seq: 2, channel: mychannel) with opssc-api-server
-    Then the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be voted (with agreed) by 2 or more orgs
+    Then the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be voted (with agreed) by 1 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
     And the proposal for chaincode (name: basic, seq: 2, channel: mychannel) should be committed (with success) by 1 or more orgs
     And the proposal status for chaincode (name: basic, seq: 2, channel: mychannel) should be committed
     And chaincode (name: basic, seq: 2, channel: mychannel) should be committed over the fabric network
     And chaincode (name: basic, channel: mychannel) based on basic should be able to register the asset (ID: asset102) by invoking CreateAsset func
     And chaincode (name: basic, channel: mychannel) based on basic golang should be able to get the asset (ID: asset102) by querying ReadAsset func
+
+    # Unset max malicious orgs in votes
+    When consortium unsets max malicious orgs in votes
 
     # Chaincode update for one not yet deployed
     When org1 requests a proposal to deploy the chaincode (name: basic2, seq: 2, channel: mychannel) based on basic golang template via opssc-api-server

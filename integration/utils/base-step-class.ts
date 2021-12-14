@@ -47,6 +47,7 @@ export default class BaseStepClass {
   }
 
   protected static TEST_NETWORK_PATH = '../sample-environments/fabric-samples/test-network';
+  protected static OPS_CHANNEL = 'ops-channel';
 
   protected static RETRY = 15;
   protected static SUFFIX = moment().format('MMDD_HHmmss');
