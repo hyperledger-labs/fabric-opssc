@@ -21,6 +21,13 @@ import { execCommand } from 'opssc-common/utils';
 export interface ChaincodeOperator {
 
   /**
+   * Validate that the proposal is deployable. Throw some error if it is not deployable.
+   *
+   * @returns {Promise<void>}
+   */
+   validate(): Promise<void>;
+
+  /**
    * Download the source code of the chaincode from the remote repository specified in the proposal.
    *
    * @returns {Promise<void>}
@@ -108,6 +115,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    */
   async prepareToDeploy(): Promise<TaskStatusUpdate> {
     try {
+      await this.validate();
       await this.download();
       await this.package();
       await this.install();
@@ -164,6 +172,30 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
   }
 
   /**
+   * Validate that the proposal is deployable. Throw some error if it is not deployable.
+   * 
+   * @async
+   * @returns {Promise<void>}
+   */
+   async validate(): Promise<void> {
+    logger.info('[START] Validate chaincode update proposal');
+    this.notifier?.notifyProgress('[START] Validate chaincode update proposal');
+    try {
+      const chaincodeDefinition = await this.lifecycleCommands.queryChaincodeDefinition(this.proposal.chaincodeName);
+      logger.debug('chaincodeDefinition\n%s', JSON.stringify(chaincodeDefinition));
+      if (chaincodeDefinition.sequence != (this.proposal.chaincodeDefinition.sequence - 1)) {
+        throw new Error(`VALIDATION ERROR: The proposed sequence should be committed sequence + 1 (proposed: ${this.proposal.chaincodeDefinition.sequence}, committed: ${chaincodeDefinition.sequence})`)
+      }
+    } catch (e) {
+      if (e.message == null || !(e.message as string).includes('is not defined')) {
+        throw e;
+      }
+    }
+    logger.info('[END] Validate chaincode update proposal');
+    this.notifier?.notifyProgress('[END] Validate chaincode update proposal');
+   }
+
+  /**
    * Download the source code of the chaincode from the remote repository specified in the proposal.
    *
    * @async
@@ -171,6 +203,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    */
   async download(): Promise<void> {
     logger.info('[START] Download chaincode');
+    this.notifier?.notifyProgress('[START] Download chaincode');
 
     const sourceAbsolutePath = this.sourceAbsolutePath();
     const sourceParentAbsolutePath = path.resolve(sourceAbsolutePath, '..');
@@ -196,6 +229,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     }
 
     logger.info('[END] Download chaincode');
+    this.notifier?.notifyProgress('[END] Download chaincode');
   }
 
   /**
