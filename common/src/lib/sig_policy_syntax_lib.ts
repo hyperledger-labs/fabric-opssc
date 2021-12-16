@@ -152,7 +152,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
     // error already logged
     return null;
   } else {
-    logger.info('[protobuf-handler] built signature policy object using Fabric syntax:', JSON.stringify(policy_obj, null, 2));
+    logger.debug('[protobuf-handler] built signature policy object using Fabric syntax: %s', JSON.stringify(policy_obj, null, 2));
     return policy_obj;
   }
 
@@ -249,7 +249,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
     const msp = onWord;
     if (msp && typeof identityPositionMap[msp] !== 'undefined') {			// if its in the map, its definitely a msp word
       ruleObj.n_out_of.rules.push({ signed_by: identityPositionMap[msp] });	// the value of signed_by its the array position of this msp
-      logger.debug('[protobuf-handler] added msp to inner ruleObj:', JSON.stringify(ruleObj, null, 2));
+      logger.debug('[protobuf-handler] added msp to inner ruleObj: %s', JSON.stringify(ruleObj, null, 2));
       return build_rules_from_cli(str, words.slice(1), ruleObj, ++depth);
     }
 
@@ -309,7 +309,7 @@ function conformPolicySyntax(input: string | MixedPolicySyntax) {
       } else {
         ruleObj.n_out_of.rules.push(ruleObjInner);							// add rules to PREV command
       }
-      logger.debug('[protobuf-handler] finished inner ruleObj:', JSON.stringify(ruleObj, null, 2), parsed.resume);
+      logger.debug('[protobuf-handler] finished inner ruleObj: %s, %s', JSON.stringify(ruleObj, null, 2), parsed.resume);
 
       // see if we need to resume a past command, else we are done and can return this rule object
       if (parsed.resume) {
