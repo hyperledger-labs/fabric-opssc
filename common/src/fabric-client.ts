@@ -80,16 +80,17 @@ export class FabricClient {
         return submitResult.toString('utf-8');
       } catch (error) {
         if (error.message != null) {
-          if ((error.message as string).includes('MVCC_READ_CONFLICT') || (error.message as string).includes('PHANTOM_READ_CONFLICT')
-            || (error.message as string).includes('ENDORSEMENT_POLICY_FAILURE')) { // As workaround: Considering failure when updating organization
+          const errorAsString = error.message as string;
+          if ((errorAsString).includes('MVCC_READ_CONFLICT') || (errorAsString).includes('PHANTOM_READ_CONFLICT')
+            || (errorAsString).includes('ENDORSEMENT_POLICY_FAILURE')) { // As workaround: Considering failure when updating organization
             // Retry
             await new Promise((resolve) => setTimeout(resolve, Math.random() * 800));
-            logger.info('Retry transaction: %s', error.message);
+            logger.info('Retry transaction: %s', errorAsString);
             this.close(); // To update service discovery results
             continue;
           }
+          logger.error('Failed to submit transaction: %s', errorAsString);
         }
-        logger.error('Failed:', JSON.stringify(error));
         throw error;
       }
     }
