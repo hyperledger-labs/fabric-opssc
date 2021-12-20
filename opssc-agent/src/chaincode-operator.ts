@@ -87,6 +87,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
   private lifecycleCommands: ChaincodeLifecycleCommands;
   readonly notifier?: Notifier;
   protected config: ChaincodeOperatorConfig;
+  private mspID: string;
 
   /**
    * ChaincodeOperatorImpl constructor
@@ -105,6 +106,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     this.packagedChaincode = null;
     this.packageID = '';
     this.config = config;
+    this.mspID = identity.mspId;
   }
 
   /**
@@ -173,7 +175,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
 
   /**
    * Validate that the proposal is deployable. Throw some error if it is not deployable.
-   * 
+   *
    * @async
    * @returns {Promise<void>}
    */
@@ -184,7 +186,10 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
       const chaincodeDefinition = await this.lifecycleCommands.queryChaincodeDefinition(this.proposal.chaincodeName);
       logger.debug('chaincodeDefinition\n%s', JSON.stringify(chaincodeDefinition));
       if (chaincodeDefinition.sequence != (this.proposal.chaincodeDefinition.sequence - 1)) {
-        throw new Error(`VALIDATION ERROR: The proposed sequence should be committed sequence + 1 (proposed: ${this.proposal.chaincodeDefinition.sequence}, committed: ${chaincodeDefinition.sequence})`)
+        if (chaincodeDefinition.approvals![this.mspID]) {
+          throw new Error(`VALIDATION ERROR: The proposed sequence should be committed sequence + 1 (proposed: ${this.proposal.chaincodeDefinition.sequence}, committed: ${chaincodeDefinition.sequence})`);
+        }
+        logger.warn('This organization is subject to the catch-up process for `prepareDeploy`. NOTE: The process for `deploy` should not be done in the subsequent');
       }
     } catch (e) {
       if (e.message == null || !(e.message as string).includes('is not defined')) {
