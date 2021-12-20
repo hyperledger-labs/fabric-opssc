@@ -57,10 +57,11 @@ The current OpsSC API server provides the following API to enable administrators
 | Channel   | Request a new update proposal                                          | `/api/v1/channel/proposals/:id`               | `POST` |
 | Channel   | Get the proposal with the given ID                                     | `/api/v1/channel/proposals/:id`               | `GET`  |
 | Channel   | Vote for the proposal                                                  | `/api/v1/channel/proposals/:id/vote`          | `POST` |
+| Channel   | Get the channel information with the given channel name                | `/api/v1/channel/getChannel`                  | `GET`  |
 | Channel   | Get the list of all channels                                           | `/api/v1/channel/getChannels`                 | `GET`  |
 | Channel   | Get the system config block                                            | `/api/v1/channel/systemConfigBlock`           | `GET`  |
 | Utility   | Invoke a chaincode (for test)                                          | `/api/v1/utils/invokeTransaction`             | `POST` |
-| Utility   | Query a chaincode (for test)                                           | `/api/v1/chaincode/queryTransaction`          | `GET`  |
+| Utility   | Query a chaincode (for test)                                           | `/api/v1/utils/queryTransaction`              | `GET`  |
 | Utility   | Version check                                                          | `/api/v1/version`                             | `GET`  |
 | Utility   | Health check                                                           | `/healthz`                                    | `GET`  |
 

@@ -210,6 +210,24 @@ export class ChannelOpsSteps extends BaseStepClass {
     expect(installed.installed_chaincodes.length).to.equals(ccNum);
   }
 
+  @then(/channel (.+) should be created/)
+  public async newChannelCreated(channelID: string) {
+    let response = null;
+    for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
+      await this.delay();
+      try {
+        response = await axios.get(`${this.getAPIEndpoint()}/api/v1/channel/getChannel?channelID=${channelID}`);
+        const channel = response.data;
+        // console.log(channel); // For debug
+        if (channel !== null) {
+          break;
+        }
+      } catch (error) {
+        // console.log(error.message); // For debug
+      }
+    }
+  }
+
   private createOpsProfileToAddOrg(org: string, channelID: string, peerPort: number, ordererPort: number): any {
     const mspID = `${this.capitalizeFirstLetter(org)}MSP`;
     let orgType = 'Application|Orderer';

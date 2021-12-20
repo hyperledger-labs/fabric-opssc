@@ -231,8 +231,20 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   router.get('/channel/getChannels', async (req, res) => {
     try {
-      const proposals = JSON.parse(await queryChannelOpsSC('GetAllChannels'));
-      res.json(proposals);
+      const channels = JSON.parse(await queryChannelOpsSC('GetAllChannels'));
+      res.json(channels);
+    } catch (e) {
+      res.status(500).json({
+        message: e.toString()
+      });
+    }
+  });
+
+  router.get('/channel/getChannel', async (req, res) => {
+    try {
+      const channelID = String(req.query.channelID);
+      const channel = JSON.parse(await queryChannelOpsSC('ReadChannel', channelID));
+      res.json(channel);
     } catch (e) {
       res.status(500).json({
         message: e.toString()
