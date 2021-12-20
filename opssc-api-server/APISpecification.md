@@ -578,11 +578,50 @@ The server internally creates the signature by using the content of the proposal
     **Content:** `{ "message" : "..." }`
 
 
+### Get the channel information with the given channel name
+
+* **URL**
+
+  `/api/v1/channel/getChannel`
+
+* **Method:**
+
+  `GET`
+
+*  **URL Params**
+
+  * **Required:**
+    `channelID=[string]`
+
+* **Data Params**
+
+  None
+
+* **Success Response**
+
+  * **Code:** 200 <br />
+    **Content:** The the channel information
+    ```json
+    {
+      "docType": "channel",
+      "ID": "mychannel",
+      "channelType": "application",
+      "organizations": {
+        "Org1MSP": "",
+        "Org2MSP": ""
+      }
+    }
+    ```
+* **Error Response:**
+
+  * **Code:** 500 Internal Server Error <br />
+    **Content:** `{ "message" : "..." }`
+
 ### Get the list of all channels
 
 * **URL**
 
-  `/api/v1/channel/proposals/getChannels`
+  `/api/v1/channel/getChannels`
 
 * **Method:**
 
@@ -641,7 +680,7 @@ The server internally creates the signature by using the content of the proposal
 
 * **URL**
 
-  `/api/v1/channel/proposals/systemConfigBlock`
+  `/api/v1/channel/systemConfigBlock`
 
 * **Method:**
 
@@ -673,7 +712,7 @@ The server internally creates the signature by using the content of the proposal
 
 * **URL**
 
-  `/api/v1/chaincode/invokeTransaction`
+  `/api/v1/utils/invokeTransaction`
 
 * **Method:**
 
@@ -712,7 +751,7 @@ The server internally creates the signature by using the content of the proposal
 
 * **URL**
 
-  `/api/v1/chaincode/queryTransaction`
+  `/api/v1/utils/queryTransaction`
 
 * **Method:**
 

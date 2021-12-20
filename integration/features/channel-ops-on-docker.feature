@@ -126,6 +126,7 @@ Feature: Channel ops on docker-based Fabric network
     # Create mychannel2
     When org1 requests a proposal to create mychannel2 via opssc-api-server
     And org2 approves the proposal to create mychannel2 via opssc-api-server
+    Then channel mychannel2 should be created
 
     # New chaincode deployment
     When org1 requests a proposal to deploy the chaincode (name: basic, seq: 1, channel: mychannel2) based on basic golang template via opssc-api-server
