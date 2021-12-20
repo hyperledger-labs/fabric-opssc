@@ -29,7 +29,7 @@ export default class BaseStepClass {
   protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.4';
 
   protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
-    '2.4': { fabric: '2.4.0', fabricCA: '1.5.2' },
+    '2.4': { fabric: '2.4.1', fabricCA: '1.5.2' },
     '2.3': { fabric: '2.3.3', fabricCA: '1.5.2' },
     '2.2': { fabric: '2.2.4', fabricCA: '1.5.2' },
   }
