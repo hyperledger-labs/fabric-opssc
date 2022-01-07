@@ -36,6 +36,7 @@ const (
 	SystemChannelType      = "system"
 	OpsChannelType         = "ops"
 	ApplicationChannelType = "application"
+	DisableChannelType     = "disable"
 )
 
 // ChaincodeEvents
@@ -86,12 +87,35 @@ func (s *SmartContract) CreateChannel(ctx contractapi.TransactionContextInterfac
 	return s.putChannel(ctx, channel)
 }
 
+// UpdateChannelType replaces the type of the given channel.
+//
+// Arguments:
+//   0: channelID - the target channel ID
+//   1: channelType - the type of the channel
+//
+// Returns:
+//   0: error
+//
+func (s *SmartContract) UpdateChannelType(ctx contractapi.TransactionContextInterface, channelID string, channelType string) error {
+
+	channel, err := s.ReadChannel(ctx, channelID)
+	if err != nil {
+		return fmt.Errorf("failed to read channel: %v", err)
+	}
+
+	if channelType != SystemChannelType && channelType != OpsChannelType && channelType != ApplicationChannelType && channelType != DisableChannelType {
+		return fmt.Errorf("invalid channel type - expecting %s, %s, %s or %s", SystemChannelType, OpsChannelType, ApplicationChannelType, DisableChannelType)
+	}
+
+	channel.ChannelType = channelType
+	return s.putChannel(ctx, channel)
+}
+
 // AddOrganization upserts an organization's MSP ID as a member of the given channel.
 //
 // Arguments:
 //   0: channelID - the target channel ID
-//   1: channelType - the type of the channel (if this is empty, "application" is set as the default value)
-//   2: mspID - The MSP ID of newly added or updated member
+//   1: mspID - the MSP ID of newly added or updated member
 //
 // Returns:
 //   0: error
@@ -114,7 +138,7 @@ func (s *SmartContract) AddOrganization(ctx contractapi.TransactionContextInterf
 //
 // Arguments:
 //   0: channelID - the target channel ID
-//   1: mspIDs - The MSP ID list
+//   1: mspIDs - the MSP ID list
 //
 // Returns:
 //   0: error
@@ -204,7 +228,7 @@ func (s *SmartContract) CountOrganizationsInChannel(ctx contractapi.TransactionC
 	return len(channel.Organizations), nil
 }
 
-// GetOrganizationsInChannel returns the list of organizations participating in given channel.
+// GetOrganizationsInChannel returns the list of organizations participating in the given channel.
 //
 // Arguments:
 //   0: channelID - the target channel ID
@@ -223,6 +247,23 @@ func (s *SmartContract) GetOrganizationsInChannel(ctx contractapi.TransactionCon
 		oList = append(oList, orgMSP)
 	}
 	return oList, nil
+}
+
+// GetChannelType returns the channel type of the given channel
+//
+// Arguments:
+//   0: channelID - the target channel ID
+//
+// Returns:
+//   0: the channel type
+//   1: error
+//
+func (s *SmartContract) GetChannelType(ctx contractapi.TransactionContextInterface, channelID string) (string, error) {
+	channel, err := s.ReadChannel(ctx, channelID)
+	if err != nil {
+		return "", fmt.Errorf("failed to read channel: %v", err)
+	}
+	return channel.ChannelType, nil
 }
 
 // GetAllChannels returns the all channel information stored in the ledger.

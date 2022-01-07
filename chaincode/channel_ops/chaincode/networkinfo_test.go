@@ -12,12 +12,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"
 	"github.com/stretchr/testify/require"
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode"
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
 )
 
 //go:generate counterfeiter -o mocks/transaction.go -fake-name TransactionContext . transactionContext
@@ -442,4 +442,80 @@ func TestGetSystemChannelID(t *testing.T) {
 	chaincodeStub.GetStateByPartialCompositeKeyReturns(nil, fmt.Errorf("failed retrieving all channels"))
 	_, err = sc.GetSystemChannelID(transactionContext)
 	require.EqualError(t, err, "failed to get system channel: failed retrieving all channels")
+}
+
+func TestUpdateChannelType(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+
+	// Positive case
+	channel := chaincode.Channel{
+		ObjectType:  chaincode.ChannelObjectType,
+		ID:          "system-channel",
+		ChannelType: chaincode.SystemChannelType,
+		Organizations: map[string]string{
+			"Org1MSP": "",
+			"Org2MSP": ""},
+	}
+	bytes, err := json.Marshal(channel)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturns(bytes, nil)
+
+	sc := chaincode.SmartContract{}
+
+	err = sc.UpdateChannelType(transactionContext, "system-channel", chaincode.DisableChannelType)
+	require.NoError(t, err)
+
+	_, state := chaincodeStub.PutStateArgsForCall(0)
+	expected := chaincode.Channel{
+		ObjectType:  chaincode.ChannelObjectType,
+		ID:          "system-channel",
+		ChannelType: chaincode.DisableChannelType,
+		Organizations: map[string]string{
+			"Org1MSP": "",
+			"Org2MSP": ""},
+	}
+	expectedJSON, err := json.Marshal(expected)
+	require.NoError(t, err)
+	require.JSONEq(t, string(expectedJSON), string(state))
+
+	// Error case: Update a channel to an invalid type
+	err = sc.UpdateChannelType(transactionContext, "system-channel", "invalid-type")
+	require.EqualError(t, err, "invalid channel type - expecting system, ops, application or disable")
+
+	// Error case: Update an unavailable channel
+	chaincodeStub.GetStateReturns(nil, fmt.Errorf("unable to retrieve channel"))
+	err = sc.UpdateChannelType(transactionContext, "system-channel", chaincode.DisableChannelType)
+	require.EqualError(t, err, "failed to read channel: failed to read from world state: unable to retrieve channel")
+}
+
+func TestGetChannelType(t *testing.T) {
+	chaincodeStub := &mocks.ChaincodeStub{}
+	transactionContext := &mocks.TransactionContext{}
+	transactionContext.GetStubReturns(chaincodeStub)
+
+	// Positive case
+	channel := chaincode.Channel{
+		ObjectType:  chaincode.ChannelObjectType,
+		ID:          "system-channel",
+		ChannelType: chaincode.SystemChannelType,
+		Organizations: map[string]string{
+			"Org1MSP": "",
+			"Org2MSP": ""},
+	}
+	bytes, err := json.Marshal(channel)
+	require.NoError(t, err)
+	chaincodeStub.GetStateReturns(bytes, nil)
+
+	sc := chaincode.SmartContract{}
+
+	channelType, err := sc.GetChannelType(transactionContext, "system-channel")
+	require.NoError(t, err)
+	require.Equal(t, chaincode.SystemChannelType, channelType)
+
+	// Error case: Update an unavailable channel
+	chaincodeStub.GetStateReturns(nil, fmt.Errorf("unable to retrieve channel"))
+	_, err = sc.GetChannelType(transactionContext, "system-channel")
+	require.EqualError(t, err, "failed to read channel: failed to read from world state: unable to retrieve channel")
 }
