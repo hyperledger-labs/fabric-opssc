@@ -158,6 +158,9 @@ var (
 	ErrProposalNotFound = fmt.Errorf("proposal not found")
 	// ErrProposalIDAreadyInUse is returned when the requested proposal ID is already in use.
 	ErrProposalIDAreadyInUse = fmt.Errorf("proposalID already in use")
+
+	// ErrPropsalNotAcceptableToChannel is returned when the proposal is requested for an unacceptable channel.
+	ErrPropsalNotAcceptableToChannel = fmt.Errorf("proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel")
 )
 
 // RequestProposal requests a new chaincode update proposal.
@@ -235,6 +238,11 @@ func (s *SmartContract) RequestProposal(ctx contractapi.TransactionContextInterf
 		ChaincodeName:       input.ChaincodeName,
 		ChaincodePackage:    input.ChaincodePackage,
 		ChaincodeDefinition: input.ChaincodeDefinition,
+	}
+
+	// Check whether the proposal is acceptable to the target channel
+	if b, _ := s.canPropose(ctx, input.ChannelID); !b {
+		return nil, ErrPropsalNotAcceptableToChannel
 	}
 
 	// Fail if the proposal with the ID already exists
@@ -1006,6 +1014,20 @@ func (s *SmartContract) getMSPID(ctx contractapi.TransactionContextInterface) (s
 		return "", fmt.Errorf("error happened reading the transaction creator: %v", err)
 	}
 	return getMSPID(creator)
+}
+
+func (s *SmartContract) canPropose(ctx contractapi.TransactionContextInterface, ChannelID string) (bool, error) {
+	channelOpsArgs := util.ToChaincodeArgs("GetChannelType", ChannelID)
+	response := ctx.GetStub().InvokeChaincode("channel_ops", channelOpsArgs, "")
+	if response.Status != shim.OK {
+		return false, fmt.Errorf("failed to call get channel type (code: %d, message: %v)",
+			response.Status, response.Message)
+	}
+	channelType := string(response.Payload)
+	if channelType == "system" || channelType == "disable" {
+		return false, nil
+	}
+	return true, nil
 }
 
 // Utils

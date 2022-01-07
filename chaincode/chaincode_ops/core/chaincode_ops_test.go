@@ -78,6 +78,11 @@ func invokeChaincode(arg1 string, arg2 [][]byte, arg3 string) peer.Response {
 			Status:  shim.OK,
 			Payload: []byte("2"),
 		}
+	case "GetChannelType":
+		return peer.Response{
+			Status:  shim.OK,
+			Payload: []byte("application"),
+		}
 	}
 	panic("Unexpected func name")
 }
@@ -226,8 +231,17 @@ func TestRequestProposal(t *testing.T) {
 	_, err = sc.RequestProposal(transactionContext, input)
 	require.EqualError(t, err, "failed to get tx timestamp: failed to get tx timestamp")
 
-	// Case: Fail to request when the proposal ID is already in use
+	// Case: Fail to request when the proposal is requested to an unacceptable channel
 	chaincodeStub.GetTxTimestampReturns(timestamp, nil)
+	chaincodeStub.InvokeChaincodeReturns(peer.Response{
+		Status:  shim.ERROR,
+		Message: "error",
+	})
+	_, err = sc.RequestProposal(transactionContext, input)
+	require.EqualError(t, err, "proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel")
+
+	// Case: Fail to request when the proposal ID is already in use
+	chaincodeStub.InvokeChaincodeStub = invokeChaincode
 	dummyState := ChaincodeUpdateProposal{}
 	dummyJSON, err := json.Marshal(dummyState)
 	require.NoError(t, err)
