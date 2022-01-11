@@ -68,10 +68,15 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     execSync(commands);
   }
 
-  @given(/register orgs info for (.+) \(type: (system|application|ops)\) to opssc on (..+)/)
+  @given(/register orgs info for (.+) \(type: (system|application|ops)\) to opssc on (.+)/)
   public registerOrgInfo(newChannelName: string, newChannelType: string, opsChannelName: string) {
     const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH} && ./registerNetworkInfoToOpsSC.sh ${opsChannelName} ${newChannelName} ${newChannelType}`;
     execSync(commands);
+  }
+
+  @given(/disable (.+) channel on opssc via opssc-api-server/)
+  public async disableChannel(channelName: string) {
+    await this.invokeChannelOpsFunc('UpdateChannelType', [channelName, 'disable']);
   }
 
   @given(/bootstrap opssc-api-servers for initial orgs/)

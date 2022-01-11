@@ -20,6 +20,11 @@ Feature: Chaincode ops on docker-based Fabric network
     Given register orgs info for mychannel (type: application) to opssc on ops-channel
 
     Given bootstrap opssc-api-servers for initial orgs
+
+    # Disabled channels are ignored by OpsSC Agents
+    Given register orgs info for invalid-channel (type: application) to opssc on ops-channel
+    Given disable invalid-channel channel on opssc via opssc-api-server
+
     Given bootstrap opssc-agents for initial orgs
 
     Then 2 chaincodes should be committed on ops-channel
@@ -109,3 +114,7 @@ Feature: Chaincode ops on docker-based Fabric network
     And the proposal status for chaincode (name: basic, seq: 3, channel: mychannel) should be rejected
     ## -- A proposal is not withdrawn after the decision
     Then org1 fails to withdraw the proposal for chaincode (name: basic, seq: 3, channel: mychannel) with an error (the voting is already closed)
+
+    # Chaincode update proposals rejected for a system or disable channel
+    Then org1 fails to request a proposal to deploy the chaincode (name: basic, seq: 1, channel: system-channel) based on basic golang template via opssc-api-server
+    Then org1 fails to request a proposal to deploy the chaincode (name: basic, seq: 1, channel: invalid-channel) based on basic golang template via opssc-api-server

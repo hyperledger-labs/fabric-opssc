@@ -6,6 +6,7 @@
 
 import { setDefaultTimeout } from 'cucumber';
 import moment from 'moment';
+import axios from 'axios';
 
 setDefaultTimeout(240 * 1000);
 
@@ -48,6 +49,8 @@ export default class BaseStepClass {
 
   protected static TEST_NETWORK_PATH = '../sample-environments/fabric-samples/test-network';
   protected static OPS_CHANNEL = 'ops-channel';
+  protected static CC_OPS_CC_NAME = 'chaincode_ops';
+  protected static CH_OPS_CC_NAME = 'channel_ops';
 
   protected static RETRY = 15;
   protected static SUFFIX = moment().format('MMDD_HHmmss');
@@ -69,5 +72,30 @@ export default class BaseStepClass {
 
   protected getAgentServiceEndpoint(org = 'org1') {
     return `http://localhost:${BaseStepClass.SERVICE_PORT_MAP[org].agent}`;
+  }
+
+  private async invokeOpsSCFunc(ccName: string, funcName: string, args: string[]): Promise<number> {
+    const response = await axios.post(`${this.getAPIEndpoint()}/api/v1/utils/invokeTransaction`,
+      {
+        channelID: BaseStepClass.OPS_CHANNEL,
+        ccName: ccName,
+        func: funcName,
+        args: args,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.status;
+  }
+
+  protected async invokeChaincodeOpsFunc(funcName: string, args: string[]): Promise<number> {
+    return this.invokeOpsSCFunc(BaseStepClass.CC_OPS_CC_NAME, funcName, args);
+  }
+
+  protected async invokeChannelOpsFunc(funcName: string, args: string[]): Promise<number> {
+    return this.invokeOpsSCFunc(BaseStepClass.CH_OPS_CC_NAME, funcName, args);
   }
 }
