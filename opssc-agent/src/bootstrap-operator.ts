@@ -116,9 +116,9 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
 
     const channels = await this.getAllChannels();
     for (const targetChannelInfo of channels) {
-      logger.info(`Join my peers to ${targetChannelInfo.ID}`);
-      if (targetChannelInfo.channelType === 'system' || targetChannelInfo.channelType === 'ops') {
-        logger.info(`Skip channel ${targetChannelInfo.ID} (type: system or ops)`);
+      logger.info(`Join my peers to ${targetChannelInfo.ID} (type: ${targetChannelInfo.channelType})`);
+      if (targetChannelInfo.channelType !== 'application') {
+        logger.info(`Skip channel ${targetChannelInfo.ID} (type: ${targetChannelInfo.channelType})`);
         continue;
       }
       if (targetChannelInfo.organizations == null || !(this.mspID in targetChannelInfo.organizations)) {
@@ -218,8 +218,8 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
 
     for (const targetChannelInfo of channels) {
 
-      if (targetChannelInfo.channelType === 'system') {
-        logger.info(`Skip channel ${targetChannelInfo.ID} (type: system)`);
+      if (targetChannelInfo.channelType === 'system' || targetChannelInfo.channelType === 'disable') {
+        logger.info(`Skip channel ${targetChannelInfo.ID} (type: ${targetChannelInfo.channelType})`);
         continue;
       }
       if (targetChannelInfo.organizations == null || !(this.mspID in targetChannelInfo.organizations)) {
