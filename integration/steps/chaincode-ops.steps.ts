@@ -29,8 +29,6 @@ const TaskTypeFuncs = {
 @binding()
 export class ChaincodeOpsSteps extends BaseStepClass {
 
-  protected static CC_NAME = 'chaincode_ops';
-
   @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
   public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
     const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
@@ -66,6 +64,20 @@ export class ChaincodeOpsSteps extends BaseStepClass {
         }
       }
     );
+  }
+
+  @then(/(.+) fails to request a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
+  public async failToRequectChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
+    try {
+      await this.requestChaincodeDeploymentProposal(org, ccName, sequence, channelID, ccTemplate, lang);
+    } catch (error) {
+      // Should fail
+      expect(error.response).to.not.equals(null);
+      expect(error.response.status).to.equals(500);
+      expect(error.response.data.message).to.includes('proposal is not accepted by the channel');
+      return;
+    }
+    expect.fail('the request should fail');
   }
 
   private createCCParameters(ccTemplate: string, lang: string):  [string, string, string|undefined] {
@@ -355,23 +367,6 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   public async unsetMaxMaliciousOrgsInVotes() {
     const status = await this.invokeChaincodeOpsFunc('UnsetMaxMaliciousOrgsInVotes', []);
     expect(status).to.equals(200);
-  }
-
-  private async invokeChaincodeOpsFunc(funcName: string, args: string[]): Promise<number> {
-    const response = await axios.post(`${this.getAPIEndpoint()}/api/v1/utils/invokeTransaction`,
-      {
-        channelID: ChaincodeOpsSteps.OPS_CHANNEL,
-        ccName: ChaincodeOpsSteps.CC_NAME,
-        func: funcName,
-        args: args,
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    return response.status;
   }
 
   @then(/(.+) fails to approve the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with an error \((.+)\)/)
