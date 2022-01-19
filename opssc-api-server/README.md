@@ -23,20 +23,21 @@ The current OpsSC API server is set via environment variables.
 
 The following environment variables must be set:
 
-| Category           | Variable Name           | Default Value                                | Description                                                                                             |
-| ------------------ | ----------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| Hyperledger Fabric | `ADMIN_MSPID`           | `Org1MSP`                                    | MSP ID for the organization to be operated                                                              |
-| Hyperledger Fabric | `ADMIN_CERT`            | `/opt/fabric/msp/signcerts`                  | Certificate for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
-| Hyperledger Fabric | `ADMIN_KEY`             | `/opt/fabric/msp/keystore`                   | Private key for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
-| Hyperledger Fabric | `MSP_CONFIG_PATH`       | `/opt/fabric/msp`                            | MSP config path for the client identity to interact with the OpsSC chaincodes and execute peer commands |
-| Hyperledger Fabric | `DISCOVER_AS_LOCALHOST` | `false`                                      | Whether to discover as localhost                                                                        |
-| Hyperledger Fabric | `CONNECTION_PROFILE`    | `/opt/fabric/config/connection-profile.yaml` | Connection profile path for the organization                                                            |
-| OpsSC              | `CHANNEL_NAME`          | `ops-channel`                                | Channel name for the OpsSC                                                                              |
-| OpsSC              | `CC_OPS_CC_NAME`        | `chaincode_ops`                              | Chaincode name of the chaincode OpsSC                                                                   |
-| OpsSC              | `CH_OPS_CC_NAME`        | `channel_ops`                                | Chaincode name of the channel OpsSC                                                                     |
-| API Server         | `CLIENT_SERVICE_PORT`   | `5000`                                       | Port number used by the API server                                                                      |
-| Logging            | `LOG_LEVEL`             | `info`                                       | Log level                                                                                               |
-
+| Category           | Variable Name             | Default Value                                | Description                                                                                             |
+| ------------------ | ------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Hyperledger Fabric | `ADMIN_MSPID`             | `Org1MSP`                                    | MSP ID for the organization to be operated                                                              |
+| Hyperledger Fabric | `ADMIN_CERT`              | `/opt/fabric/msp/signcerts`                  | Certificate for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
+| Hyperledger Fabric | `ADMIN_KEY`               | `/opt/fabric/msp/keystore`                   | Private key for the client identity to interact with the OpsSC chaincodes and execute peer commands     |
+| Hyperledger Fabric | `MSP_CONFIG_PATH`         | `/opt/fabric/msp`                            | MSP config path for the client identity to interact with the OpsSC chaincodes and execute peer commands |
+| Hyperledger Fabric | `DISCOVER_AS_LOCALHOST`   | `false`                                      | Whether to discover as localhost                                                                        |
+| Hyperledger Fabric | `CONNECTION_PROFILE`      | `/opt/fabric/config/connection-profile.yaml` | Connection profile path for the organization                                                            |
+| OpsSC              | `CHANNEL_NAME`            | `ops-channel`                                | Channel name for the OpsSC                                                                              |
+| OpsSC              | `CC_OPS_CC_NAME`          | `chaincode_ops`                              | Chaincode name of the chaincode OpsSC                                                                   |
+| OpsSC              | `CH_OPS_CC_NAME`          | `channel_ops`                                | Chaincode name of the channel OpsSC                                                                     |
+| API Server         | `CLIENT_SERVICE_PORT`     | `5000`                                       | Port number used by the API server                                                                      |
+| API Server         | `API_CH_PROPOSAL_ENABLED` | `true`                                       | Whether to enable the Channel Update Proposal APIs                                                      |
+| API Server         | `API_UTIL_ENABLED`        | `true`                                       | Whether to enable the Utility APIs                                                                      |
+| Logging            | `LOG_LEVEL`               | `info`                                       | Log level                                                                                               |
 
 ## API specification
 
@@ -74,6 +75,7 @@ The current OpsSC API server is expected to run primarily as a Docker container.
 ### Build the Docker image
 
 Build the docker image for API Server by running the following commands:
+
 ```sh
 $ cd fabric-opssc
 $ make docker-opssc-api-server

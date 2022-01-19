@@ -4,16 +4,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import express, { Router } from 'express';
+import express, { NextFunction, Request, Response, Router } from 'express';
 import { ChaincodeLifecycleCommands } from 'opssc-common/chaincode-lifecycle-commands';
 import { ChannelCommands } from 'opssc-common/channel-commands';
-import { OpsSCConfig } from 'opssc-common/config';
 import { FabricClient } from 'opssc-common/fabric-client';
 import { ChaincodeUpdateProposalInput, ChannelUpdateProposalInput, HistoryQueryParams, VoteTaskStatusUpdate } from 'opssc-common/opssc-types';
 import { logger } from '../logger';
+import { OpsSCAPIServerConfig } from '../config';
 
-export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCConfig): Router {
+export default function router(fabricClient: FabricClient, opsSCAPIServerConfig: OpsSCAPIServerConfig): Router {
 
+  const { opsSC, featureOption } = opsSCAPIServerConfig;
   const router = express.Router();
 
   // ----- REST API to get version information
@@ -35,8 +36,8 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   async function queryChaincodeOpsSC(func: string, ...args: string[]):Promise<string> {
     const request = {
-      channelID: opsSCConfig.channelID,
-      chaincodeName: opsSCConfig.chaincodes.chaincodeOpsCCName,
+      channelID: opsSC.channelID,
+      chaincodeName: opsSC.chaincodes.chaincodeOpsCCName,
       func: func,
       args: args
     };
@@ -45,8 +46,8 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   async function invokeChaincodeOpsSC(func: string, ...args: string[]):Promise<string> {
     const request = {
-      channelID: opsSCConfig.channelID,
-      chaincodeName: opsSCConfig.chaincodes.chaincodeOpsCCName,
+      channelID: opsSC.channelID,
+      chaincodeName: opsSC.chaincodes.chaincodeOpsCCName,
       func: func,
       args: args
     };
@@ -55,8 +56,8 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   async function queryChannelOpsSC(func: string, ...args: string[]):Promise<string> {
     const request = {
-      channelID: opsSCConfig.channelID,
-      chaincodeName: opsSCConfig.chaincodes.channelOpsCCName,
+      channelID: opsSC.channelID,
+      chaincodeName: opsSC.chaincodes.channelOpsCCName,
       func: func,
       args: args
     };
@@ -65,8 +66,8 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   async function invokeChannelOpsSC(func: string, ...args: string[]):Promise<string> {
     const request = {
-      channelID: opsSCConfig.channelID,
-      chaincodeName: opsSCConfig.chaincodes.channelOpsCCName,
+      channelID: opsSC.channelID,
+      chaincodeName: opsSC.chaincodes.channelOpsCCName,
       func: func,
       args: args
     };
@@ -78,7 +79,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
   router.get('/chaincode/getInstalledChaincodes', async (req, res) => {
     let lifecycleCommands;
     try {
-      const channelID = opsSCConfig.channelID; // Workaround: Specify ops-channel as the channel name to use _lifecycle system chaincode via fabric-sdk-node
+      const channelID = opsSC.channelID; // Workaround: Specify ops-channel as the channel name to use _lifecycle system chaincode via fabric-sdk-node
       lifecycleCommands = createChaincodeLifecycleCommands(channelID);
       const installedChaincodes = await lifecycleCommands.queryInstalledChaincodes();
       res.json(installedChaincodes);
@@ -229,6 +230,15 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   // ----- REST API to interact the OpsSC chaincode for operating channels and to query information on channels
 
+  const verifyChannelProposalAPIEnabled = async (_: Request, res: Response, next: NextFunction) => {
+    if (!featureOption.channelProposalAPIEnabled) {
+      return res.status(500).json({
+        message: 'Channel Ops APIs are not available. Please check the feature options'
+      });
+    }
+    next();
+  };
+
   router.get('/channel/getChannels', async (req, res) => {
     try {
       const channels = JSON.parse(await queryChannelOpsSC('GetAllChannels'));
@@ -252,7 +262,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
     }
   });
 
-  router.post('/channel/proposals/:id', async (req, res) => {
+  router.post('/channel/proposals/:id', verifyChannelProposalAPIEnabled, async (req, res) => {
     let channelCommands;
     try {
       const proposalID = req.params.id;
@@ -314,7 +324,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
     }
   });
 
-  router.post('/channel/proposals/:id/vote', async (req, res) => {
+  router.post('/channel/proposals/:id/vote', verifyChannelProposalAPIEnabled, async (req, res) => {
     let channelCommands;
     try {
       const proposalID = req.params.id;
@@ -343,7 +353,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
     }
   });
 
-  router.get('/channel/proposals/:id', async (req, res) => {
+  router.get('/channel/proposals/:id', verifyChannelProposalAPIEnabled, async (req, res) => {
     try {
       const proposalID = req.params.id;
       const proposal = JSON.parse(await queryChannelOpsSC('GetProposal', proposalID));
@@ -356,7 +366,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
     }
   });
 
-  router.get('/channel/proposals', async (req, res) => {
+  router.get('/channel/proposals', verifyChannelProposalAPIEnabled, async (req, res) => {
     try {
       const proposals = JSON.parse(await queryChannelOpsSC('GetAllProposals'));
 
@@ -394,7 +404,16 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
 
   // ----- REST API to query and invoke chaincodes (for test)
 
-  router.get('/utils/queryTransaction', async (req, res) => {
+  const verifyUtilityAPIEnabled =  async (_: Request, res: Response, next: NextFunction) => {
+    if (!featureOption.utilityAPIEnabled) {
+      return res.status(500).json({
+        message: 'Utility APIs are not available. Please check the feature options'
+      });
+    }
+    next();
+  };
+
+  router.get('/utils/queryTransaction', verifyUtilityAPIEnabled, async (req, res) => {
     try {
       const ccName = String(req.query.ccName);
       const func = String(req.query.func);
@@ -415,7 +434,7 @@ export default function router(fabricClient: FabricClient, opsSCConfig: OpsSCCon
     }
   });
 
-  router.post('/utils/invokeTransaction', async (req, res) => {
+  router.post('/utils/invokeTransaction', verifyUtilityAPIEnabled, async (req, res) => {
     try {
       const request = {
         channelID: req.body.channelID,
