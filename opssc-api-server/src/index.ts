@@ -24,7 +24,7 @@ const _cors = cors();
 app.use(_cors);
 
 const fabricClient = new FabricClient(config.fabric);
-app.use('/api/v1', api(fabricClient, config.opsSC));
+app.use('/api/v1', api(fabricClient, config));
 
 app.get('/healthz', (_req, res) => {
   // TODO: More diagnosis

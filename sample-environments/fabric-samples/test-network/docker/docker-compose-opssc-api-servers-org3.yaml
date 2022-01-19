@@ -18,6 +18,8 @@ services:
       - LOG_LEVEL=info
       - DISCOVER_AS_LOCALHOST=false
       - CLIENT_SERVICE_PORT=5002
+      - API_CH_PROPOSAL_ENABLED=true
+      - API_UTIL_ENABLED=true
     volumes:
       - ../organizations/peerOrganizations/org3.example.com/users/Admin@org3.example.com/msp:/opt/fabric/msp
       - ../organizations/peerOrganizations/org3.example.com/connection-org3.yaml:/opt/fabric/config/connection-profile.yaml
