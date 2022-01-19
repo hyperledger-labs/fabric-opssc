@@ -22,6 +22,7 @@ services:
       - GIT_USER=$GIT_USER
       - GIT_PASSWORD=$GIT_PASSWORD
       - AGENT_SERVICE_PORT=5500
+      - WS_ENABLED=true
       - WS_URL=ws://opssc-api-server.org1.example.com:5000
     volumes:
       - ../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/opt/fabric/msp
@@ -43,6 +44,7 @@ services:
       - GIT_USER=$GIT_USER
       - GIT_PASSWORD=$GIT_PASSWORD
       - AGENT_SERVICE_PORT=5501
+      - WS_ENABLED=true
       - WS_URL=ws://opssc-api-server.org2.example.com:5001
     volumes:
       - ../organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/opt/fabric/msp

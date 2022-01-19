@@ -50,11 +50,11 @@ export const config: OpsSCAgentConfig = {
     adminKey: readSingleFileOnThePath(process.env.ADMIN_KEY || '/opt/fabric/msp/admin.key'),
     adminCert: readSingleFileOnThePath(process.env.ADMIN_CERT || '/opt/fabric/msp/admin.crt'),
     connectionProfile: yaml.safeLoad(fs.readFileSync(process.env.CONNECTION_PROFILE || '/opt/fabric/config/connection-profile.yaml', 'utf8')) as Record<string, any>,
-    discoverAsLocalhost: process.env.DISCOVER_AS_LOCALHOST !== 'false',
+    discoverAsLocalhost: process.env.DISCOVER_AS_LOCALHOST === 'true',
   },
   ws: {
     websocketUrl: process.env.WS_URL || 'ws://localhost:5000',
-    enabled: process.env.WS_ENABLED !== 'false',
+    enabled: process.env.WS_ENABLED === 'true',
   },
   core: {
     opssc: {
