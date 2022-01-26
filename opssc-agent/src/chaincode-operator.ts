@@ -179,7 +179,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @async
    * @returns {Promise<void>}
    */
-   async validate(): Promise<void> {
+  async validate(): Promise<void> {
     logger.info('[START] Validate chaincode update proposal');
     this.notifier?.notifyProgress('[START] Validate chaincode update proposal');
     try {
@@ -198,7 +198,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     }
     logger.info('[END] Validate chaincode update proposal');
     this.notifier?.notifyProgress('[END] Validate chaincode update proposal');
-   }
+  }
 
   /**
    * Download the source code of the chaincode from the remote repository specified in the proposal.
@@ -207,34 +207,42 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async download(): Promise<void> {
-    logger.info('[START] Download chaincode');
-    this.notifier?.notifyProgress('[START] Download chaincode');
+    try {
+      logger.info('[START] Download chaincode');
+      this.notifier?.notifyProgress('[START] Download chaincode');
 
-    const sourceAbsolutePath = this.sourceAbsolutePath();
-    const sourceParentAbsolutePath = path.resolve(sourceAbsolutePath, '..');
+      const sourceAbsolutePath = this.sourceAbsolutePath();
+      const sourceParentAbsolutePath = path.resolve(sourceAbsolutePath, '..');
 
-    fs.mkdirpSync(sourceParentAbsolutePath);
+      fs.mkdirpSync(sourceParentAbsolutePath);
 
-    if (fs.existsSync(sourceAbsolutePath)) {
-      logger.debug('Move old existing chaincode sourcecode to \'.orginal\'');
-      fs.removeSync(`${sourceAbsolutePath}.original`);
-      fs.moveSync(sourceAbsolutePath, `${sourceAbsolutePath}.original`);
+      if (fs.existsSync(sourceAbsolutePath)) {
+        logger.debug('Move old existing chaincode sourcecode to \'.orginal\'');
+        fs.removeSync(`${sourceAbsolutePath}.original`);
+        fs.moveSync(sourceAbsolutePath, `${sourceAbsolutePath}.original`);
+      }
+
+      let git = simplegit(sourceParentAbsolutePath);
+      const remote = this.remoteGitRepositoryURL(true);
+      await git.clone(remote);
+      git = simplegit(sourceAbsolutePath);
+      await git.checkout(this.proposal.chaincodePackage.commitID);
+
+      // Build chaincode for typescript
+      if (this.proposal.chaincodePackage.type === 'typescript') {
+        execCommand('npm install', false, this.chaincodeAbsolutePath());
+        execCommand('npm run build', false, this.chaincodeAbsolutePath());
+      }
+
+      logger.info('[END] Download chaincode');
+      this.notifier?.notifyProgress('[END] Download chaincode');
+    } catch (e) {
+      if (this.config.gitUser && this.config.gitPassword) {
+        const maskedErrorMessage = (e.message as string).replace(this.config.gitUser, '*****').replace(this.config.gitPassword, '*****');
+        throw new Error(maskedErrorMessage);
+      }
+      throw e;
     }
-
-    let git = simplegit(sourceParentAbsolutePath);
-    const remote = this.remoteGitRepositoryURL(true);
-    await git.clone(remote);
-    git = simplegit(sourceAbsolutePath);
-    await git.checkout(this.proposal.chaincodePackage.commitID);
-
-    // Build chaincode for typescript
-    if (this.proposal.chaincodePackage.type === 'typescript') {
-      execCommand('npm install', false, this.chaincodeAbsolutePath());
-      execCommand('npm run build', false, this.chaincodeAbsolutePath());
-    }
-
-    logger.info('[END] Download chaincode');
-    this.notifier?.notifyProgress('[END] Download chaincode');
   }
 
   /**
