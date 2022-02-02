@@ -199,6 +199,7 @@ export class ChaincodeLifecycleCommands {
     };
     if (request.chaincode.validation_parameter) {
       approveChaincodeDefinitionForMyOrgArgs.validation_parameter = createEndorsementPolicyDefinition(request.chaincode.validation_parameter);
+      if (!approveChaincodeDefinitionForMyOrgArgs.validation_parameter) throw new Error(`Fail to build endorsement policy: ${request.chaincode.validation_parameter}`);
     }
     if (request.chaincode.endorsement_plugin) {
       approveChaincodeDefinitionForMyOrgArgs.endorsement_plugin = request.chaincode.endorsement_plugin;
@@ -211,7 +212,7 @@ export class ChaincodeLifecycleCommands {
     }
     if (request.chaincode.collections) {
       const p_collection = collectionLib.__build_collection_config_package(request.chaincode.collections);
-      if (p_collection === null) throw new Error('Fail to build collection config package');
+      if (p_collection === null) throw new Error(`Fail to build collection config package: ${request.chaincode.collections}`);
       approveChaincodeDefinitionForMyOrgArgs.collections =  fabric_common_protos.CollectionConfigPackage.create(p_collection);
     }
 
