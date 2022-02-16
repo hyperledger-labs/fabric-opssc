@@ -63,8 +63,9 @@ The current OpsSC API server provides the following API to enable administrators
 | Channel   | Get the system config block                                            | `/api/v1/channel/systemConfigBlock`           | `GET`  |
 | Utility   | Invoke a chaincode (for test)                                          | `/api/v1/utils/invokeTransaction`             | `POST` |
 | Utility   | Query a chaincode (for test)                                           | `/api/v1/utils/queryTransaction`              | `GET`  |
-| Utility   | Version check                                                          | `/api/v1/version`                             | `GET`  |
-| Utility   | Health check                                                           | `/healthz`                                    | `GET`  |
+| Common    | Get the organization information to be operated                        | `/api/v1/organization`                        | `GET`  |
+| Common    | Version check                                                          | `/api/v1/version`                             | `GET`  |
+| Common    | Health check                                                           | `/healthz`                                    | `GET`  |
 
 Refer to [API specification](./APISpecification.md) for the details
 

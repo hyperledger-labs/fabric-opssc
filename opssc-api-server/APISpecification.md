@@ -1,57 +1,57 @@
 # API specification
 
-------------------------------------------------------------------------------
+---
+
 ## Chaincode category
 
 ### Get all update proposals
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** ``
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Request a new update proposal
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals/:id`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   **Required:**
 
-   ```json
-    {
+  ```json
+  {
     "proposal": {
       "channelID": "mychannel",
       "chaincodeName": "basic",
@@ -72,9 +72,9 @@
 
 `validationParameter` should be base64 encoded.
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The requested proposal
     ```json
     {
@@ -83,42 +83,39 @@
       "creator": "Org1MSP",
       "channelID": "mychannel",
       "chaincodeName": "basic",
-      "chaincodePackage": {
-      },
-      "chaincodeDefinition": {
-      },
+      "chaincodePackage": {},
+      "chaincodeDefinition": {},
       "status": "proposed",
       "time": "2020-..."
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Get the proposal with the given ID
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals/:id`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The proposal with `id`
     ```json
     {
@@ -127,39 +124,37 @@
       "creator": "Org1MSP",
       "channelID": "mychannel",
       "chaincodeName": "basic",
-      "chaincodePackage": {
-      },
-      "chaincodeDefinition": {
-      },
+      "chaincodePackage": {},
+      "chaincodeDefinition": {},
       "status": "proposed",
       "time": "2020-..."
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Vote for/against the proposal
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals/:id/vote`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   By default (if No data params are specified), the request votes for the proposal.
 
-  * **Optional:**
+  - **Optional:**
 
     ```json
     {
@@ -170,68 +165,66 @@
     }
     ```
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** None
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Withdraw the proposal
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals/:id/withdraw`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** None
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Get the task histories with the given proposal
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/proposals/:id/histories`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
-    * **Optional:**
-      `taskID=["vote"|"acknowledge"|"commit"]`
+  - **Optional:**
+    `taskID=["vote"|"acknowledge"|"commit"]`
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The task histories with `id` and `taskID`
     ```json
     {
@@ -255,32 +248,32 @@
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Get the list of installed chaincodes
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/getInstalledChaincodes`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-* **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The installed chaincodes
     ```json
     {
@@ -298,39 +291,39 @@
               ]
             }
           }
-        },
+        }
       ]
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Get the chaincode definition with the given channel and chaincode name
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/queryChaincodeDefinition`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-* **URL Params**
+- **URL Params**
 
-    * **Required:**
-      `channelID=[string]`</br>
-      `chaincodeName=[string]`
+  - **Required:**
+    `channelID=[string]`</br>
+    `chaincodeName=[string]`
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The chaincode definition with `channelID` and `chaincodeName`
     ```json
     {
@@ -347,33 +340,33 @@
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Get the chaincode definitions with the given channel
 
-* **URL**
+- **URL**
 
   `/api/v1/chaincode/queryChaincodeDefinitions`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
-    * **Required:**
-      `channelID=[string]`
+  - **Required:**
+    `channelID=[string]`
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The list of the chaincode definitions with `channelID`
     ```json
     {
@@ -391,35 +384,36 @@
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
-------------------------------------------------------------------------------
+---
+
 ## Channel category
 
 ### Get all update proposals
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/proposals`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The map of all the proposals
     ```json
     {
@@ -431,8 +425,7 @@
         "creator": "Org1MSP",
         "action": "create",
         "status": "committed",
-        "opsProfile": {
-        },
+        "opsProfile": {},
         "artifacts": {
           "configUpdate": "CglteWNoYW5uZWwSOxIpCgt(...)",
           "signatures": {
@@ -443,11 +436,11 @@
       }
     }
     ```
-  A key of the map is a proposal ID.
+    A key of the map is a proposal ID.
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Request a new update proposal
@@ -455,21 +448,21 @@
 This is API to request a uew update proposal.
 The server internally creates the config update and the signature by using `opsProfile` parameter.
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/proposals/:id`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
-  * **Required:**
+  - **Required:**
 
     ```json
     "proposal": {
@@ -485,39 +478,38 @@ The server internally creates the config update and the signature by using `opsP
     `opsProfile` for `create` should be [the format](../configtx-cli/ops/testdata/create_mychannel2_profile.yaml) for `fabric-configtx-cli create-channel`.<br/>
     `opsProfile` for `update` should be [the format](../configtx-cli/ops/testdata/multiple_ops_profile_for_mychannel_without_reading_other_files.yaml) for `fabric-configtx-cli execute-multiple-ops`.<br/>
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The proposal ID<br />
     `"create_mychannel"`
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Get the proposal with the given ID
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/proposals/:id`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The the proposal with ``
     ```json
     {
@@ -528,8 +520,7 @@ The server internally creates the config update and the signature by using `opsP
       "creator": "Org1MSP",
       "action": "create",
       "status": "committed",
-      "opsProfile": {
-      },
+      "opsProfile": {},
       "artifacts": {
         "configUpdate": "CglteWNoYW5uZWw...",
         "signatures": {
@@ -540,66 +531,64 @@ The server internally creates the config update and the signature by using `opsP
     }
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Vote for the proposal
 
 This is API to vote for the proposal.
 The server internally creates the signature by using the content of the proposal.
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/proposals/:id/vote`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** None
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
-
 
 ### Get the channel information with the given channel name
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/getChannel`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
-  * **Required:**
-    `channelID=[string]`
+- **Required:**
+  `channelID=[string]`
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The the channel information
     ```json
     {
@@ -612,32 +601,33 @@ The server internally creates the signature by using the content of the proposal
       }
     }
     ```
-* **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+- **Error Response:**
+
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Get the list of all channels
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/getChannels`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
+
+None
+
+- **Data Params**
 
   None
 
-* **Data Params**
+- **Success Response**
 
-  None
-
-* **Success Response**
-
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The list of all the channel information
     ```json
     [
@@ -671,62 +661,63 @@ The server internally creates the signature by using the content of the proposal
     ]
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Get the system config block
 
-* **URL**
+- **URL**
 
   `/api/v1/channel/systemConfigBlock`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The system channel config block <br />
     `"CiIaIO26iOmkIsGkYxJKmTdOb0KTu+zOKkdn6FlIlWvZ5e2NEoTSA..."`
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
-------------------------------------------------------------------------------
+---
+
 ## Utility category
 
 ### Invoke a chaincode (for test)
 
-* **URL**
+- **URL**
 
   `/api/v1/utils/invokeTransaction`
 
-* **Method:**
+- **Method:**
 
   `POST`
 
-*  **URL Params**
+- **URL Params**
 
-    * **Required:**
-      `channelID=[string]`<br/>
-      `ccName=[string]`<br/>
-      `func=[string]`<br/>
-      `args=[string array]`
+  - **Required:**
+    `channelID=[string]`<br/>
+    `ccName=[string]`<br/>
+    `func=[string]`<br/>
+    `args=[string array]`
 
-* **Data Params**
+- **Data Params**
 
   ```json
   {
@@ -737,40 +728,40 @@ The server internally creates the signature by using the content of the proposal
   }
   ```
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** None
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Query a chaincode (for test)
 
-* **URL**
+- **URL**
 
   `/api/v1/utils/queryTransaction`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
-    * **Required:**
-      `channelID=[string]`<br/>
-      `ccName=[string]`<br/>
-      `channelID=[string]`<br/>
+  - **Required:**
+    `channelID=[string]`<br/>
+    `ccName=[string]`<br/>
+    `channelID=[string]`<br/>
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** The result of querying the chaincode
     ```json
     [
@@ -786,65 +777,93 @@ The server internally creates the signature by using the content of the proposal
     ]
     ```
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
+### Get the organization information to be operated
 
-### Version check
+- **URL**
 
-* **URL**
+  `/api/v1/organization`
 
-  `/api/v1/version`
-
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
+    **Content:** The organization information <br />
+    `{ "mspID" : "..." }`
+
+- **Error Response:**
+
+  - **Code:** 500 Internal Server Error <br />
+    **Content:** `{ "message" : "..." }`
+
+### Version check
+
+- **URL**
+
+  `/api/v1/version`
+
+- **Method:**
+
+  `GET`
+
+- **URL Params**
+
+  None
+
+- **Data Params**
+
+  None
+
+- **Success Response**
+
+  - **Code:** 200 <br />
     **Content:** The version of the API server <br />
     `"0.2.0"`
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:** 500 Internal Server Error <br />
+  - **Code:** 500 Internal Server Error <br />
     **Content:** `{ "message" : "..." }`
 
 ### Health check
 
-* **URL**
+- **URL**
 
   `/healthz`
 
-* **Method:**
+- **Method:**
 
   `GET`
 
-*  **URL Params**
+- **URL Params**
 
   None
 
-* **Data Params**
+- **Data Params**
 
   None
 
-* **Success Response**
+- **Success Response**
 
-  * **Code:** 200 <br />
+  - **Code:** 200 <br />
     **Content:** `"OK"`
 
-* **Error Response:**
+- **Error Response:**
 
-  * **Code:**  <br />
+  - **Code:** <br />
     **Content:**
