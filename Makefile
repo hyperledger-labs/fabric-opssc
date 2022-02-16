@@ -11,11 +11,12 @@
 #   - docker-opssc-agent - builds docker images for opssc-agent
 #   - docker-opssc-api-server - builds docker images for opssc-api-server
 #   - integration-test - runs integration tests for a specific fabric version
+#   - check-support-version - checks whether the specified FABRIC_TWO_DIGIT_VERSION is supported or not
 
 BASE_VERSION = 0.2.0
 FABRIC_TWO_DIGIT_VERSION ?= 2.4
 
-SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.3 2.2
+SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.2
 
 .PHONY: build-and-tests-all
 build-and-tests-all: $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
@@ -31,18 +32,25 @@ docker-all: $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPOR
 
 .PHONY: docker-opssc-agent
 docker-opssc-agent: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%)
-docker-opssc-agent/%:
+docker-opssc-agent/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Building docker image for opssc-agent (base version: ${BASE_VERSION}, fabric version: $*)"
 	@opssc-agent/scripts/build.sh ${BASE_VERSION} $*
 
 .PHONY: docker-opssc-api-server
 docker-opssc-api-server: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%)
-docker-opssc-api-server/%:
+docker-opssc-api-server/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Building docker image for opssc-api-server (base version: ${BASE_VERSION}, fabric version: $*)"
 	@opssc-api-server/scripts/build.sh ${BASE_VERSION} $*
 
 .PHONY: integration-test
 integration-test: $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
-integration-test/%:
+integration-test/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Executing integration tests (fabric version: $*)"
 	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm test
+
+.PHONY: check-support-version
+check-support-version:
+ifeq ($(findstring $(FABRIC_TWO_DIGIT_VERSION),$(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS)),)
+	@echo "Version $(FABRIC_TWO_DIGIT_VERSION) is not supported."
+	@exit 1
+endif
