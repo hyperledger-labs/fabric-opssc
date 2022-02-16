@@ -199,7 +199,7 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
             package_id: packageID
           }
         };
-        await lifecycleCommands.approve(chaincodeRequest);
+        await lifecycleCommands.approve(chaincodeRequest, false);
         logger.info('[END] Approve chaincode');
       }
     } finally {
