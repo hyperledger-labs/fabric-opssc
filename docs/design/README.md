@@ -17,11 +17,13 @@ The new `chaincode_ops` can now cover a series of state transitions of chaincode
 #### Voting Specifications
 
 - Analysis: differences from real-world voting
+
   - There is no concept of a voting period
   - A voting system that speeds up decision-making
     - The system that does not wait until everyone has voted
 
 - Voting acceptance specifications
+
   - Not accept overwriting of votes from the same organization
   - Not accept voting after the decision (should explicitly raise an error)
 
@@ -30,7 +32,7 @@ The new `chaincode_ops` can now cover a series of state transitions of chaincode
   - Option 1: Same condition as `Approved`
     - `Rejected` requires `disagreed` from a MAJOLITY
   - Option 2: `Rejected` when `Approved` can no longer be achieved.
-    - `Rejected` requires `disagreed` from (total number of organization - majority of organizations)
+    - `Rejected` requires `disagreed` from (total number of organization - (majority of organizations - 1))
   - Currently, select Option 2.
     - To clarify the decision when the number of organizations is an even number.
     - Option 2 can reach the decision faster than Option 1.

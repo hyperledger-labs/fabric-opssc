@@ -778,7 +778,7 @@ func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface
 	}
 
 	if checkUnachivable {
-		criteriaNum = totalOrgNum - criteriaNum
+		criteriaNum = totalOrgNum - (criteriaNum - 1)
 	}
 
 	orgs := map[string]string{}
