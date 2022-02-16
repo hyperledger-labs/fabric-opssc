@@ -22,6 +22,11 @@ export default function router(fabricClient: FabricClient, opsSCAPIServerConfig:
     res.json(process.env.npm_package_version);
   });
 
+  // ----- REST API to get organzation information
+  router.get('/organization', async (req, res) => {
+    res.json({'mspID': fabricClient.config.adminMSPID});
+  });
+
   // ----- Internal functions to create command instances
 
   function createChaincodeLifecycleCommands(channelID: string): ChaincodeLifecycleCommands {
