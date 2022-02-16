@@ -173,9 +173,11 @@ export class ChaincodeLifecycleCommands {
    *
    * @async
    * @param {ChaincodeRequest} request the request to approve a chaincode definition
+   * @param {boolean} protobufEncodeRequiredForObjects whether the objects (validation_parameter and collections) in the request should be encoded as protobuf format (default value: true).
+   * Typically, this parameter should be set to false if you want to reuse chaincode definitions acquired via _lifecycle operations.
    * @returns {Promise<void>}
    */
-  async approve(request: ChaincodeRequest): Promise<void> {
+  async approve(request: ChaincodeRequest, protobufEncodeRequiredForObjects = true): Promise<void> {
     await this.prepareLifecycleContract();
 
     const collectionLib = new CollectionLib;
@@ -198,7 +200,7 @@ export class ChaincodeLifecycleCommands {
       source: source
     };
     if (request.chaincode.validation_parameter) {
-      approveChaincodeDefinitionForMyOrgArgs.validation_parameter = createEndorsementPolicyDefinition(request.chaincode.validation_parameter);
+      approveChaincodeDefinitionForMyOrgArgs.validation_parameter = protobufEncodeRequiredForObjects ? createEndorsementPolicyDefinition(request.chaincode.validation_parameter) : request.chaincode.validation_parameter;
       if (!approveChaincodeDefinitionForMyOrgArgs.validation_parameter) throw new Error(`Fail to build endorsement policy: ${request.chaincode.validation_parameter}`);
     }
     if (request.chaincode.endorsement_plugin) {
@@ -211,7 +213,7 @@ export class ChaincodeLifecycleCommands {
       approveChaincodeDefinitionForMyOrgArgs.init_required = request.chaincode.init_required;
     }
     if (request.chaincode.collections) {
-      const p_collection = collectionLib.__build_collection_config_package(request.chaincode.collections);
+      const p_collection =  protobufEncodeRequiredForObjects ? collectionLib.__build_collection_config_package(request.chaincode.collections) : request.chaincode.collections;
       if (p_collection === null) throw new Error(`Fail to build collection config package: ${request.chaincode.collections}`);
       approveChaincodeDefinitionForMyOrgArgs.collections =  fabric_common_protos.CollectionConfigPackage.create(p_collection);
     }
@@ -237,9 +239,11 @@ export class ChaincodeLifecycleCommands {
    *
    * @async
    * @param {ChaincodeRequest} request the request to commit a chaincode definition
+   * @param {boolean} protobufEncodeRequiredForObjects whether the objects (validation_parameter and collections) in the request should be encoded as protobuf format (default value: true).
+   * Typically, this parameter should be set to false if you want to reuse chaincode definitions acquired via _lifecycle operations.
    * @returns {Promise<void>}
    */
-  async commit(request: ChaincodeRequest): Promise<void> {
+  async commit(request: ChaincodeRequest, protobufEncodeRequiredForObjects = true): Promise<void> {
     await this.prepareLifecycleContract();
 
     const collectionLib = new CollectionLib;
@@ -250,7 +254,8 @@ export class ChaincodeLifecycleCommands {
       version: request.chaincode.version
     };
     if (request.chaincode.validation_parameter) {
-      commitChaincodeDefinitionArgs.validation_parameter = createEndorsementPolicyDefinition(request.chaincode.validation_parameter);
+      commitChaincodeDefinitionArgs.validation_parameter = protobufEncodeRequiredForObjects ? createEndorsementPolicyDefinition(request.chaincode.validation_parameter) : request.chaincode.validation_parameter;
+      if (!commitChaincodeDefinitionArgs.validation_parameter) throw new Error(`Fail to build endorsement policy: ${request.chaincode.validation_parameter}`);
     }
     if (request.chaincode.endorsement_plugin) {
       commitChaincodeDefinitionArgs.endorsement_plugin = request.chaincode.endorsement_plugin;
@@ -262,8 +267,8 @@ export class ChaincodeLifecycleCommands {
       commitChaincodeDefinitionArgs.init_required = request.chaincode.init_required;
     }
     if (request.chaincode.collections) {
-      const p_collection = collectionLib.__build_collection_config_package(request.chaincode.collections);
-      if (p_collection === null) throw new Error('Fail to build collection config package');
+      const p_collection =  protobufEncodeRequiredForObjects ? collectionLib.__build_collection_config_package(request.chaincode.collections) : request.chaincode.collections;
+      if (p_collection === null) throw new Error(`Fail to build collection config package: ${request.chaincode.collections}`);
       commitChaincodeDefinitionArgs.collections = fabric_common_protos.CollectionConfigPackage.create(p_collection);
     }
 
