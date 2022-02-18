@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -76,7 +76,7 @@ export class ChannelOpsAgent {
       logger.info('Deploy event: \n%s', JSON.stringify(eventDetail));
       const proposalID = eventDetail.proposalID;
       this.notifier?.notifyEvent('readyToUpdateConfigEvent',
-        `[EVENT] Receive readyToUpdateConfigEvent (ID: ${proposalID})`);
+        `[EVENT] Receive readyToUpdateConfigEvent (ID: ${proposalID})`, proposalID);
 
       if (eventDetail.operationTargets.includes(this.fabricClient.config.adminMSPID)) {
         const operator = await this.createChannelOperator(eventDetail.proposalID);
@@ -119,8 +119,9 @@ export class ChannelOpsAgent {
   /*
    * Handle an updateConfigEvent.
    */
-  private async handleUpdateConfigEvent(_chaincodeEvent: { [key: string]: any }) {
-    this.notifier?.notifyEvent('updateConfigEvent', '[EVENT] Receive updateConfigEvent');
+  private async handleUpdateConfigEvent(chaincodeEvent: { [key: string]: any }) {
+    const [_, proposalID] = chaincodeEvent.eventName.split('.');
+    this.notifier?.notifyEvent('updateConfigEvent', '[EVENT] Receive updateConfigEvent', proposalID);
     await this.bootstrap();
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -93,13 +93,13 @@ export class ChaincodeOpsAgent {
       logger.info('Prepare to deploy event: \n%s', JSON.stringify(eventDetail));
       proposalID = eventDetail.proposal.ID;
       this.notifier?.notifyEvent('prepareToDeployEvent',
-        `[EVENT] Receive prepareToDeployEvent (ID: ${proposalID})`);
+        `[EVENT] Receive prepareToDeployEvent (ID: ${proposalID})`, proposalID);
 
       if (eventDetail.operationTargets.includes(this.fabricClient.config.adminMSPID)) {
         if (this.listInProcessOfPrepareToDeploy.includes(proposalID)) {
           skipped = true;
           logger.warn(`Skip processing the duplicated prepareToDeployEvent (ID: ${proposalID}) because an existing operator has been processing it`);
-          this.notifier?.notifyProgress(`[WARN] Skip prepareToDeployEvent (ID: ${proposalID})`);
+          this.notifier?.notifyProgress(`[WARN] Skip prepareToDeployEvent (ID: ${proposalID})`, proposalID);
           return;
         }
         this.listInProcessOfPrepareToDeploy.push(proposalID);
@@ -129,13 +129,13 @@ export class ChaincodeOpsAgent {
       logger.info('Deploy event: \n%s', JSON.stringify(eventDetail));
       proposalID = eventDetail.proposal.ID;
       this.notifier?.notifyEvent('deployEvent',
-        `[EVENT] Receive deploy event (ID: ${proposalID})`);
+        `[EVENT] Receive deploy event (ID: ${proposalID})`, proposalID);
 
       if (eventDetail.operationTargets.includes(this.fabricClient.config.adminMSPID)) {
         if (this.listInProcessOfDeploy.includes(proposalID)) {
           skipped = true;
           logger.warn(`Skip processing the duplicated deployEvent (ID: ${proposalID}) because an existing operator has been processing it`);
-          this.notifier?.notifyProgress(`[WARN] Skip deployEvent (ID: ${proposalID})`);
+          this.notifier?.notifyProgress(`[WARN] Skip deployEvent (ID: ${proposalID})`, proposalID);
           return;
         }
         this.listInProcessOfDeploy.push(proposalID);
@@ -157,7 +157,7 @@ export class ChaincodeOpsAgent {
    * Invoke an transaction to the OpsSC chaincode to register the result of the preparation of the chaincode deployment.
    */
   private async registerAcknowledgeResult(taskStatusUpdate: TaskStatusUpdate) {
-    logger.info('[START] Register results on ACK');
+    logger.info(`[START] Register results on ACK (proposalID ${taskStatusUpdate.proposalID})`);
 
     const request = {
       channelID: this.config.opssc.channelID,
@@ -166,14 +166,14 @@ export class ChaincodeOpsAgent {
       args: [JSON.stringify(taskStatusUpdate)]
     };
     await this.fabricClient.submitTransaction(request);
-    logger.info('[END] Register results on ACK');
+    logger.info(`[END] Register results on ACK (proposalID ${taskStatusUpdate.proposalID})`);
   }
 
   /*
    * Invoke an transaction to the OpsSC chaincode to register the commit result of the chaincode deployment.
    */
   private async registerCommitResult(taskStatusUpdate: TaskStatusUpdate) {
-    logger.info('[START] Register results on commit');
+    logger.info(`[START] Register results on commit (proposalID ${taskStatusUpdate.proposalID})`);
 
     const request = {
       channelID: this.config.opssc.channelID,
@@ -182,7 +182,7 @@ export class ChaincodeOpsAgent {
       args: [JSON.stringify(taskStatusUpdate)]
     };
     await this.fabricClient.submitTransaction(request);
-    logger.info('[END] Register results on commit');
+    logger.info(`[END] Register results on commit (proposalID ${taskStatusUpdate.proposalID})`);
   }
 
   /*
