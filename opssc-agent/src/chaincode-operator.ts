@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -136,7 +136,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         status: 'failure',
         data: `{"error": "${e.message}"}`
       };
-      await this.notifier?.notifyError(`[ERROR] Prepare to deploy error\n${e.message}`);
+      await this.notifier?.notifyError(`[ERROR] Prepare to deploy error\n${e.message}`, this.proposal.ID);
       return approvalTaskStatus;
     } finally {
       this.lifecycleCommands.close();
@@ -166,7 +166,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         status: 'failure',
         data: `{"error": "${e.message}"}`
       };
-      await this.notifier?.notifyError(`[ERROR] Deploy error\n${e}`);
+      await this.notifier?.notifyError(`[ERROR] Deploy error\n${e}`, this.proposal.ID);
       return commitTaskStatus;
     } finally {
       this.lifecycleCommands.close();
@@ -180,8 +180,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async validate(): Promise<void> {
-    logger.info('[START] Validate chaincode update proposal');
-    this.notifier?.notifyProgress('[START] Validate chaincode update proposal');
+    logger.info(`[START] Validate chaincode update proposal (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[START] Validate chaincode update proposal', this.proposal.ID);
     try {
       const chaincodeDefinition = await this.lifecycleCommands.queryChaincodeDefinition(this.proposal.chaincodeName);
       logger.debug('chaincodeDefinition\n%s', JSON.stringify(chaincodeDefinition));
@@ -196,8 +196,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         throw e;
       }
     }
-    logger.info('[END] Validate chaincode update proposal');
-    this.notifier?.notifyProgress('[END] Validate chaincode update proposal');
+    logger.info(`[END] Validate chaincode update proposal (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[END] Validate chaincode update proposal', this.proposal.ID);
   }
 
   /**
@@ -208,8 +208,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    */
   async download(): Promise<void> {
     try {
-      logger.info('[START] Download chaincode');
-      this.notifier?.notifyProgress('[START] Download chaincode');
+      logger.info(`[START] Download chaincode (proposal ID: ${this.proposal.ID})`);
+      this.notifier?.notifyProgress('[START] Download chaincode', this.proposal.ID);
 
       const sourceAbsolutePath = this.sourceAbsolutePath();
       const sourceParentAbsolutePath = path.resolve(sourceAbsolutePath, '..');
@@ -234,8 +234,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
         execCommand('npm run build', false, this.chaincodeAbsolutePath());
       }
 
-      logger.info('[END] Download chaincode');
-      this.notifier?.notifyProgress('[END] Download chaincode');
+      logger.info(`[END] Download chaincode (proposal ID: ${this.proposal.ID})`);
+      this.notifier?.notifyProgress('[END] Download chaincode', this.proposal.ID);
     } catch (e) {
       if (this.config.gitUser && this.config.gitPassword) {
         const maskedErrorMessage = (e.message as string).replace(this.config.gitUser, '*****').replace(this.config.gitPassword, '*****');
@@ -252,8 +252,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async package(): Promise<void> {
-    logger.info('[START] Package chaincode');
-    this.notifier?.notifyProgress('[START] Package chaincode');
+    logger.info(`[START] Package chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[START] Package chaincode', this.proposal.ID);
 
     let lang = this.proposal.chaincodePackage.type;
     switch (this.proposal.chaincodePackage.type) {
@@ -273,8 +273,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     };
     this.packagedChaincode = await this.lifecycleCommands.package(packageRequest);
 
-    logger.info('[END] Package chaincode');
-    this.notifier?.notifyProgress('[END] Package chaincode');
+    logger.info(`[END] Package chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[END] Package chaincode', this.proposal.ID);
   }
 
   /**
@@ -284,8 +284,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async install(): Promise<void> {
-    logger.info('[START] Install chaincode');
-    this.notifier?.notifyProgress('[START] Install chaincode');
+    logger.info(`[START] Install chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[START] Install chaincode', this.proposal.ID);
 
     if (this.packagedChaincode == null) {
       throw new Error('package is not set');
@@ -296,7 +296,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     };
     const result = await this.lifecycleCommands.install(installRequest);
     this.packageID = result ? result : this.packageID = computePackageID(this.chaincodeLabel(), this.packagedChaincode);
-    logger.info('[END] Install chaincode');
+    logger.info(`[END] Install chaincode (proposal ID: ${this.proposal.ID})`);
   }
 
   /**
@@ -305,8 +305,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async approve(): Promise<void> {
-    logger.info('[START] Approve chaincode');
-    this.notifier?.notifyProgress('[START] Approve chaincode');
+    logger.info(`[START] Approve chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[START] Approve chaincode', this.proposal.ID);
 
     const chaincodeRequest: ChaincodeRequest = {
       chaincode: {
@@ -321,8 +321,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     };
     await this.lifecycleCommands.approve(chaincodeRequest);
 
-    logger.info('[END] Approve chaincode');
-    this.notifier?.notifyProgress('[END] Approve chaincode');
+    logger.info(`[END] Approve chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[END] Approve chaincode', this.proposal.ID);
   }
 
   /**
@@ -332,8 +332,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
    * @returns {Promise<void>}
    */
   async commit(): Promise<void> {
-    logger.info('[START] Commit chaincode');
-    this.notifier?.notifyProgress('[START] Commit chaincode');
+    logger.info(`[START] Commit chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[START] Commit chaincode', this.proposal.ID);
 
     const chaincodeRequest: ChaincodeRequest = {
       chaincode: {
@@ -347,8 +347,8 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
     };
     await this.lifecycleCommands.commit(chaincodeRequest);
 
-    logger.info('[END] Commit chaincode');
-    this.notifier?.notifyProgress('[END] Commit chaincode');
+    logger.info(`[END] Commit chaincode (proposal ID: ${this.proposal.ID})`);
+    this.notifier?.notifyProgress('[END] Commit chaincode', this.proposal.ID);
   }
 
   // Internal methods

@@ -29,11 +29,14 @@ export class Notifier {
     logger.debug('WS URL: %s', config.websocketUrl);
     try {
       this.ws = new WebSocket(config.websocketUrl);
-      this.ws.on('open', function open() {
+      this.ws.on('open', () => {
         logger.info('Opened ws');
       });
+      this.ws.on('error', (err) => {
+        logger.error('Websocket error : %s', err);
+      });
     } catch (e) {
-      logger.error('Websocket opening fails: %s', e);
+      logger.error('Websocket initializing fails: %s', e);
     }
   }
 
@@ -42,11 +45,12 @@ export class Notifier {
    *
    * @param {string} message the message
    */
-  notifyProgress(message: string) {
+  notifyProgress(message: string, proposalID: string) {
     this.sendMessageByWebSocket({
       type: 'log',
       org: this.mspID,
-      message: message
+      message: message,
+      proposalID: proposalID
     });
   }
 
@@ -56,12 +60,13 @@ export class Notifier {
    * @param {string} eventName the event name
    * @param {string} message the message
    */
-  notifyEvent(eventName: string, message: string) {
+  notifyEvent(eventName: string, message: string, proposalID: string) {
     this.sendMessageByWebSocket({
       type: 'event',
       eventName: eventName,
       org: this.mspID,
-      message: message
+      message: message,
+      proposalID: proposalID
     });
   }
 
@@ -70,11 +75,12 @@ export class Notifier {
    *
    * @param {string} message the message
    */
-  notifyError(message: string) {
+  notifyError(message: string, proposalID: string) {
     this.sendMessageByWebSocket({
       type: 'error',
       org: this.mspID,
-      message: message
+      message: message,
+      proposalID: proposalID
     });
   }
 
