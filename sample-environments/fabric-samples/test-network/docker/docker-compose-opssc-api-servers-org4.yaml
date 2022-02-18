@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: '2'
+version: "2"
 
 networks:
   test:
@@ -20,6 +20,7 @@ services:
       - CLIENT_SERVICE_PORT=5003
       - API_CH_PROPOSAL_ENABLED=true
       - API_UTIL_ENABLED=true
+      - WS_ENABLED=true
     volumes:
       - ../organizations/peerOrganizations/org4.example.com/users/Admin@org4.example.com/msp:/opt/fabric/msp
       - ../organizations/peerOrganizations/org4.example.com/connection-org4.yaml:/opt/fabric/config/connection-profile.yaml

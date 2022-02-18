@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -16,9 +16,14 @@ export interface OpsSCAPIServerFeatureOption {
 }
 
 export interface OpsSCAPIServerConfig {
-    fabric: FabricConfig;
-    opsSC: OpsSCConfig;
-    featureOption: OpsSCAPIServerFeatureOption;
+  fabric: FabricConfig;
+  opsSC: OpsSCConfig;
+  ws: WebSocketConfig;
+  featureOption: OpsSCAPIServerFeatureOption;
+}
+
+export interface WebSocketConfig {
+  enabled: boolean;
 }
 
 export const config: OpsSCAPIServerConfig = {
@@ -36,6 +41,9 @@ export const config: OpsSCAPIServerConfig = {
       chaincodeOpsCCName: process.env.CC_OPS_CC_NAME || 'chaincode_ops',
       channelOpsCCName: process.env.CH_OPS_CC_NAME || 'channel_ops',
     }
+  },
+  ws: {
+    enabled: process.env.WS_ENABLED === 'true',
   },
   featureOption: {
     channelProposalAPIEnabled: process.env.API_CH_PROPOSAL_ENABLED !== 'false',

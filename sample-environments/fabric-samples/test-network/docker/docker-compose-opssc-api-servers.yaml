@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: '2'
+version: "2"
 
 networks:
   test:
@@ -20,6 +20,7 @@ services:
       - CLIENT_SERVICE_PORT=5000
       - API_CH_PROPOSAL_ENABLED=true
       - API_UTIL_ENABLED=true
+      - WS_ENABLED=true
     volumes:
       - ../organizations/peerOrganizations/org1.example.com/connection-org1.yaml:/opt/fabric/config/connection-profile.yaml
       - ../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/opt/fabric/msp
@@ -38,6 +39,7 @@ services:
       - CLIENT_SERVICE_PORT=5001
       - API_CH_PROPOSAL_ENABLED=true
       - API_UTIL_ENABLED=true
+      - WS_ENABLED=true
     volumes:
       - ../organizations/peerOrganizations/org2.example.com/connection-org2.yaml:/opt/fabric/config/connection-profile.yaml
       - ../organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/opt/fabric/msp
