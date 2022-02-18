@@ -37,6 +37,7 @@ The following environment variables must be set:
 | API Server         | `CLIENT_SERVICE_PORT`     | `5000`                                       | Port number used by the API server                                                                      |
 | API Server         | `API_CH_PROPOSAL_ENABLED` | `true`                                       | Whether to enable the Channel Update Proposal APIs                                                      |
 | API Server         | `API_UTIL_ENABLED`        | `true`                                       | Whether to enable the Utility APIs                                                                      |
+| WebSocket          | `WS_ENABLED`              | `false`                                      | Whether to enable WebSocket server to receive messages from agents or the API server itself             |
 | Logging            | `LOG_LEVEL`               | `info`                                       | Log level                                                                                               |
 
 ## API specification

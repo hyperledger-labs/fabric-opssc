@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -37,36 +37,48 @@ const server = app.listen(port, () => {
 });
 
 // Initialize websocket server and client
-const wss = new WebSocket.Server({ server: server });
-let connections: WebSocket[] = [];
+let ws: WebSocket|null = null;
 
-wss.on('connection', function (ws) {
-  logger.info('Websocket new connection');
-  connections.push(ws);
+if (config.ws.enabled) {
+  logger.info('Starting ws server and client');
 
-  ws.on('open', function () {
-    logger.info('open');
-  });
+  const wss = new WebSocket.Server({ server: server });
+  let connections: WebSocket[] = [];
 
-  ws.on('close', function () {
-    connections = connections.filter(function (conn, _i) {
-      return (conn == ws) ? false : true;
+  wss.on('connection', function (ws) {
+    logger.info('Websocket new connection');
+    connections.push(ws);
+
+    ws.on('open', function () {
+      logger.info('Opened ws server');
+    });
+
+    ws.on('close', function () {
+      connections = connections.filter(function (conn, _i) {
+        return (conn == ws) ? false : true;
+      });
+    });
+
+    ws.on('message', function incoming(data: string, _flags: any) {
+      logger.info('message: ' + data);
+      connections.forEach(function (conn, _i) {
+        conn.send(data);
+      });
+    });
+
+    ws.on('error', function (err) {
+      logger.error(`Web socket server-side error: ${err}`);
     });
   });
 
-  ws.on('message', function incoming(data: string, _flags: any) {
-    logger.info('message: ' + data);
-    connections.forEach(function (conn, _i) {
-      conn.send(data);
-    });
+  ws = new WebSocket(`ws://localhost:${port}`);
+  ws.on('open', function open() {
+    logger.info('Opened ws client');
   });
-
-});
-
-const ws = new WebSocket(`ws://localhost:${port}`);
-ws.on('open', function open() {
-  logger.info('Opened ws client');
-});
+  ws.on('error', function (err) {
+    logger.error(`Web socket client error: ${err}`);
+  });
+}
 
 // Initialize contract listeners
 async function registerContractListeners() {
