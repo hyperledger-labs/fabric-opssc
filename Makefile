@@ -22,7 +22,7 @@ SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.2
 build-and-tests-all: $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
 
 .PHONY: build-and-tests
-build-and-tests: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%) $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-api-server/%) $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
+build-and-tests: lint $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%) $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-api-server/%) $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
 
 .PHONY: docker
 docker: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%) $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-api-server/%)
@@ -47,6 +47,13 @@ integration-test: $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
 integration-test/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Executing integration tests (fabric version: $*)"
 	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm test
+
+.PHONY: lint
+lint:
+	@cd common/src && npm run lint
+	@cd opssc-api-server/src && npm run lint
+	@cd opssc-agent/src && npm run lint
+	@cd integration && npm run lint
 
 .PHONY: check-support-version
 check-support-version:
