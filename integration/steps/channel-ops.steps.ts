@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -82,6 +82,39 @@ export class ChannelOpsSteps extends BaseStepClass {
       }
     }
     expect.fail('Fail to bootstrap opssc-agent');
+  }
+
+  @when(/(start|stop) opssc-agents for org(1|2|3|4)/)
+  public async controlOpsSCAgents(action: 'start'|'stop', orgIndex: number) {
+    const commands = `docker ${action} opssc-agent.org${orgIndex}.example.com`;
+    execSync(commands);
+
+    for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
+      await this.delay(10000);
+      try {
+        const response = await axios.get(`${this.getAgentServiceEndpoint(`org${orgIndex}`)}/healthz`);
+        switch (action) {
+          case 'start':
+            if (response.status === 200) {
+              return;
+            }
+            break;
+          case 'stop':
+            if (response.status !== 200) {
+              return;
+            }
+            break;
+          default:
+            expect.fail(`Unexpected action: ${action}`);
+        }
+      } catch (error) {
+        if (action === 'stop') {
+          return;
+        }
+        // console.log(error.message); // For debug
+      }
+    }
+    expect.fail(`Fail to ${action} opssc-agent`);
   }
 
   @when(/(.+) requests a proposal to add org for (org3|org4) to (.+) via opssc-api-server/)

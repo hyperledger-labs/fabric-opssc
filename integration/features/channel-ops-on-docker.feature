@@ -1,5 +1,5 @@
 #
-# Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -67,7 +67,7 @@ Feature: Channel ops on docker-based Fabric network
     ## -- No votes will be accepted after the decision
     And org2 fails to approve the proposal for chaincode (name: basic, seq: 1, channel: mychannel) with an error (the voting is already closed)
 
- Scenario: Add a new organization with bootstraping on docker-based Fabric network by using OpsSC
+  Scenario: Add a new organization with bootstraping on docker-based Fabric network by using OpsSC
 
     Given deploy basic_dummy as a dummy on mychannel
     Then 1 chaincodes should be committed on mychannel
@@ -120,6 +120,22 @@ Feature: Channel ops on docker-based Fabric network
     And bootstrap opssc-agents for org3
     Then 3 chaincodes should be installed on org3's peer0
     And 3 chaincodes should be installed on org3's peer1
+
+    # Catching up on events during an agent stop
+    # -- When stop opssc agent for org2, and a new proposal to deploy a new chaincode is requested.
+    When stop opssc-agents for org2
+    And org1 requests a proposal to deploy the chaincode (name: basic-2, seq: 1, channel: mychannel) based on basic golang template via opssc-api-server
+    And org3 votes for the proposal for chaincode (name: basic-2, seq: 1, channel: mychannel) with opssc-api-server
+    # -- then the proposal should be processed for org1 and 3, but the process for org2 should be pending.
+    Then the proposal for chaincode (name: basic-2, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
+    And the proposal for chaincode (name: basic-2, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
+    And 2 chaincodes should be committed on mychannel
+    # -- When restart opssc agent for org2, then the pending event should be processed (the new chaincode should be committed)
+    When start opssc-agents for org2
+    Then the proposal for chaincode (name: basic-2, seq: 1, channel: mychannel) should be acknowledged (with success) by 3 or more orgs
+    And 3 chaincodes should be committed on mychannel
+    And chaincode (name: basic-2, channel: mychannel) based on basic should be able to register the asset (ID: asset101) by invoking CreateAsset func
+    And chaincode (name: basic-2, channel: mychannel) based on basic golang should be able to get the asset (ID: asset101) by querying ReadAsset func
 
   Scenario: Create a new channel on docker-based Fabric network by using OpsSC
 

@@ -1,4 +1,4 @@
-# Copyright 2021 Hitachi, Ltd. All Rights Reserved.
+# Copyright 2021-2022 Hitachi, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -19,7 +19,7 @@ FABRIC_TWO_DIGIT_VERSION ?= 2.4
 SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.2
 
 .PHONY: build-and-tests-all
-build-and-tests-all: $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
+build-and-tests-all: lint $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
 
 .PHONY: build-and-tests
 build-and-tests: lint $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%) $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-api-server/%) $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)

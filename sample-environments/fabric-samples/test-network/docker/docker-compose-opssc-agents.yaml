@@ -1,8 +1,12 @@
-# Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
-version: '2'
+version: "2"
+
+volumes:
+  opssc-agent.org1.example.com:
+  opssc-agent.org2.example.com:
 
 networks:
   test:
@@ -27,6 +31,7 @@ services:
     volumes:
       - ../organizations/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/opt/fabric/msp
       - ../organizations/peerOrganizations/org1.example.com/connection-org1.yaml:/opt/fabric/config/connection-profile.yaml
+      - opssc-agent.org1.example.com:/opt/opssc/data
     networks:
       - test
     ports:
@@ -49,6 +54,7 @@ services:
     volumes:
       - ../organizations/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/opt/fabric/msp
       - ../organizations/peerOrganizations/org2.example.com/connection-org2.yaml:/opt/fabric/config/connection-profile.yaml
+      - opssc-agent.org2.example.com:/opt/opssc/data
     networks:
       - test
     ports:
