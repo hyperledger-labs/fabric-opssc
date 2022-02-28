@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
@@ -18,7 +18,7 @@ FABRIC_TWO_DIGIT_VERSION=$2
 if [ "${FABRIC_TWO_DIGIT_VERSION}" = "2.2" ]; then
   FABRIC_VERSION=2.2.5
 else
-  FABRIC_VERSION=2.4.2
+  FABRIC_VERSION=2.4.3
   FABRIC_TWO_DIGIT_VERSION=2.4
 fi
 
