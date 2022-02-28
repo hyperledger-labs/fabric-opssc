@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -27,7 +27,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   }
 
   private cleanupFabricNetwork() {
-    let commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org3.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org4.yaml down --remove-orphans`;
+    let commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org3.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-agents-org4.yaml down --volumes --remove-orphans`;
     execSync(commands);
 
     commands = `docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-api-servers.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-api-servers-org3.yaml -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/docker-compose-opssc-api-servers-org4.yaml down --remove-orphans`;
