@@ -43,7 +43,8 @@ The other materials (the OpsSC concept etc.):
 
 ## Feedback and contribution welcome!
 
-- [Hyperledger Chat](https://chat.hyperledger.org/channel/fabric-opssc)
+- [Hyperledger Discord Chat](https://discord.com/invite/hyperledger)
+  - [fabric-opssc channel](https://discord.com/channels/905194001349627914/942805501681496094)
 - [GitHub Issues](https://github.com/hyperledger-labs/fabric-opssc/issues)
 
 ## Prerequisites
