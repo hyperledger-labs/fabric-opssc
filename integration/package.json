@@ -21,7 +21,7 @@
     "cucumber-pretty": "^6.0.0",
     "cucumber-tsflow": "^3.4.1",
     "eslint": "^7.32.0",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.10"
   }
