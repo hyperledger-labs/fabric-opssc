@@ -8,7 +8,7 @@ import { ChaincodeUpdateProposal, TaskStatusUpdate } from 'opssc-common/opssc-ty
 import { ChaincodeOperatorConfig } from './config';
 import { logger } from './logger';
 import path from 'path';
-import simplegit from 'simple-git/promise';
+import simplegit from 'simple-git';
 import fs from 'fs-extra';
 import { Notifier } from './notifier';
 import { ChaincodeLifecycleCommands, ChaincodeRequest, computePackageID, InstallRequest, PackageRequest } from 'opssc-common/chaincode-lifecycle-commands';

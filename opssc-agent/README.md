@@ -31,7 +31,7 @@ In the current implementation, the agent calls `peer` and `fabric-configtx-cli` 
 ## Prerequisites
 
 - Linux
-- Node.js >= 10.15
+- Node.js >= 12.21
 - Docker
 - Docker Compose
 
