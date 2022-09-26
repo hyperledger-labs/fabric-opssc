@@ -27,19 +27,22 @@ As the first step for applying this to Fabric v2.x, we have developed a purpose-
 
 Please refer to the following files to get the detail of OpsSC for Hyperledger Fabric v2.x.
 
-- [1] [Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x](https://static.sched.com/hosted_files/hgf2021/a3/HyperledgerGlobalForum_OpsSC_pub.pdf), Hyperledger Global Forum 2021.
-- [2] [Demo movies](https://github.com/satota2/fabric-opssc-materials#demo-movies)
-- [3] [OpsSC: Decentralized Blockchain Network Operation Workflow for Hyperledger Fabric](https://ieeexplore.ieee.org/document/9680558), IEEE Blockchain 2021, pp.287-294, 2021.
+- [1] [Toward Fully-Decentralized System With Hyperledger Fabric - Requirement Analysis of Decentralized System Configuration/Operations and Potential Use of a Decentralized Operations Tool "OpsSC"](https://sched.co/14H4o), Hyperledger Global Forum 2022.
+- [2] [Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x](https://static.sched.com/hosted_files/hgf2021/a3/HyperledgerGlobalForum_OpsSC_pub.pdf), Hyperledger Global Forum 2021.
+- [3] [Demo movies](https://github.com/satota2/fabric-opssc-materials#demo-movies)
+- [4] [OpsSC: Decentralized Blockchain Network Operation Workflow for Hyperledger Fabric](https://ieeexplore.ieee.org/document/9680558), IEEE Blockchain 2021, pp.287-294, 2021.
+- [5] [Operations Smart Contract to Realize Decentralized System Operations Workflow for Consortium Blockchain](https://doi.org/10.1587/transcom.2021TMP0008), IEICE Transactions on Communications (Special Section: Towards Management for Future Communications and Services in Conjunction with Main Topics of APNOMS2021), Vol.E105-B, No.11, 2022.
+  - [ArXiv version](https://arxiv.org/ftp/arxiv/papers/2205/2205.04657.pdf)
 
 ### Other related materials
 
 The other materials (the OpsSC concept etc.):
 
-- [4] [Presentation slide for Labs proposal](https://github.com/satota2/fabric-opssc-materials/blob/main/materials/OpsSC_for_Hyperledger_Fabric_v2.x_pub.pdf), Hyperledger Fabric Contributor Meeting, 2020.
-- [5] [Practical Tools for Enterprise Uses of Hyperledger Fabric (Audit and System Operations)](https://static.sched.com/hosted_files/hgf20/c4/Practical_Tools_for_Enterprise_Uses_of_Fabric.pub.pdf), Hyperledger Global Forum 2020.
+- [6] [Presentation slide for Labs proposal](https://github.com/satota2/fabric-opssc-materials/blob/main/materials/OpsSC_for_Hyperledger_Fabric_v2.x_pub.pdf), Hyperledger Fabric Contributor Meeting, 2020.
+- [7] [Practical Tools for Enterprise Uses of Hyperledger Fabric (Audit and System Operations)](https://static.sched.com/hosted_files/hgf20/c4/Practical_Tools_for_Enterprise_Uses_of_Fabric.pub.pdf), Hyperledger Global Forum 2020.
   - OpsSC is presented in pp.19-24 and pp.31-38.
-- [6] [Smart-Contract Based System Operations for Permissioned Blockchain](https://ieeexplore.ieee.org/document/8328745), BSC 2018, pp.1-6.
-- [7] [Design and Evaluation of Smart-Contract-based System Operations for Permissioned Blockchain-based Systems](https://arxiv.org/ftp/arxiv/papers/1901/1901.11249.pdf), arXiv:1901.11249, pp.1-11, 2019.
+- [8] [Smart-Contract Based System Operations for Permissioned Blockchain](https://ieeexplore.ieee.org/document/8328745), BSC 2018, pp.1-6.
+- [9] [Design and Evaluation of Smart-Contract-based System Operations for Permissioned Blockchain-based Systems](https://arxiv.org/ftp/arxiv/papers/1901/1901.11249.pdf), arXiv:1901.11249, pp.1-11, 2019.
 
 ## Feedback and contribution welcome!
 
