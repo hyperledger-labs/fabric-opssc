@@ -9,7 +9,7 @@ Also, the tests download (replace) the Fabric binaries in `samples-environments/
 ## Prerequisites
 
 - Linux
-- Node.js >= 10.15
+- Node.js >= 12.21
 - Docker
 - Docker Compose
 

@@ -13,7 +13,7 @@ In a typical use case, an administrator for each organization communicates with 
 ## Prerequisites
 
 - Linux
-- Node.js >= 10.15
+- Node.js >= 12.21
 - Docker
 - Docker Compose
 
