@@ -1,0 +1,8 @@
+apiVersion: "v1"
+name: "chaincode-server"
+version: "1.0"
+description: Chaincode Server for Hyperledger Fabric v2.x
+maintainers:
+  - name: Tatsuya Sato
+    email: tatsuya.sato.so@hitachi.com
+

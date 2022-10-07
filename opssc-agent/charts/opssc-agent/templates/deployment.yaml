@@ -1,0 +1,131 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opssc-agent.fullname" . }}
+  labels:
+    {{- include "opssc-agent.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opssc-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opssc-agent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "opssc-agent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      volumes:
+        - name: admin-msp
+          configMap:
+            name: {{ .Values.secrets.adminMSPName }}
+        - name: fabric-ccp
+          configMap:
+            name: fabric-rest-sample-config
+            items:
+            - key: {{ .Values.secrets.connectionProfileItemKeyName }}
+              path: connection-profile.yaml
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: ADMIN_MSPID
+              value: {{ .Values.adminMSPID | quote }}
+            - name: ADMIN_CERT
+              value: /opt/fabric/msp/signcerts
+            - name: ADMIN_KEY
+              value: /opt/fabric/msp/keystore
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel | quote }}
+            - name: DISCOVER_AS_LOCALHOST
+              value: {{ .Values.discoverAsLocalhost | quote }}
+            - name: AGENT_SERVICE_PORT
+              value: "5500"
+            - name: CHANNEL_NAME
+              value: {{ .Values.opsscChannelName | quote }}
+            - name: CH_OPS_CC_NAME
+              value: {{ .Values.opsscChannelOpsCCName | quote }}
+            - name: CC_OPS_CC_NAME
+              value: {{ .Values.opsscChaincodeOpsCCName | quote }}
+            - name: GIT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.git }}
+                  key: username
+                  optional: true
+            - name: GIT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.git }}
+                  key: password
+                  optional: true
+            - name: CC_SERVER_LAUNCH_FROM_AGENT
+              value: {{ .Values.chaincodeServer.launchFromAgent | quote }}
+            - name: CC_SERVER_REGISTRY
+              value: {{ .Values.chaincodeServer.registry | quote }}
+            {{- if .Values.chaincodeServer.pullRegistryOverride }}
+            - name: CC_SERVER_PULL_REGISTRY
+              value: {{ .Values.chaincodeServer.pullRegistryOverride | quote }}
+            {{- end }}
+            - name: CC_SERVER_IMAGE_PULL_SECRET_NAME
+              value: {{ .Values.chaincodeServer.imagePullSecretName | quote }}
+            - name: CC_SERVER_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: CC_SERVER_PREFIX
+              value: {{ .Values.chaincodeServer.prefix | quote }}
+            - name: CC_SERVER_SUFFIX
+              value: {{ .Values.chaincodeServer.suffix | quote }}
+            - name: CC_SERVER_PORT
+              value: {{ .Values.chaincodeServer.port | quote }}
+            - name: WS_ENABLED
+              value: {{ .Values.websocket.enabled | quote }}
+            - name: WS_URL
+              value: {{ .Values.websocket.URL | quote }}
+          volumeMounts:
+            - mountPath: /tmp/admin-msp.tar
+              name: admin-msp
+              subPath: admin-msp.tar
+            - mountPath: /opt/fabric/config
+              name: fabric-ccp
+          command: [ "/bin/sh","-c", "tar -xf /tmp/admin-msp.tar -C /opt/fabric && cd /opt/app/src && npm start" ]
+          # ports:
+          #   - name: http
+          #     containerPort: 5500
+          #     protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /healthz
+          #     port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

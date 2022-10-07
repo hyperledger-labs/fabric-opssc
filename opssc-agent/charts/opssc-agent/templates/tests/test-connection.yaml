@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "opssc-agent.fullname" . }}-test-connection"
+  labels:
+    {{- include "opssc-agent.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "opssc-agent.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

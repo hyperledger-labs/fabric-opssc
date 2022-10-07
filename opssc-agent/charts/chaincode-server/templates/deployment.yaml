@@ -1,0 +1,38 @@
+---
+#---------------- Chaincode Deployment ---------------------
+apiVersion: apps/v1 # for versions before 1.8.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.name }}
+  labels:
+    app: {{ .Values.name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.name }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.name }}
+    spec:
+      containers:
+        {{- if .Values.pullImageNameOverride }}
+        - image: "{{ .Values.pullImageNameOverride }}:{{ .Values.imageTag }}"
+        {{- else }}
+        - image: "{{ .Values.imageName }}:{{ .Values.imageTag }}"
+        {{- end }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          name: {{ .Values.name }}
+          env:
+            - name: CHAINCODE_ID
+              value: {{ .Values.chaincode.ccID }}
+            - name: CORE_CHAINCODE_ID_NAME
+              value: {{ .Values.chaincode.ccID }}
+            - name: CHAINCODE_SERVER_ADDRESS
+              value: {{ .Values.chaincode.address }}
+          ports:
+            - containerPort: {{ .Values.chaincode.port }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretName }}
