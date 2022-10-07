@@ -1,0 +1,19 @@
+name: org1-chaincode-marbles
+imageName: "chaincode/marbles"
+imageTag: "1.0"
+imagePullPolicy: "IfNotPresent"
+imagePullSecretName: ""
+
+# For KIND
+pullImageNameOverride: ""
+chaincode:
+  ccID: ""
+  address: "0.0.0.0:7052"
+  port: "7052"
+git:
+  repositoryURL: "http://user:password@localhost/repos/marbles.git"
+  commitID: "main"
+
+  # Relative path from repository path, which should start with '/' and end without '/'
+  # e.g., 'repositoryPath/pathToSourceFiles/SourceFiles' should be '/pathToSourceFiles'
+  pathToSourceFiles: ""

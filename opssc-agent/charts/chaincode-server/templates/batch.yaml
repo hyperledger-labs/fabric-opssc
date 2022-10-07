@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Values.name }}-buildjob
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade,pre-rollback
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "3"
+spec:
+  completions: 1
+  template:
+    metadata:
+      name: {{ .Values.name }}-buildjob
+    spec:
+      restartPolicy: Never
+      initContainers:
+        - name: init-clone-repository
+          image: alpine/git
+          command: ['sh', '-c', "git clone -- {{ .Values.git.repositoryURL }} /context && cd /context &&  git checkout {{ .Values.git.commitID }}"]
+          volumeMounts:
+          - name: context
+            mountPath: /context
+      containers:
+      - name: kaniko
+        image: gcr.io/kaniko-project/executor:debug
+        args: ["--dockerfile=/context{{ .Values.git.pathToSourceFiles }}/Dockerfile",
+              "--context=/context{{ .Values.git.pathToSourceFiles }}",
+              "--cache=false",
+              "--insecure",
+              # For KIND
+              # https://github.com/GoogleContainerTools/kaniko/issues/2164
+              "--ignore-path=/product_uuid",
+              "--destination={{ .Values.imageName }}:{{ .Values.imageTag }}"]
+        volumeMounts:
+          - name: context
+            mountPath: /context
+          - name: root
+            mountPath: /root
+          {{- if .Values.imagePullSecretName }}
+          - name:  registry-credentials
+            mountPath: /kaniko/.docker/
+          {{- end }}
+      volumes:
+        {{- if .Values.imagePullSecretName }}
+        - name: registry-credentials
+          projected:
+            sources:
+            - secret:
+                name: {{ .Values.imagePullSecretName }}
+                items:
+                - key: .dockerconfigjson
+                  path: config.json
+        {{- end }}
+        - name: context
+          emptyDir: {}
+        - name: root
+          emptyDir: {}
