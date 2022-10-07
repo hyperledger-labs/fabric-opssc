@@ -393,6 +393,7 @@ export class ChannelCommands {
   private peerCmdOrdererArgs(): string[] {
     const regexp = /.+:\/\/(.+)/;
     const orderers = this.connectionProfile.orderers;
+    if (!orderers) throw new Error('Fail to get orderers (orderers section is not found in profile)');
     const ordererNames = Object.keys(orderers);
     if (ordererNames.length < 1) throw new Error('Fail to get orderer');
     const ordererName = ordererNames[0];
