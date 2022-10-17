@@ -11,6 +11,7 @@ import { Notifier } from './notifier';
 import { ChaincodeOperator, ChaincodeOperatorImpl } from './chaincode-operator';
 import { ContractEvent, ContractListener } from 'fabric-network';
 import { FabricClient } from 'opssc-common/fabric-client';
+import { ExternalChaincodeOperatorImpl } from './external-chaincode-operator';
 
 
 /**
@@ -108,7 +109,7 @@ export class ChaincodeOpsAgent {
         await this.registerAcknowledgeResult(history);
       }
     } catch (e) {
-      logger.error(e);
+      logger.error('Got error : %s', e.toString());
     } finally {
       if (!skipped) {
         this.listInProcessOfPrepareToDeploy = this.listInProcessOfPrepareToDeploy.filter(n => n !== proposalID);
@@ -144,7 +145,7 @@ export class ChaincodeOpsAgent {
         await this.registerCommitResult(history);
       }
     } catch (e) {
-      logger.error(e);
+      logger.error('Got error : %s', e.toString());
     } finally {
       if (!skipped) {
         this.listInProcessOfDeploy = this.listInProcessOfDeploy.filter(n => n !== proposalID);
@@ -195,6 +196,9 @@ export class ChaincodeOpsAgent {
       case 'javascript':
       case 'typescript':
         return new ChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
+      case 'ccaas':
+        logger.info('create external chaincode operator');
+        return new ExternalChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
       default:
         throw new Error(`Unsupported chaincode type: ${proposal.chaincodePackage.type}`);
     }

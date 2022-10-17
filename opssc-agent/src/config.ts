@@ -36,7 +36,8 @@ export interface ChaincodeOperatorConfig {
 export interface ChaincodeServerConfig {
   launchFromAgent: boolean;
   registry: string;
-  imagePullSecrets: string;
+  pullRegistry: string;
+  ccServerImagePullSecretName: string;
   namespace: string;
   servicePrefix: string;
   serviceSuffix: string;
@@ -71,7 +72,8 @@ export const config: OpsSCAgentConfig = {
       ccs: {
         launchFromAgent: process.env.CC_SERVER_LAUNCH_FROM_AGENT === 'true',
         registry: process.env.CC_SERVER_REGISTRY || '',
-        imagePullSecrets: process.env.CC_SERVER_IMAGE_PULL_SECRETS || '',
+        pullRegistry: process.env.CC_SERVER_PULL_REGISTRY || process.env.CC_SERVER_REGISTRY || '',
+        ccServerImagePullSecretName: process.env.CC_SERVER_IMAGE_PULL_SECRET_NAME || '',
         namespace: process.env.CC_SERVER_NAMESPACE || 'hyperledger',
         servicePrefix: process.env.CC_SERVER_PREFIX || 'chaincode',
         serviceSuffix: process.env.CC_SERVER_SUFFIX || 'org1',
