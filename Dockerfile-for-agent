@@ -20,6 +20,16 @@ RUN tar -xzf hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
 # Add fabric-configtx-cli
 ADD configtx-cli/bin/fabric-configtx-cli /usr/local/bin
 
+# Add helm
+ENV HELM_VERSION=v3.10.0
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3
+RUN chmod 700 get_helm.sh
+RUN ./get_helm.sh --version $HELM_VERSION
+RUN rm get_helm.sh
+
+# Add chart for chaincode server
+COPY opssc-agent/charts/chaincode-server /opt/chart
+
 # Add chaincode for opssc
 ADD chaincode /opt/go/src/bootstrap/
 
