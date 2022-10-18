@@ -9,8 +9,8 @@ package main
 import (
 	"log"
 
-	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core"
+	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 
 func main() {

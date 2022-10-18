@@ -138,7 +138,7 @@ func TestRequestProposal(t *testing.T) {
 	require.NoError(t, err)
 	require.JSONEq(t, string(expectedJSON), string(state))
 
-	// Case: the propsal can be approved without any other votes
+	// Case: the proposal can be approved without any other votes
 	expectedProposal, input = baseProposalAndInput(formattedTS)
 	input.ID = "request-2"
 	config := VotingConfig{
@@ -238,7 +238,7 @@ func TestRequestProposal(t *testing.T) {
 		Message: "error",
 	})
 	_, err = sc.RequestProposal(transactionContext, input)
-	require.EqualError(t, err, "proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel")
+	require.EqualError(t, err, "proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel: failed to call get channel type (code: 500, message: error)")
 
 	// Case: Fail to request when the proposal ID is already in use
 	chaincodeStub.InvokeChaincodeStub = invokeChaincode
@@ -259,12 +259,12 @@ func TestRequestProposal(t *testing.T) {
 	cc := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(cc+2, "", fmt.Errorf("failed to create composite key"))
 	_, err = sc.RequestProposal(transactionContext, input)
-	require.EqualError(t, err, "failed to put the history that the org votes for: error happend creating composite key for history: failed to create composite key")
+	require.EqualError(t, err, "failed to put the history that the org votes for: error happened creating composite key for history: failed to create composite key")
 
 	// Case: Fail to request when putProposal occurs an error
 	chaincodeStub.CreateCompositeKeyReturns("", fmt.Errorf("failed to create composite key"))
 	_, err = sc.RequestProposal(transactionContext, input)
-	require.EqualError(t, err, "failed to put the proposal: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to put the proposal: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestVote(t *testing.T) {
@@ -550,7 +550,7 @@ func TestVoteWhenPutProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+2, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Vote(transactionContext, request)
-	require.EqualError(t, err, "failed to update the status: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to update the status: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestVoteWhenSetEventErrorOccurs(t *testing.T) {
@@ -618,7 +618,7 @@ func TestVoteWhenPutHistoryFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+1, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Vote(transactionContext, request)
-	require.EqualError(t, err, "failed to put the history: error happend creating composite key for history: failed to create composite key")
+	require.EqualError(t, err, "failed to put the history: error happened creating composite key for history: failed to create composite key")
 
 	// Case: Internal state read error to check whether overwrite or not
 	getStateCount := chaincodeStub.GetStateCallCount()
@@ -655,7 +655,7 @@ func TestVoteWhenGetProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Vote(transactionContext, request)
-	require.EqualError(t, err, "failed to get the proposal: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to get the proposal: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestVoteWhenChaincodeToChaincodeCallFails(t *testing.T) {
@@ -880,7 +880,7 @@ func TestAcknowledgeWhenPutProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+2, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Acknowledge(transactionContext, request)
-	require.EqualError(t, err, "failed to update the status: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to update the status: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestAcknowledgeWhenPutHistoryFails(t *testing.T) {
@@ -911,7 +911,7 @@ func TestAcknowledgeWhenPutHistoryFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+1, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Acknowledge(transactionContext, request)
-	require.EqualError(t, err, "failed to put the history: error happend creating composite key for history: failed to create composite key")
+	require.EqualError(t, err, "failed to put the history: error happened creating composite key for history: failed to create composite key")
 }
 
 func TestAcknowledgeWhenGetProposalFails(t *testing.T) {
@@ -942,7 +942,7 @@ func TestAcknowledgeWhenGetProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount, "", fmt.Errorf("failed to create composite key"))
 	err = sc.Acknowledge(transactionContext, request)
-	require.EqualError(t, err, "failed to get the proposal: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to get the proposal: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestAcknowledgeWhenChaincodeToChaincodeCallFails(t *testing.T) {
@@ -1178,7 +1178,7 @@ func TestNotifyCommitResultWhenPutProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+2, "", fmt.Errorf("failed to create composite key"))
 	err = sc.NotifyCommitResult(transactionContext, request)
-	require.EqualError(t, err, "failed to update the status: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to update the status: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestNotifyCommitResultWhenPutHistoryFails(t *testing.T) {
@@ -1209,7 +1209,7 @@ func TestNotifyCommitResultWhenPutHistoryFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount+1, "", fmt.Errorf("failed to create composite key"))
 	err = sc.NotifyCommitResult(transactionContext, request)
-	require.EqualError(t, err, "failed to put the history: error happend creating composite key for history: failed to create composite key")
+	require.EqualError(t, err, "failed to put the history: error happened creating composite key for history: failed to create composite key")
 }
 
 func TestNotifyCommitResultWhenGetProposalFails(t *testing.T) {
@@ -1240,7 +1240,7 @@ func TestNotifyCommitResultWhenGetProposalFails(t *testing.T) {
 	createComposeKeyCount := chaincodeStub.CreateCompositeKeyCallCount()
 	chaincodeStub.CreateCompositeKeyReturnsOnCall(createComposeKeyCount, "", fmt.Errorf("failed to create composite key"))
 	err = sc.NotifyCommitResult(transactionContext, request)
-	require.EqualError(t, err, "failed to get the proposal: error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "failed to get the proposal: error happened creating composite key for proposal: failed to create composite key")
 }
 
 func TestWithdrawProposal(t *testing.T) {
@@ -1405,7 +1405,7 @@ func TestGetProposal(t *testing.T) {
 	// Case: Fail to create composite key
 	chaincodeStub.CreateCompositeKeyReturns("", fmt.Errorf("failed to create composite key"))
 	actual, err = sc.GetProposal(transactionContext, "request-1")
-	require.EqualError(t, err, "error happend creating composite key for proposal: failed to create composite key")
+	require.EqualError(t, err, "error happened creating composite key for proposal: failed to create composite key")
 	require.Nil(t, actual)
 }
 

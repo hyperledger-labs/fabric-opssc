@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
 	"strconv"
 	"time"
 
@@ -153,14 +154,17 @@ const (
 	MAJORITY = "majority"
 )
 
+//
+const (
+	CH_OPS_CC_NAME_ENV     = "CH_OPS_CC_NAME"
+	DEFAULT_CH_OPS_CC_NAME = "channel_ops"
+)
+
 var (
 	// ErrProposalNotFound is returned when the requested object is not found.
 	ErrProposalNotFound = fmt.Errorf("proposal not found")
 	// ErrProposalIDAreadyInUse is returned when the requested proposal ID is already in use.
 	ErrProposalIDAreadyInUse = fmt.Errorf("proposalID already in use")
-
-	// ErrPropsalNotAcceptableToChannel is returned when the proposal is requested for an unacceptable channel.
-	ErrPropsalNotAcceptableToChannel = fmt.Errorf("proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel")
 )
 
 // RequestProposal requests a new chaincode update proposal.
@@ -241,8 +245,8 @@ func (s *SmartContract) RequestProposal(ctx contractapi.TransactionContextInterf
 	}
 
 	// Check whether the proposal is acceptable to the target channel
-	if b, _ := s.canPropose(ctx, input.ChannelID); !b {
-		return nil, ErrPropsalNotAcceptableToChannel
+	if b, err := s.canPropose(ctx, input.ChannelID); !b {
+		return nil, fmt.Errorf("proposal is not accepted by the channel. The proposal should be made to the 'application' or 'ops' channel: %v", err)
 	}
 
 	// Fail if the proposal with the ID already exists
@@ -718,7 +722,7 @@ func (s *SmartContract) GetProposal(ctx contractapi.TransactionContextInterface,
 
 	compositeKey, err := ctx.GetStub().CreateCompositeKey(ProposalObjectType, []string{proposalID})
 	if err != nil {
-		return nil, fmt.Errorf("error happend creating composite key for proposal: %v", err)
+		return nil, fmt.Errorf("error happened creating composite key for proposal: %v", err)
 	}
 
 	proposalJSON, err := ctx.GetStub().GetState(compositeKey)
@@ -749,7 +753,7 @@ func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface
 	defer iterator.Close()
 
 	channelOpsArgs := util.ToChaincodeArgs("CountOrganizationsInChannel", targetChannel)
-	response := ctx.GetStub().InvokeChaincode("channel_ops", channelOpsArgs, "")
+	response := ctx.GetStub().InvokeChaincode(channelOpsCCName(), channelOpsArgs, "")
 	if response.Status != shim.OK {
 		return false, fmt.Errorf("failed to call count organization in channel (code: %d, message: %v)",
 			response.Status, response.Message)
@@ -804,7 +808,7 @@ func (s *SmartContract) meetCriteria(ctx contractapi.TransactionContextInterface
 	return false, nil
 }
 
-// Functions to manage propsal status
+// Functions to manage proposal status
 func (s *SmartContract) updateStatusToAcknowledged(ctx contractapi.TransactionContextInterface, proposal ChaincodeUpdateProposal) error {
 	proposal.Status = Acknowledged
 
@@ -851,9 +855,9 @@ func (s *SmartContract) updateStatusToApproved(ctx contractapi.TransactionContex
 
 	// -- Get organization list from channel_ops
 	channelOpsArgs := util.ToChaincodeArgs("GetOrganizationsInChannel", proposal.ChannelID)
-	response := ctx.GetStub().InvokeChaincode("channel_ops", channelOpsArgs, "")
+	response := ctx.GetStub().InvokeChaincode(channelOpsCCName(), channelOpsArgs, "")
 	if response.Status != shim.OK {
-		return fmt.Errorf("error happened querying channel_ops: " + response.Message)
+		return fmt.Errorf("error happened querying " + channelOpsCCName() + ":" + response.Message)
 	}
 	oList := []string{}
 	if err := json.Unmarshal(response.Payload, &oList); err != nil {
@@ -930,7 +934,7 @@ func (s *SmartContract) putProposal(ctx contractapi.TransactionContextInterface,
 	// Create composite key
 	compositeKey, err := ctx.GetStub().CreateCompositeKey(ProposalObjectType, []string{proposal.ID})
 	if err != nil {
-		return fmt.Errorf("error happend creating composite key for proposal: %v", err)
+		return fmt.Errorf("error happened creating composite key for proposal: %v", err)
 	}
 
 	// struct to JSON
@@ -985,7 +989,7 @@ func (s *SmartContract) putHistory(ctx contractapi.TransactionContextInterface, 
 	// Create composite key
 	compositeKey, err := ctx.GetStub().CreateCompositeKey(HistoryObjectType, []string{history.ProposalID, history.TaskID, history.OrgID})
 	if err != nil {
-		return nil, fmt.Errorf("error happend creating composite key for history: %v", err)
+		return nil, fmt.Errorf("error happened creating composite key for history: %v", err)
 	}
 
 	// Check whether there is the state on the state DB
@@ -1018,7 +1022,7 @@ func (s *SmartContract) getMSPID(ctx contractapi.TransactionContextInterface) (s
 
 func (s *SmartContract) canPropose(ctx contractapi.TransactionContextInterface, ChannelID string) (bool, error) {
 	channelOpsArgs := util.ToChaincodeArgs("GetChannelType", ChannelID)
-	response := ctx.GetStub().InvokeChaincode("channel_ops", channelOpsArgs, "")
+	response := ctx.GetStub().InvokeChaincode(channelOpsCCName(), channelOpsArgs, "")
 	if response.Status != shim.OK {
 		return false, fmt.Errorf("failed to call get channel type (code: %d, message: %v)",
 			response.Status, response.Message)
@@ -1046,4 +1050,11 @@ func getTxTimestampRFC3339(ctx contractapi.TransactionContextInterface) (string,
 	}
 	tm := time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
 	return tm.Format(time.RFC3339), nil
+}
+
+func channelOpsCCName() string {
+	if os.Getenv(CH_OPS_CC_NAME_ENV) != "" {
+		return os.Getenv(CH_OPS_CC_NAME_ENV)
+	}
+	return DEFAULT_CH_OPS_CC_NAME
 }
