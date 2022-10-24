@@ -138,6 +138,7 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
    */
   async joinMyPeersToOpsChannel(): Promise<void> {
     logger.info('[START] Join my peers to ops channel');
+    logger.debug(`Ops channel name: ${this.config.opssc.channelID}`);
     await this.channelCommands.joinAllPeers(this.config.opssc.channelID);
     logger.info('[END] Join my peers to ops channel');
   }

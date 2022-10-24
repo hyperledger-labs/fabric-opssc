@@ -12,6 +12,7 @@ import { ChaincodeOperator, ChaincodeOperatorImpl } from './chaincode-operator';
 import { ContractEvent, ContractListener } from 'fabric-network';
 import { FabricClient } from 'opssc-common/fabric-client';
 import { ExternalChaincodeOperatorImpl } from './external-chaincode-operator';
+import { K8sBuilderBasedExternalChaincodeOperatorImpl } from './k8s-builder-based-external-chaincode-operator';
 
 
 /**
@@ -197,8 +198,9 @@ export class ChaincodeOpsAgent {
       case 'typescript':
         return new ChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
       case 'ccaas':
-        logger.info('create external chaincode operator');
         return new ExternalChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
+      case 'k8s':
+        return new K8sBuilderBasedExternalChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
       default:
         throw new Error(`Unsupported chaincode type: ${proposal.chaincodePackage.type}`);
     }
