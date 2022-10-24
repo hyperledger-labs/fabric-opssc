@@ -12,8 +12,8 @@ Feature: Channel ops on docker-based Fabric network
     Given create mychannel channel
     Given create ops-channel channel
 
-    Given deploy channel_ops for opssc on ops-channel
-    Given deploy chaincode_ops for opssc on ops-channel
+    Given deploy channel-ops for opssc on ops-channel
+    Given deploy chaincode-ops for opssc on ops-channel
 
     Given register orgs info for system-channel (type: system) to opssc on ops-channel
     Given register orgs info for ops-channel (type: ops) to opssc on ops-channel

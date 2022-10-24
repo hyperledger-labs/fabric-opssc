@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -9,7 +9,7 @@ package main
 import (
 	"log"
 
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode-ops/core"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 )
 

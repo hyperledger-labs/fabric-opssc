@@ -7,12 +7,12 @@ This folder contains design memo about OpsSC.
 ### Design of state transitions for operational proposals in OpsSC
 
 This section describes the current design for the state transitions of operational proposals and the voting functions in OpsSC.
-This design has already been applied to `chaincode_ops` and will be applied to `channel_ops` in the future.
-The new `chaincode_ops` can now cover a series of state transitions of chaincode update proposals, including proposal rejection and withdrawal, although it is not yet flexible enough. This improvement is a first step and the design will be continuously blushed up in the future.
+This design has already been applied to `chaincode-ops` and will be applied to `channel-ops` in the future.
+The new `chaincode-ops` can now cover a series of state transitions of chaincode update proposals, including proposal rejection and withdrawal, although it is not yet flexible enough. This improvement is a first step and the design will be continuously blushed up in the future.
 
-#### State transitions in chaincode_ops
+#### State transitions in chaincode-ops
 
-![State transition in chaincode_ops](./chaincode-ops-state-diagram.png)
+![State transition in chaincode-ops](./chaincode-ops-state-diagram.png)
 
 #### Voting Specifications
 

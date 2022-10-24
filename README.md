@@ -81,8 +81,8 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 ```
 (fabric-opssc)
 |- chaincode/                  ... Source code for the OpsSC chaincodes (in Go)
-|   |- chaincode_ops/          ... Source code for the OpsSC chaincode for operating chaincode (in Go)
-|   |- channel_ops/            ... Source code for the OpsSC chaincode for operating channel (in Go)
+|   |- chaincode-ops/          ... Source code for the OpsSC chaincode for operating chaincode (in Go)
+|   |- channel-ops/            ... Source code for the OpsSC chaincode for operating channel (in Go)
 |- common/                     ... Source code for common features for the OpsSC agent and API server (in TypeScript)
 |- configtx-cli/               ... Source code for the Fabric ConfigTX CLI (in Go)
 |- docs/                       ... Documents for OpsSC (e.g., Design memo)
@@ -217,10 +217,10 @@ $ export OPS_CHANNEL_ID=ops-channel
 $ ./network.sh createChannel -c ${OPS_CHANNEL_ID}
 
 # Deploy the OpsSC chaincodes on the ops channel
-$ export OPS_CC_NAME=channel_ops
+$ export OPS_CC_NAME=channel-ops
 $ ./network.sh deployCC -c ${OPS_CHANNEL_ID} -ccn ${OPS_CC_NAME} -ccp ../../../chaincode/${OPS_CC_NAME} -ccl go
 
-$ export OPS_CC_NAME=chaincode_ops
+$ export OPS_CC_NAME=chaincode-ops
 $ ./network.sh deployCC -c ${OPS_CHANNEL_ID} -ccn ${OPS_CC_NAME} -ccp ../../../chaincode/${OPS_CC_NAME} -ccl go
 
 # Add channel information (including joining organizations) for the system channel and the ops channel to the OpsSC
@@ -960,27 +960,27 @@ The current implementation has limitations. The main limitations are as follows:
 
 ## Changes
 
-## v0.3.0 (Oct. 27, 2022)
+### v0.3.0 (Oct. 27, 2022)
 
-- Add a voting config option for chaincode_ops - ([Detail](./docs/VotingConfigOption.md))
+- Add a voting config option for chaincode-ops - ([Detail](./docs/VotingConfigOption.md))
   - This allows OpsSC users to configure the maximum number of malicious organizations (`f`) in the voting process
-  - This config option is not yet supported for channel_ops
-- Add a function to update channel type and introduce `disable` channel type to channel_ops
+  - This config option is not yet supported for channel-ops
+- Add a function to update channel type and introduce `disable` channel type to channel-ops
 - Support both Hyperledger Fabric v2.4 and v2.2 series (Out of scope: v2.3)
 - Other minor improvements
 
 ### v0.2.0 (Oct. 5, 2021)
 
-- Support chaincode deployment with private data for chaincode_ops
-- Enhance voting functions for chaincode_ops - ([Design memo](./docs/design#design-of-state-transitions-for-operational-proposals-in-opssc))
+- Support chaincode deployment with private data for chaincode-ops
+- Enhance voting functions for chaincode-ops - ([Design memo](./docs/design#design-of-state-transitions-for-operational-proposals-in-opssc))
 - Support both Hyperledger Fabric v2.3 and v2.2 series
 - Support system configurations when there are multiple peers in an organization
 
 ### v0.1.0 (Jan. 9, 2021)
 
 - The initial version of Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x
-  - Support chaincode operations (chaincode_ops): Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x
-  - Support channel operations (channel_ops): Streamline channel configuration updates across multiple organizations (e.g., creating a channel, adding an organization, adding an orderer etc.)
+  - Support chaincode operations (chaincode-ops): Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x.
+  - Support channel operations (channel-ops): Streamline channel configuration updates across multiple organizations (e.g., creating a channel, adding an organization, adding an orderer etc.)
 
 ## Authors
 

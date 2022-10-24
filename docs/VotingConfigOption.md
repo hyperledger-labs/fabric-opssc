@@ -1,12 +1,12 @@
 # Voting Config Option
 
-`chaincode_ops` chaincode provides a voting config option.
+`chaincode-ops` chaincode provides a voting config option.
 This allows OpsSC users to configure the maximum number of malicious organizations (`f`) in the voting process.
-This config option is not yet supported for channel_ops.
+This config option is not yet supported for channel-ops.
 - If the option is set, `2f + 1` is required to judge a proposal gets `Approved`.
 - If the option is not set, a majority of all participating organizations is required to judge a proposal gets `Approved`.
 
-You can use this to call the following CC functions in `chaincode_ops` chaincode.
+You can use this to call the following CC functions in `chaincode-ops` chaincode.
 - `SetMaxMaliciousOrgsInVotes()`: sets number of max malicious orgs in votes.
 - `UnsetMaxMaliciousOrgsInVotes()`: unsets number of max malicious orgs in votes.
 - `GetVotingConfig()`: returns the voting config.
@@ -26,7 +26,7 @@ curl -X POST "http://localhost:3000/api/v1/utils/invokeTransaction" \
 -d @- <<EOF
 {
   "channelID": "ops-channel",
-  "ccName": "chaincode_ops",
+  "ccName": "chaincode-ops",
   "func": "SetMaxMaliciousOrgsInVotes",
   "args": ["0"]
 }

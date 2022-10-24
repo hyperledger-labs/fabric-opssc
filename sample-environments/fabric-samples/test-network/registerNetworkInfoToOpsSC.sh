@@ -45,15 +45,15 @@ function setOrg2Orderer() {
 }
 
 function registerChannelToOpsSC() {
-  peer chaincode invoke -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel_ops ${PEER_CONN_PARMS} -c '{"function":"CreateChannel","Args":["'$NEW_CHANNEL_NAME'", "'$NEW_CHANNEL_TYPE'", "[]"]}' --waitForEvent
+  peer chaincode invoke -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel-ops ${PEER_CONN_PARMS} -c '{"function":"CreateChannel","Args":["'$NEW_CHANNEL_NAME'", "'$NEW_CHANNEL_TYPE'", "[]"]}' --waitForEvent
 }
 
 function registerOrgToOpsSC() {
-  peer chaincode invoke -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel_ops ${PEER_CONN_PARMS} -c '{"function":"AddOrganization","Args":["'$NEW_CHANNEL_NAME'","'${CORE_PEER_LOCALMSPID}'"]}' --waitForEvent
+  peer chaincode invoke -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel-ops ${PEER_CONN_PARMS} -c '{"function":"AddOrganization","Args":["'$NEW_CHANNEL_NAME'","'${CORE_PEER_LOCALMSPID}'"]}' --waitForEvent
 }
 
 function getAllChannels() {
-  peer chaincode query -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel_ops -c '{"function":"GetAllChannels","Args":[]}'
+  peer chaincode query -o $ORDERER_LOCAL_ADDRESS --ordererTLSHostnameOverride $ORDERER_TLS_HOSTNAME --tls --cafile $ORDERER_CA -C $OPS_CHANNEL_NAME -n channel-ops -c '{"function":"GetAllChannels","Args":[]}'
 }
 
 function parsePeerConnectionParameters() {

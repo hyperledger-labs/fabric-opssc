@@ -66,8 +66,8 @@ api:
   utilEnabled: "true"
 
 opsscChannelName: "ops-channel"
-opsscChannelOpsCCName: "channel_ops"
-opsscChaincodeOpsCCName: "chaincode_ops"
+opsscChannelOpsCCName: "channel-ops"
+opsscChaincodeOpsCCName: "chaincode-ops"
 
 chaincodeServer:
   launchFromAgent: "true"

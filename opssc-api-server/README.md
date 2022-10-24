@@ -32,8 +32,8 @@ The following environment variables must be set:
 | Hyperledger Fabric | `DISCOVER_AS_LOCALHOST`   | `false`                                      | Whether to discover as localhost                                                                        |
 | Hyperledger Fabric | `CONNECTION_PROFILE`      | `/opt/fabric/config/connection-profile.yaml` | Connection profile path for the organization                                                            |
 | OpsSC              | `CHANNEL_NAME`            | `ops-channel`                                | Channel name for the OpsSC                                                                              |
-| OpsSC              | `CC_OPS_CC_NAME`          | `chaincode_ops`                              | Chaincode name of the chaincode OpsSC                                                                   |
-| OpsSC              | `CH_OPS_CC_NAME`          | `channel_ops`                                | Chaincode name of the channel OpsSC                                                                     |
+| OpsSC              | `CC_OPS_CC_NAME`          | `chaincode-ops`                              | Chaincode name of the chaincode OpsSC                                                                   |
+| OpsSC              | `CH_OPS_CC_NAME`          | `channel-ops`                                | Chaincode name of the channel OpsSC                                                                     |
 | API Server         | `CLIENT_SERVICE_PORT`     | `5000`                                       | Port number used by the API server                                                                      |
 | API Server         | `API_CH_PROPOSAL_ENABLED` | `true`                                       | Whether to enable the Channel Update Proposal APIs                                                      |
 | API Server         | `API_UTIL_ENABLED`        | `true`                                       | Whether to enable the Utility APIs                                                                      |

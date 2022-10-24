@@ -38,8 +38,8 @@ export const config: OpsSCAPIServerConfig = {
   opsSC: {
     channelID: process.env.CHANNEL_NAME || 'ops-channel',
     chaincodes: {
-      chaincodeOpsCCName: process.env.CC_OPS_CC_NAME || 'chaincode_ops',
-      channelOpsCCName: process.env.CH_OPS_CC_NAME || 'channel_ops',
+      chaincodeOpsCCName: process.env.CC_OPS_CC_NAME || 'chaincode-ops',
+      channelOpsCCName: process.env.CH_OPS_CC_NAME || 'channel-ops',
     }
   },
   ws: {

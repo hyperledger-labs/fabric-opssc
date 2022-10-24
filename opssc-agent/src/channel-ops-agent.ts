@@ -92,7 +92,7 @@ export class ChannelOpsAgent {
    * Get the channel update proposal with querying to the OpsSC chaincode.
    */
   private async getProposal(proposalID: string) {
-    // Get the proposal from channel_ops
+    // Get the proposal from channel-ops
     const acquisitionRequest = {
       channelID: this.config.opssc.channelID,
       chaincodeName: this.config.opssc.chaincodes.channelOpsCCName,

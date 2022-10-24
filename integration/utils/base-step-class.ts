@@ -48,8 +48,8 @@ export default class BaseStepClass {
 
   protected static TEST_NETWORK_PATH = '../sample-environments/fabric-samples/test-network';
   protected static OPS_CHANNEL = 'ops-channel';
-  protected static CC_OPS_CC_NAME = 'chaincode_ops';
-  protected static CH_OPS_CC_NAME = 'channel_ops';
+  protected static CC_OPS_CC_NAME = 'chaincode-ops';
+  protected static CH_OPS_CC_NAME = 'channel-ops';
 
   protected static RETRY = 15;
   protected static SUFFIX = moment().format('MMDD_HHmmss');
