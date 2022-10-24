@@ -17,7 +17,7 @@ export class ExternalChaincodeOperatorImpl extends ChaincodeOperatorImpl {
 
     const sourceAbsolutePath = this.sourceAbsolutePath();
 
-    fs.mkdirpSync('sourceAbsolutePath/packaging');
+    fs.mkdirpSync(`${sourceAbsolutePath}/packaging`);
     const connectionFile = `${sourceAbsolutePath}/packaging/connection.json`;
 
     if (!this.config.ccs) throw new Error('ChaincodeServerConfig should be set');
@@ -68,8 +68,8 @@ export class ExternalChaincodeOperatorImpl extends ChaincodeOperatorImpl {
 
       // Build chaincode server image
       const setOptionForImageNameOverride = (this.config.ccs.pullRegistry !== '') ? `--set pullImageNameOverride=${this.config.ccs.pullRegistry}/chaincode/${chaincodeName}` : '';
-      const helmCommand = `helm -n ${this.config.ccs.namespace} upgrade ${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set name=${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set imageName=${this.config.ccs.registry}/chaincode/${chaincodeName} ${setOptionForImageNameOverride} --set imageTag=${imageTag} --set git.repositoryURL=${remote} --set git.commitID=${this.proposal.chaincodePackage.commitID} --set git.pathToSourceFiles=${pathToSourceFiles} --set chaincode.ccID=${this.packageID} --set imagePullSecretName=${this.config.ccs.ccServerImagePullSecretName} /opt/chart --install`;
-      logger.info(`Helm command: ${helmCommand} --timeout 3m --wait`);
+      const helmCommand = `helm -n ${this.config.ccs.namespace} upgrade ${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set name=${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set imageName=${this.config.ccs.registry}/chaincode/${chaincodeName} ${setOptionForImageNameOverride} --set imageTag=${imageTag} --set git.repositoryURL=${remote} --set git.commitID=${this.proposal.chaincodePackage.commitID} --set git.pathToSourceFiles=${pathToSourceFiles} --set chaincode.ccID=${this.packageID} --set imagePullSecretName=${this.config.ccs.ccServerImagePullSecretName} /opt/chart --install --timeout 3m --wait`;
+      logger.info(`Helm command: ${helmCommand}`);
       execCommand(helmCommand);
 
       logger.info(`[END] Build and launch external chaincode server (proposal ID: ${this.proposal.ID})`);

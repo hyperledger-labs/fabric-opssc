@@ -409,7 +409,7 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
   }
 
   protected chaincodeLabel(): string {
-    return `${this.proposal.chaincodeName}_${this.proposal.chaincodeDefinition.sequence.toString()}`;
+    return `${this.proposal.chaincodeName}-${this.proposal.chaincodeDefinition.sequence.toString()}`;
   }
 
   protected remoteGitRepositoryURL(withGitCredentials: boolean): string {
