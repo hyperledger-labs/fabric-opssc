@@ -4,6 +4,8 @@ imageTag: "1.0"
 imagePullPolicy: "IfNotPresent"
 imagePullSecretName: ""
 
+launchChaincodeServer: true
+
 # For KIND
 pullImageNameOverride: ""
 chaincode:

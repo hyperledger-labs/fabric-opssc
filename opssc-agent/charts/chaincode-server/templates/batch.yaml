@@ -30,7 +30,8 @@ spec:
               # For KIND
               # https://github.com/GoogleContainerTools/kaniko/issues/2164
               "--ignore-path=/product_uuid",
-              "--destination={{ .Values.imageName }}:{{ .Values.imageTag }}"]
+              "--destination={{ .Values.imageName }}:{{ .Values.imageTag }}",
+              "--digest-file=/dev/termination-log"]
         volumeMounts:
           - name: context
             mountPath: /context

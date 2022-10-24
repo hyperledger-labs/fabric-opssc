@@ -1,3 +1,4 @@
+{{- if .Values.launchChaincodeServer }}
 ---
 #---------------- Chaincode Deployment ---------------------
 apiVersion: apps/v1 # for versions before 1.8.0 use apps/v1beta1
@@ -36,3 +37,4 @@ spec:
             - containerPort: {{ .Values.chaincode.port }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecretName }}
+{{- end }}
