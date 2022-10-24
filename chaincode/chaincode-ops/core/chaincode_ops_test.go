@@ -1,5 +1,5 @@
 /*
-Copyright 2020-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -15,7 +15,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode_ops/core/mocks"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/chaincode-ops/core/mocks"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"

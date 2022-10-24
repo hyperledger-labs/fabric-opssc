@@ -279,13 +279,13 @@
     {
       "installed_chaincodes": [
         {
-          "package_id": "chaincode_ops_1:bcc47dda45d52541f753c1c741af1d9da9fe6225ae0aaac24a867138c4fda469",
-          "label": "chaincode_ops_1",
+          "package_id": "chaincode-ops_1:bcc47dda45d52541f753c1c741af1d9da9fe6225ae0aaac24a867138c4fda469",
+          "label": "chaincode-ops_1",
           "references": {
             "ops-channel": {
               "chaincodes": [
                 {
-                  "name": "chaincode_ops",
+                  "name": "chaincode-ops",
                   "version": "1"
                 }
               ]

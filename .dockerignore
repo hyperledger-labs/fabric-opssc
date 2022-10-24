@@ -7,5 +7,5 @@ integration
 */src/package-lock.json
 */scripts
 chaincode/*/vendor
-chaincode/channel_ops/channel_ops
-chaincode/chaincode_ops/chaincode_ops
+chaincode/channel-ops/channel-ops
+chaincode/chaincode-ops/chaincode-ops

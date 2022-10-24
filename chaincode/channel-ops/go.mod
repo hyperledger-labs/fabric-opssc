@@ -1,4 +1,4 @@
-module github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops
+module github.com/hyperledger-labs/fabric-opssc/chaincode/channel-ops
 
 go 1.14
 

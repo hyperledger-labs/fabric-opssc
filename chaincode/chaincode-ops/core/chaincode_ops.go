@@ -1,5 +1,5 @@
 /*
-Copyright 2017-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+Copyright 2017-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -95,6 +95,7 @@ type DeploymentEventDetail struct {
 	OperationTargets []string                `json:"operationTargets"`
 }
 
+// VotingConfig represents voting config.
 type VotingConfig struct {
 	ObjectType       string `json:"docType"` //docType is used to distinguish the various types of objects in state database
 	MaxMaliciousOrgs int    `json:"maxMaliciousOrgs"`
@@ -154,10 +155,10 @@ const (
 	MAJORITY = "majority"
 )
 
-//
+// Const for channel-ops
 const (
-	CH_OPS_CC_NAME_ENV     = "CH_OPS_CC_NAME"
-	DEFAULT_CH_OPS_CC_NAME = "channel_ops"
+	ChannelOpsChaincodeNameEnv     = "CH_OPS_CC_NAME"
+	DefaultChannelOpsChaincodeName = "channel-ops"
 )
 
 var (
@@ -853,7 +854,7 @@ func (s *SmartContract) updateStatusToApproved(ctx contractapi.TransactionContex
 
 	// Issue PrepareToCommitEvent
 
-	// -- Get organization list from channel_ops
+	// -- Get organization list from channel-ops
 	channelOpsArgs := util.ToChaincodeArgs("GetOrganizationsInChannel", proposal.ChannelID)
 	response := ctx.GetStub().InvokeChaincode(channelOpsCCName(), channelOpsArgs, "")
 	if response.Status != shim.OK {
@@ -1053,8 +1054,8 @@ func getTxTimestampRFC3339(ctx contractapi.TransactionContextInterface) (string,
 }
 
 func channelOpsCCName() string {
-	if os.Getenv(CH_OPS_CC_NAME_ENV) != "" {
-		return os.Getenv(CH_OPS_CC_NAME_ENV)
+	if os.Getenv(ChannelOpsChaincodeNameEnv) != "" {
+		return os.Getenv(ChannelOpsChaincodeNameEnv)
 	}
-	return DEFAULT_CH_OPS_CC_NAME
+	return DefaultChannelOpsChaincodeName
 }

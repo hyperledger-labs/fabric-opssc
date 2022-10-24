@@ -23,7 +23,7 @@ FROM golang:${GO_VER}-alpine${ALPINE_VER}
 
 LABEL org.opencontainers.image.title "Channel Ops Chaincode"
 LABEL org.opencontainers.image.description "Channel Ops Chaincode for OpsSC"
-LABEL org.opencontainers.image.source "https://github.com/hyperledger-labs/fabric-opssc/tree/main/chaincode/channel_ops"
+LABEL org.opencontainers.image.source "https://github.com/hyperledger-labs/fabric-opssc/tree/main/chaincode/channel-ops"
 
 COPY --from=build /usr/bin/dumb-init /usr/bin/dumb-init
 COPY --from=build /go/src/github.com/chaincode/chaincode-bin /usr/bin/chaincode-bin

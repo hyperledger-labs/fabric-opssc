@@ -272,7 +272,7 @@ Flags:
 
 The subcommand expects a profile with base64 encoded `configUpdate` and `signature` by each organizations.
 For more information on the format, see [a sample profile to create an envelope](./ops/testdata/configtx_profile.yaml).
-This format is compatible with the `Artifacts` in `Proposal` in `channel_ops` Ops chaincode.
+This format is compatible with the `Artifacts` in `Proposal` in `channel-ops` Ops chaincode.
 
 ### Examples of how to use
 

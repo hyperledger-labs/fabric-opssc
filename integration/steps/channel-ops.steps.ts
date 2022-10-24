@@ -204,7 +204,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        response = await axios.get(`${this.getAPIEndpoint()}/api/v1/utils/queryTransaction?channelID=ops-channel&ccName=channel_ops&func=GetProposal&args=["${proposalID}"]`);
+        response = await axios.get(`${this.getAPIEndpoint()}/api/v1/utils/queryTransaction?channelID=ops-channel&ccName=channel-ops&func=GetProposal&args=["${proposalID}"]`);
         const proposal = response.data;
         // console.log(proposal); // For debug
         if (proposal.status === 'committed') {

@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2022  Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode"
-	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel_ops/chaincode/mocks"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel-ops/chaincode"
+	"github.com/hyperledger-labs/fabric-opssc/chaincode/channel-ops/chaincode/mocks"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	"github.com/hyperledger/fabric-contract-api-go/contractapi"
 	"github.com/hyperledger/fabric-protos-go/ledger/queryresult"

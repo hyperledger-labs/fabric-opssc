@@ -1,5 +1,5 @@
 /*
- * Copyright 2019, 2020 Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -61,8 +61,8 @@ export const config: OpsSCAgentConfig = {
     opssc: {
       channelID: process.env.CHANNEL_NAME || 'ops-channel',
       chaincodes: {
-        chaincodeOpsCCName: process.env.CC_OPS_CC_NAME || 'chaincode_ops',
-        channelOpsCCName: process.env.CH_OPS_CC_NAME || 'channel_ops'
+        chaincodeOpsCCName: process.env.CC_OPS_CC_NAME || 'chaincode-ops',
+        channelOpsCCName: process.env.CH_OPS_CC_NAME || 'channel-ops'
       }
     },
     ccops: {

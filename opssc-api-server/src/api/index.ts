@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -334,7 +334,7 @@ export default function router(fabricClient: FabricClient, opsSCAPIServerConfig:
     try {
       const proposalID = req.params.id;
 
-      // Get the proposal from channel_ops
+      // Get the proposal from channel-ops
       const proposal = JSON.parse(await queryChannelOpsSC('GetProposal', proposalID));
 
       // Create ConfigSignature as base64 from the proposal
