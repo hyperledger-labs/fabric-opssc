@@ -55,6 +55,20 @@ lint:
 	@cd opssc-agent/src && npm run lint
 	@cd integration && npm run lint
 
+.PHONY: unit-test
+unit-test: chaincode-setup
+	@cd chaincode/chaincode-ops && go test ./...
+	@cd chaincode/channel-ops && go test ./...
+
+.PHONY: chaincode-setup
+chaincode-setup:
+	@cd chaincode/chaincode-ops \
+		&& go mod tidy \
+		&& go mod vendor
+	@cd chaincode/channel-ops \
+		&& go mod tidy \
+		&& go mod vendor
+
 .PHONY: check-support-version
 check-support-version:
 ifeq ($(findstring $(FABRIC_TWO_DIGIT_VERSION),$(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS)),)
