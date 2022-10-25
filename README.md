@@ -92,9 +92,10 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 |- sample-environments/        ... Sample environments for trying to run the OpsSC
 |   |- fabric-samples/
 |       |- test-network        ... Docker-based sample environment (This is based on test-network in fabric-samples. This is internally used by the integration tests.)
+|   |- k8s-support/            ... K8s-based sample environment (This is based on test-network-k8s in fabric-samples.)
 |- Dockerfile-for-agent        ... Docker image definition for the OpsSC agent
 |- Dockerfile-for-api-server   ... Docker image definition for the OpsSC API server
-|- Makefile                    ... Make file to build docker images
+|- Makefile                    ... Make file to build docker images and run the integration tests etc.
 ```
 
 ## Assumed Hyperledger Fabric environment
@@ -243,7 +244,7 @@ OK
 ## Check for the agent for Org1MSP
 $ curl -X GET http://localhost:5500/healthz
 OK
-## Check for the agent for Org1MSP
+## Check for the agent for Org2MSP
 $ curl -X GET http://localhost:5501/healthz
 OK
 ```

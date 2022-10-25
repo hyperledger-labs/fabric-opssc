@@ -1,0 +1,39 @@
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 60s
+  hosts:
+    - host: org2-opssc-agent.localho.st
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+adminMSPID: Org2MSP
+
+logLevel: info
+discoverAsLocalhost: "false"
+
+chaincodeServer:
+  launchFromAgent: "true"
+  prefix: chaincode
+  suffix: org2
+  port: "7052"
+  # For KIND
+  registry: "kind-registry:5000"
+  pullRegistryOverride: "localhost:5000"
+  imagePullSecretName: ""
+
+  # For your private container image registry
+  # <your_private_container_image_registry_name>/<chaincode_id> is used.
+  # registry: <your_your_private_container_image_registry_name>
+  # pullRegistryOverride: ""
+  # imagePullSecretName: "docker-secret"
+
+opsscChannelName: "mychannel"
+opsscChannelOpsCCName: "channel-ops"
+opsscChaincodeOpsCCName: "chaincode-ops"
+
+secrets:
+  connectionProfileItemKeyName: HLF_CONNECTION_PROFILE_ORG2
+  adminMSPName: org2-admin-msp
