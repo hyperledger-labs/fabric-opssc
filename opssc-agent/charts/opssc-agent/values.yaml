@@ -2,32 +2,44 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# -- Replica count, currently only `1` is assumed
 replicaCount: 1
 
 image:
+  # -- opssc-agent image repository
   repository: fabric-opssc/opssc-agent
+  # -- Image pull policy
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- opssc-agent image tag
+  # (Overrides the image tag whose default is the chart appVersion)
   tag: latest
 
+# -- Image pull secrets
 imagePullSecrets: []
+
+# -- Override the name of resources
 nameOverride: ""
+
+# -- Override the full name of resources
 fullnameOverride: ""
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # -- Specifies whether a service account should be created
   create: true
-  # Annotations to add to the service account
+  # -- Annotations to add to the service account
   annotations: {}
-  # The name of the service account to use.
+  # -- The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+# -- Pod annotations
 podAnnotations: {}
 
+# -- Pod security context
 podSecurityContext: {}
   # fsGroup: 2000
 
+# -- Security context
 securityContext: {}
   # capabilities:
   #   drop:
@@ -37,59 +49,86 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
+  # -- k8s service type exposing ports (e.g., ClusterIP)
   type: ClusterIP
+  # -- TCP port
   port: 5500
 
 ingress:
+  # -- If true, Ingress will be created
   enabled: false
+  # -- Ingress class name
   className: ""
+  # -- Ingress annotations
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
+  # -- Ingress hostnames
   hosts:
+    # -- Ingress host name
     - host: opssc-agent.local
       paths:
+        # -- Ingress path
         - path: /
+          # -- Ingress path type
           pathType: ImplementationSpecific
+  # -- Ingress TLS configuration
   tls: []
   #  - secretName: opssc-agent-tls
   #    hosts:
   #      - opssc-agent.local
 
+# -- MSP ID for the organization to be operated
 adminMSPID: Org1MSP
+
+# -- Log level
 logLevel: "info"
 
-discoverAsLocalhost: "false"
+# -- Whether to discover as localhost
+discoverAsLocalhost: false
 
-api:
-  channelProposalEnabled: "true"
-  utilEnabled: "true"
-
+# -- Channel name for the OpsSC
 opsscChannelName: "ops-channel"
+# -- Chaincode name of the channel OpsSC
 opsscChannelOpsCCName: "channel-ops"
+# -- Chaincode name of the chaincode OpsSC
 opsscChaincodeOpsCCName: "chaincode-ops"
 
 chaincodeServer:
-  launchFromAgent: "true"
+  # -- Whether to launch the chaincode server from the agent (This only works with `ccaas`)
+  launchFromAgent: true
+  # -- Chaincode image registry name
   registry: "localhost:5000"
+  # -- Override name for pulling image (It is assumed to be used when the registry names are different locally and in the cluster, for example [KIND](https://kind.sigs.k8s.io/docs/user/local-registry/))
   pullRegistryOverride: ""
+  # -- Prefix of the chaincode server name
   prefix: chaincode
+  # -- Suffix of the chaincode server name
   suffix: org1
+  # -- Chaincode server port
   port: "7052"
+  # -- Chaincode image pull secret name
   imagePullSecretName: ""
 
 websocket:
-  enabled: "false"
+  # -- Whether to enable WebSocket client to send messages to the server
+  enabled: false
+  # -- URL of the WebSocket server to connect to
   URL: ""
 
 secrets:
-  # Git credentials, should be saved under 'username' and 'password'
+  # -- Git credentials to access to the chaincode repository, should be saved under `username` and `password`
   git: git
+
+  # -- Connection profile config name (TODO: Should be improved)
+  connectionProfileName: fabric-rest-sample-config
+  # -- Connection profile item key name, the value should be a JSON or YAML-based connection profile file
   connectionProfileItemKeyName: HLF_CONNECTION_PROFILE_ORG1
+
+  # -- Admin MSP config name, the value should be a tar file named `admin-msp.tar` (TODO: Should be improved)
   adminMSPName: org1-admin-msp
 
-# imagePullSecrets: docker-secret
-
+# -- CPU/Memory resource requests/limits
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -103,14 +142,18 @@ resources: {}
   #   memory: 128Mi
 
 autoscaling:
+  # -- Currently autoscaling is unsupported
   enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
+  # minReplicas: 1
+  # maxReplicas: 100
+  # targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
+# -- Node labels for pod assignment
 nodeSelector: {}
 
+# -- Toleration labels for pod assignment
 tolerations: []
 
+# -- Affinity settings for pod assignment
 affinity: {}

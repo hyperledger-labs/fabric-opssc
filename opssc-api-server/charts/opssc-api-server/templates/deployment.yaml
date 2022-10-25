@@ -33,7 +33,7 @@ spec:
             name: {{ .Values.secrets.adminMSPName }}
         - name: fabric-ccp
           configMap:
-            name: fabric-rest-sample-config
+            name: {{ .Values.secrets.connectionProfileName }}
             items:
             - key: {{ .Values.secrets.connectionProfileItemKeyName }}
               path: connection-profile.yaml
@@ -51,7 +51,7 @@ spec:
             - name: DISCOVER_AS_LOCALHOST
               value: {{ .Values.discoverAsLocalhost | quote }}
             - name: CLIENT_SERVICE_PORT
-              value: "5000"
+              value: {{ .Values.service.port | quote }}
             - name: WS_ENABLED
               value: {{ .Values.websocket.enabled | quote }}
             - name: API_CH_PROPOSAL_ENABLED
@@ -73,7 +73,7 @@ spec:
           command: [ "/bin/sh","-c", "tar -xf /tmp/admin-msp.tar -C /opt/fabric && cd /opt/app/src && npm start" ]
           ports:
             - name: http
-              containerPort: 5000
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
