@@ -1,0 +1,28 @@
+@@ -16,10 +16,12 @@
+   local PP=$(one_line_pem $2)
+   local CP=$(one_line_pem $3)
+   local NS=$4
++  local OP=$(one_line_pem $5)
+   sed -e "s/\${ORG}/$ORG/" \
+       -e "s#\${PEERPEM}#$PP#" \
+       -e "s#\${CAPEM}#$CP#" \
+       -e "s#\${NS}#$NS#" \
++      -e "s#\${ORDERERPEM}#$OP#" \
+       scripts/ccp-template.json
+ }
+ 
+@@ -35,11 +37,12 @@
+ 
+   local peer_pem=$CHANNEL_MSP_DIR/peerOrganizations/org1/msp/tlscacerts/tlsca-signcert.pem
+   local ca_pem=$CHANNEL_MSP_DIR/peerOrganizations/org1/msp/cacerts/ca-signcert.pem
+-  echo "$(json_ccp 1 $peer_pem $ca_pem $ORG1_NS)" > build/fabric-rest-sample-config/HLF_CONNECTION_PROFILE_ORG1
++  local orderer_pem=$CHANNEL_MSP_DIR/ordererOrganizations/org0/msp/tlscacerts/tlsca-signcert.pem
++  echo "$(json_ccp 1 $peer_pem $ca_pem $ORG1_NS $orderer_pem)" > build/fabric-rest-sample-config/HLF_CONNECTION_PROFILE_ORG1
+ 
+   peer_pem=$CHANNEL_MSP_DIR/peerOrganizations/org2/msp/tlscacerts/tlsca-signcert.pem
+   ca_pem=$CHANNEL_MSP_DIR/peerOrganizations/org2/msp/cacerts/ca-signcert.pem
+-  echo "$(json_ccp 2 $peer_pem $ca_pem $ORG2_NS)" > build/fabric-rest-sample-config/HLF_CONNECTION_PROFILE_ORG2
++  echo "$(json_ccp 2 $peer_pem $ca_pem $ORG2_NS $orderer_pem)" > build/fabric-rest-sample-config/HLF_CONNECTION_PROFILE_ORG2
+ 
+   cp $ENROLLMENT_DIR/org1/users/org1admin/msp/signcerts/cert.pem $CONFIG_DIR/HLF_CERTIFICATE_ORG1
+   cp $ENROLLMENT_DIR/org2/users/org2admin/msp/signcerts/cert.pem $CONFIG_DIR/HLF_CERTIFICATE_ORG2

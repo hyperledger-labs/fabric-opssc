@@ -1,0 +1,19 @@
+@@ -34,6 +34,18 @@
+             }
+         }
+     },
++    "orderers": {
++        "org0-orderer1": {
++            "url": "grpcs://org0-orderer1.${NS}.svc.cluster.local:6050",
++            "tlsCACerts": {
++                "pem": "${ORDERERPEM}"
++            },
++            "grpcOptions": {
++                "ssl-target-name-override": "org0-orderer1.${NS}.svc.cluster.local",
++                "hostnameOverride": "org0-orderer1.${NS}.svc.cluster.local"
++            }
++        }
++    },
+     "certificateAuthorities": {
+         "org${ORG}-ca": {
+             "url": "https://org${ORG}-ca:443",
