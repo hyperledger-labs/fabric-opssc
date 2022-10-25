@@ -1,21 +1,38 @@
+# -- Chaincode server name
 name: org1-chaincode-marbles
+
+# -- Chaincode image name
 imageName: "chaincode/marbles"
+
+# -- Chaincode image tag
 imageTag: "1.0"
+
+# -- Chaincode image pull policy
 imagePullPolicy: "IfNotPresent"
+
+# -- Chaincode image pull secret name
 imagePullSecretName: ""
 
+# -- If true, the chaincode server service and pod will be created
 launchChaincodeServer: true
 
-# For KIND
+# -- Override name for pulling image (It is assumed to be used when the registry names are different locally and in the cluster, for example [KIND](https://kind.sigs.k8s.io/docs/user/local-registry/))
 pullImageNameOverride: ""
+
 chaincode:
+  # -- Chaincode ID for chaincode server
   ccID: ""
+  # -- Chaincode server address
   address: "0.0.0.0:7052"
+  # -- Chaincode server port
   port: "7052"
+
 git:
+  # -- Git repository URL of the target chaincode source code (user/password is optional)
   repositoryURL: "http://user:password@localhost/repos/marbles.git"
+  # -- Commit ID of the target chaincode source code
   commitID: "main"
 
-  # Relative path from repository path, which should start with '/' and end without '/'
-  # e.g., 'repositoryPath/pathToSourceFiles/SourceFiles' should be '/pathToSourceFiles'
+  # -- Relative path from the repository path, which should start with `/` and end without `/` 
+  # (e.g., `repositoryPath/pathToSourceFiles/SourceFiles` should be `/pathToSourceFiles`)
   pathToSourceFiles: ""
