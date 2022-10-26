@@ -76,4 +76,8 @@ export class ExternalChaincodeOperatorImpl extends ChaincodeOperatorImpl {
       this.notifier?.notifyProgress('[END] Build and launch external chaincode server', this.proposal.ID);
     }
   }
+
+  async download() {
+    // The download process is skipped because the source code of the chaincode is cloned when building the images in the other step.
+  }
 }
