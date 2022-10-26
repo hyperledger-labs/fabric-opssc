@@ -35,6 +35,8 @@ spec:
               value: {{ .Values.chaincode.address }}
           ports:
             - containerPort: {{ .Values.chaincode.port }}
+      {{- if .Values.imagePullSecretName }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecretName }}
+      {{- end }}
 {{- end }}
