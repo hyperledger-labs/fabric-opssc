@@ -74,4 +74,8 @@ export class K8sBuilderBasedExternalChaincodeOperatorImpl extends ChaincodeOpera
 
     return digest;
   }
+
+  async download() {
+    // The download process is skipped because the source code of the chaincode is cloned when building the images in the other step.
+  }
 }
