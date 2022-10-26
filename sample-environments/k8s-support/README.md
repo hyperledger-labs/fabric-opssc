@@ -32,6 +32,7 @@ rm -rf fabric-samples
 
 # Clone fabric-samples
 git clone https://github.com/hyperledger/fabric-samples.git
+
 ```
 
 _NOTE:_ The following instructions are tested with commit `c323c9580717dd6376e5e2b07ecbb00af5b3bf00` in fabric-samples. Other commits may require some modifications.
@@ -59,6 +60,9 @@ patch -u fabric-samples/test-network-k8s/scripts/rest_sample.sh < rest_sample.sh
 Before running, clean up the test network:
 
 ```bash
+# Move test-network-k8s dir
+cd fabric-samples/test-network-k8s
+
 # Clean up test-network-k8s
 ./network down
 ./network cluster clean
@@ -364,4 +368,44 @@ By executing the following command, credential information can be added to the s
 ```bash
 kubectl -n ${NAMESPACE} patch serviceaccount default -p '{"imagePullSecrets": [{"name": "docker-secret"}]}'
 
+```
+
+### Use your private git repository
+
+OpsSC supports to download the chaincode source code from a private git repository.
+The following instructions explains an example of how to use a private git repository when running OpsSC on k8s.
+
+The aforementioned OpsSC agent helm chart reads a git credential information put as `Secret`.
+Set your credential information as follows:
+
+```bash
+export NAMESPACE=test-network
+export GIT_USER=<put_your_git_username>
+export GIT_PASSWORD=<put_your_git_password>
+
+kubectl -n "${NAMESPACE}" delete secret git || true
+kubectl -n "${NAMESPACE}" create secret generic git --from-literal=username="${GIT_USER}" --from-literal=password="${GIT_PASSWORD}"
+```
+
+After setting up the above, start OpsSC agents.
+Then, when you send a proposal specifying your private git repository as follows,
+the agents will clone the chaincode source from the repository using the git user and password you set in `Secret` above.
+
+```bash
+# Send the request
+curl -X POST http://org1-opssc-api-server.localho.st/api/v1/chaincode/proposals/deploy_basic_${PROPOSAL_ID} \
+-H "Expect:" \
+-H 'Content-Type: application/json; charset=utf-8' \
+-d @- <<EOF
+{
+  "proposal": {
+    "channelID": "mychannel",
+    "chaincodeName": "basic",
+    "chaincodePackage": {
+      "repository": "<put_your_private_git_repository>",
+      "pathToSourceFiles": "asset-transfer-basic/chaincode-java",
+      "commitID": "main",
+  (...)
+}
+EOF
 ```
