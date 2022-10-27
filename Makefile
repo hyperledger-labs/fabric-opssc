@@ -13,7 +13,7 @@
 #   - integration-test - runs integration tests for a specific fabric version
 #   - check-support-version - checks whether the specified FABRIC_TWO_DIGIT_VERSION is supported or not
 
-BASE_VERSION = 0.2.0
+BASE_VERSION = 0.3.0
 FABRIC_TWO_DIGIT_VERSION ?= 2.4
 
 SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.2
