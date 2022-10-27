@@ -1,6 +1,6 @@
 {
   "name": "opssc-integration",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Integration test for OpsSC",
   "scripts": {
     "test": "./node_modules/.bin/cucumber-js -p default",

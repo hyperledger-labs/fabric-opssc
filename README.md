@@ -960,6 +960,15 @@ The current implementation has limitations. The main limitations are as follows:
 
 ## Changes
 
+## v0.3.0 (Oct. 27, 2022)
+
+- Add a voting config option for chaincode_ops - ([Detail](./docs/VotingConfigOption.md))
+  - This allows OpsSC users to configure the maximum number of malicious organizations (`f`) in the voting process
+  - This config option is not yet supported for channel_ops
+- Add a function to update channel type and introduce `disable` channel type to channel_ops
+- Support both Hyperledger Fabric v2.4 and v2.2 series (Out of scope: v2.3)
+- Other minor improvements
+
 ### v0.2.0 (Oct. 5, 2021)
 
 - Support chaincode deployment with private data for chaincode_ops
@@ -970,7 +979,7 @@ The current implementation has limitations. The main limitations are as follows:
 ### v0.1.0 (Jan. 9, 2021)
 
 - The initial version of Operations Smart Contract (OpsSC) for Hyperledger Fabric v2.x
-  - Support chaincode operations (chaincode_ops): Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x.
+  - Support chaincode operations (chaincode_ops): Streamline chaincode deployment with chaincode new lifecycle introduced from v2.x
   - Support channel operations (channel_ops): Streamline channel configuration updates across multiple organizations (e.g., creating a channel, adding an organization, adding an orderer etc.)
 
 ## Authors

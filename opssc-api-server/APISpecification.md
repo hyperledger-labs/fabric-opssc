@@ -833,7 +833,7 @@ None
 
   - **Code:** 200 <br />
     **Content:** The version of the API server <br />
-    `"0.2.0"`
+    `"0.3.0"`
 
 - **Error Response:**
 
