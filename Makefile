@@ -37,7 +37,7 @@ docker-opssc-agent/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@opssc-agent/scripts/build.sh ${BASE_VERSION} $*
 
 .PHONY: docker-opssc-api-server
-docker-opssc-api-server: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-agent/%)
+docker-opssc-api-server: $(FABRIC_TWO_DIGIT_VERSION:%=docker-opssc-api-server/%)
 docker-opssc-api-server/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Building docker image for opssc-api-server (base version: ${BASE_VERSION}, fabric version: $*)"
 	@opssc-api-server/scripts/build.sh ${BASE_VERSION} $*
