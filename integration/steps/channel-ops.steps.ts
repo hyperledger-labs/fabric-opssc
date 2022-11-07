@@ -53,7 +53,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        const response = await axios.get(`${this.getAPIEndpoint(`org${orgIndex}`)}/healthz`);
+        const response = await axios.get(`${this.getServiceEndpoint('docker', `org${orgIndex}`)}/healthz`);
         if (response.status === 200) {
           return;
         }
@@ -73,7 +73,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay(10000);
       try {
-        const response = await axios.get(`${this.getAgentServiceEndpoint(`org${orgIndex}`)}/healthz`);
+        const response = await axios.get(`${this.getServiceEndpoint('docker', `org${orgIndex}`, 'agent')}/healthz`);
         if (response.status === 200) {
           return;
         }
@@ -92,7 +92,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay(10000);
       try {
-        const response = await axios.get(`${this.getAgentServiceEndpoint(`org${orgIndex}`)}/healthz`);
+        const response = await axios.get(`${this.getServiceEndpoint('docker', `org${orgIndex}`, 'agent')}/healthz`);
         switch (action) {
           case 'start':
             if (response.status === 200) {
@@ -127,7 +127,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     };
 
     // console.log(proposal) // For debug
-    const _response = await axios.post(`${this.getAPIEndpoint(creatorOrg)}/api/v1/channel/proposals/${proposalID}`,
+    const _response = await axios.post(`${this.getServiceEndpoint('docker', creatorOrg)}/api/v1/channel/proposals/${proposalID}`,
       {
         proposal: proposal
       },
@@ -153,7 +153,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     };
 
     // console.log(proposal) // For debug
-    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/channel/proposals/${proposalID}`,
+    const _response = await axios.post(`${this.getServiceEndpoint('docker', org)}/api/v1/channel/proposals/${proposalID}`,
       {
         proposal: proposal
       },
@@ -171,7 +171,7 @@ export class ChannelOpsSteps extends BaseStepClass {
   @when(/(.+) approves the proposal to add org for (org3|org4) to (.+) via opssc-api-server/)
   public async approveChannelUpdateProposalToAddOrg(creatorOrg: string, targetOrg: string, channelID: string) {
     const [proposalID] = this.createProposalParametersToAddOrg(targetOrg, channelID);
-    const _response = await axios.post(`${this.getAPIEndpoint(creatorOrg)}/api/v1/channel/proposals/${proposalID}/vote`,
+    const _response = await axios.post(`${this.getServiceEndpoint('docker', creatorOrg)}/api/v1/channel/proposals/${proposalID}/vote`,
       {
       },
       {
@@ -185,7 +185,7 @@ export class ChannelOpsSteps extends BaseStepClass {
   @when(/(.+) approves the proposal to create (.+) via opssc-api-server/)
   public async approveChannelUpdateProposalToCreateChannel(org: string, channelID: string) {
     const [proposalID] = this.createProposalParametersToCreateChannel(channelID);
-    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/channel/proposals/${proposalID}/vote`,
+    const _response = await axios.post(`${this.getServiceEndpoint('docker', org)}/api/v1/channel/proposals/${proposalID}/vote`,
       {
       },
       {
@@ -204,7 +204,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        response = await axios.get(`${this.getAPIEndpoint()}/api/v1/utils/queryTransaction?channelID=ops-channel&ccName=channel-ops&func=GetProposal&args=["${proposalID}"]`);
+        response = await axios.get(`${this.getServiceEndpoint()}/api/v1/utils/queryTransaction?channelID=ops-channel&ccName=channel-ops&func=GetProposal&args=["${proposalID}"]`);
         const proposal = response.data;
         // console.log(proposal); // For debug
         if (proposal.status === 'committed') {
@@ -249,7 +249,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     for (let n = ChannelOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        response = await axios.get(`${this.getAPIEndpoint()}/api/v1/channel/getChannel?channelID=${channelID}`);
+        response = await axios.get(`${this.getServiceEndpoint()}/api/v1/channel/getChannel?channelID=${channelID}`);
         const channel = response.data;
         // console.log(channel); // For debug
         if (channel !== null) {

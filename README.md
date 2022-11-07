@@ -54,7 +54,7 @@ The other materials (the OpsSC concept etc.):
 
 - Linux
 - Go >= 1.14
-- Node.js >= 12.21
+- Node.js >= 14.21
 - Docker (assuming the current stable release)
 - Docker Compose (assuming the current stable release, OpsSC is tested with version 1.28.6)
 - Git

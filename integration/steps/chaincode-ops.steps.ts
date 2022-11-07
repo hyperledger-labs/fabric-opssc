@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { binding, then, when } from 'cucumber-tsflow';
+import { before, binding, then, when } from 'cucumber-tsflow';
 import { expect } from 'chai';
 import axios from 'axios';
 import BaseStepClass from '../utils/base-step-class';
@@ -29,16 +29,19 @@ const TaskTypeFuncs = {
 @binding()
 export class ChaincodeOpsSteps extends BaseStepClass {
 
-  @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
-  public async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
-    const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
-    const commitID = process.env.IT_REMOTE_COMMIT_ID || 'main';
-    const [pathToSourceFiles, validationParameter, collections] = this.createCCParameters(ccTemplate, lang);
+  @before('on-k8s')
+  public beforeK8sScenarios() {
+    this.environment = 'k8s';
+  }
 
+  @when(/(.+) requests a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript|ccaas|k8s) template via opssc-api-server/)
+  private async requestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
+
+    const [repository, commitID, pathToSourceFiles, validationParameter, collections] = this.createCCParameters(ccTemplate, lang);
     const proposal = {
       ID: `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`,
       channelID: channelID,
-      chaincodeName: `${ccName}_${ChaincodeOpsSteps.SUFFIX}`,
+      chaincodeName: `${ccName}-${ChaincodeOpsSteps.SUFFIX}`,
       chaincodePackage: {
         repository: repository,
         pathToSourceFiles: pathToSourceFiles,
@@ -54,7 +57,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
       }
     };
     // console.log(proposal) // For debug
-    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposal.ID}`,
+    const _response = await axios.post(`${this.getServiceEndpoint(this.environment, org)}/api/v1/chaincode/proposals/${proposal.ID}`,
       {
         proposal: proposal
       },
@@ -66,8 +69,8 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     );
   }
 
-  @then(/(.+) fails to request a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript) template via opssc-api-server/)
-  public async failToRequectChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
+  @then(/(.+) fails to request a proposal to deploy the chaincode \(name: (.+), seq: (\d+), channel: (.+)\) based on (basic|private) (golang|javascript|typescript|ccaas|k8s) template via opssc-api-server/)
+  public async failToRequestChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, ccTemplate: string, lang: string) {
     try {
       await this.requestChaincodeDeploymentProposal(org, ccName, sequence, channelID, ccTemplate, lang);
     } catch (error) {
@@ -80,14 +83,50 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     expect.fail('the request should fail');
   }
 
-  private createCCParameters(ccTemplate: string, lang: string):  [string, string, string|undefined] {
+  private createCCParameters(ccTemplate: string, lang: string): [string, string, string, string, string|undefined] {
+    switch (this.environment) {
+      case 'k8s':
+        return this.createCCParametersForK8s(ccTemplate, lang);
+      default:
+        return this.createCCParametersForDocker(ccTemplate, lang);
+    }
+  }
+
+  private createCCParametersForDocker(ccTemplate: string, lang: string): [string, string, string, string, string|undefined] {
+    const repository = process.env.IT_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
+    const commitID = process.env.IT_REMOTE_COMMIT_ID || 'main';
     switch (ccTemplate) {
       case 'basic':
-        return this.createBasicCCParameters(lang);
+        return [repository, commitID, ...this.createBasicCCParameters(lang)];
       case 'private':
-        return this.createPrivateCCParameters(lang);
+        return [repository, commitID, ...this.createPrivateCCParameters(lang)];
       default:
         expect.fail(`currently, ${ccTemplate} is not supported`);
+    }
+  }
+
+  private createCCParametersForK8s(ccTemplate: string, lang: string): [string, string, string, string, string|undefined] {
+    const repository = process.env.IT_K8S_REMOTE_CC_REPO || 'github.com/hyperledger/fabric-samples';
+    const commitID = process.env.IT_K8S_REMOTE_COMMIT_ID || 'main';
+    switch (ccTemplate) {
+      case 'basic':
+        return [repository, commitID, ...this.createBasicCCParametersForK8s(lang)];
+      default:
+        expect.fail(`currently, ${ccTemplate} is not supported`);
+    }
+  }
+
+  private createBasicCCParametersForK8s(lang: string): [string, string, string|undefined] {
+    const basePath = 'asset-transfer-basic';
+    const collectionsBase64 = undefined;
+    let validationParameterBase64;
+    switch (lang) {
+      case 'ccaas':
+      case 'k8s':
+        validationParameterBase64 = Buffer.from('/Channel/Application/Endorsement').toString('base64'); // PEER-CLI-SYNTAX
+        return [process.env.IT_K8S_REMOTE_BASIC_CC_PATH || `${basePath}/chaincode-java`, validationParameterBase64, collectionsBase64];
+      default:
+        expect.fail(`currently, ${lang} is not supported`);
     }
   }
 
@@ -207,7 +246,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   @when(/(.+) votes (for|against) the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
   public async voteChaincodeDeploymentProposal(org: string, vote: string, ccName: string, sequence: number, channelID: string) {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
-    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/vote`,
+    const _response = await axios.post(`${this.getServiceEndpoint(this.environment, org)}/api/v1/chaincode/proposals/${proposalID}/vote`,
       {
         updateRequest: {
           status: (vote == 'for') ? 'agreed' : 'disagreed'
@@ -224,7 +263,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   @when(/(.+) withdraws the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with opssc-api-server/)
   public async withdrawChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string) {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
-    const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/withdraw`,
+    const _response = await axios.post(`${this.getServiceEndpoint(this.environment,org) }/api/v1/chaincode/proposals/${proposalID}/withdraw`,
       {
       },
       {
@@ -243,7 +282,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     for (let n = ChaincodeOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/proposals/${proposalID}`);
+        const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/chaincode/proposals/${proposalID}`);
         proposal = response.data;
         // console.log(proposal); // For debug
         if (proposal.status === status) {
@@ -264,9 +303,9 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
     let voteHistories;
     for (let n = ChaincodeOpsSteps.RETRY; n >= 0; n--) {
-      await this.delay();
+      await this.delay(10000);
       try {
-        const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/proposals/${proposalID}/histories?taskID=${TaskTypeFuncs.toSingular(taskPP)}`);
+        const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/chaincode/proposals/${proposalID}/histories?taskID=${TaskTypeFuncs.toSingular(taskPP)}`);
         voteHistories = response.data;
         // console.log(voteHistories); // For debug
         if (Object.keys(voteHistories).length >= numOfOrgsVoting) {
@@ -291,7 +330,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     for (let n = ChaincodeOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/queryChaincodeDefinition?channelID=${channelID}&chaincodeName=${ccName}_${ChaincodeOpsSteps.SUFFIX}`);
+        const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/chaincode/queryChaincodeDefinition?channelID=${channelID}&chaincodeName=${ccName}-${ChaincodeOpsSteps.SUFFIX}`);
         committed = response.data;
         // console.log(committed); // For debug
         if (committed !== null && Number(committed.sequence) === sequence) {
@@ -312,7 +351,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   @then(/chaincode \(name: (.+), channel: (.+)\) should be set the collections for private template/)
   public async checkCollectionsForAssetTransferPrivate(ccName: string, channelID: string) {
-    const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/queryChaincodeDefinition?channelID=${channelID}&chaincodeName=${ccName}_${ChaincodeOpsSteps.SUFFIX}`);
+    const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/chaincode/queryChaincodeDefinition?channelID=${channelID}&chaincodeName=${ccName}-${ChaincodeOpsSteps.SUFFIX}`);
     expect(response.data.collections).to.not.equals(null);
     expect(response.data.collections).to.deep.equals(this.createExpectedCollections());
   }
@@ -324,7 +363,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     for (let n = ChaincodeOpsSteps.RETRY; n >= 0; n--) {
       await this.delay();
       try {
-        const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/chaincode/queryChaincodeDefinitions?channelID=${channelID}`);
+        const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/chaincode/queryChaincodeDefinitions?channelID=${channelID}`);
         result = response.data;
         // console.log(committed); // For debug
         if (result !== null && result.chaincode_definitions.length === num) {
@@ -341,10 +380,10 @@ export class ChaincodeOpsSteps extends BaseStepClass {
 
   @then(/chaincode \(name: (.+), channel: (.+)\) based on basic should be able to register the asset \(ID: (.+)\) by invoking CreateAsset func/)
   public async canInvokeAssetTransferBasic(ccName: string, channelID: string, assetID: string) {
-    const response = await axios.post(`${this.getAPIEndpoint()}/api/v1/utils/invokeTransaction`,
+    const response = await axios.post(`${this.getServiceEndpoint(this.environment) }/api/v1/utils/invokeTransaction`,
       {
         channelID: channelID,
-        ccName: `${ccName}_${ChaincodeOpsSteps.SUFFIX}`,
+        ccName: `${ccName}-${ChaincodeOpsSteps.SUFFIX}`,
         func: 'CreateAsset',
         args: [assetID, 'blue', '5', 'Tomoko', '300'],
       },
@@ -373,7 +412,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   public async failToApproveChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, errorMessage: string) {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
     try {
-      const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/vote`,
+      const _response = await axios.post(`${this.getServiceEndpoint(this.environment,org) }/api/v1/chaincode/proposals/${proposalID}/vote`,
         {
           updateRequest: {
           }
@@ -397,7 +436,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   public async failToWithdrawChaincodeDeploymentProposal(org: string, ccName: string, sequence: number, channelID: string, errorMessage: string) {
     const proposalID = `proposal_cc_deployment_${ccName}_${ChaincodeOpsSteps.SUFFIX}_on_${channelID}_seq_${sequence}`;
     try {
-      const _response = await axios.post(`${this.getAPIEndpoint(org)}/api/v1/chaincode/proposals/${proposalID}/withdraw`,
+      const _response = await axios.post(`${this.getServiceEndpoint(this.environment,org) }/api/v1/chaincode/proposals/${proposalID}/withdraw`,
         {
         },
         {
@@ -415,9 +454,9 @@ export class ChaincodeOpsSteps extends BaseStepClass {
     expect.fail('the request should fail');
   }
 
-  @then(/chaincode \(name: (.+), channel: (.+)\) based on basic (golang|javascript|typescript) should be able to get the asset \(ID: (.+)\) by querying ReadAsset func/)
+  @then(/chaincode \(name: (.+), channel: (.+)\) based on basic (golang|javascript|typescript|ccaas|k8s) should be able to get the asset \(ID: (.+)\) by querying ReadAsset func/)
   public async canQueryAssetTransferBasic(ccName: string, channelID: string, lang: string, assetID: string) {
-    const response = await axios.get(`${this.getAPIEndpoint()}/api/v1/utils/queryTransaction?channelID=${channelID}&ccName=${ccName}_${ChaincodeOpsSteps.SUFFIX}&func=ReadAsset&args=["${assetID}"]`);
+    const response = await axios.get(`${this.getServiceEndpoint(this.environment) }/api/v1/utils/queryTransaction?channelID=${channelID}&ccName=${ccName}-${ChaincodeOpsSteps.SUFFIX}&func=ReadAsset&args=["${assetID}"]`);
     expect(response.status).to.equals(200);
     expect(response.data).to.not.equals(null);
     switch (lang) {
@@ -433,6 +472,13 @@ export class ChaincodeOpsSteps extends BaseStepClass {
         expect(response.data.Size).to.equals('5');
         expect(response.data.Owner).to.equals('Tomoko');
         expect(response.data.AppraisedValue).to.equals('300');
+        break;
+      case 'ccaas':
+      case 'k8s':
+        expect(response.data.color).to.equals('blue');
+        expect(response.data.size).to.equals(5);
+        expect(response.data.owner).to.equals('Tomoko');
+        expect(response.data.appraisedValue).to.equals(300);
         break;
       default:
         expect.fail(`currently, ${lang} is not supported`);

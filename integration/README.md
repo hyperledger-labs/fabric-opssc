@@ -3,13 +3,18 @@
 ## Overview
 
 The current integration tests are scenario tests are written in typescript and use Cucumber.
-The integration tests internally run (stand up and tear down) `samples-environments/fabric-samples/test-network`.
-Also, the tests download (replace) the Fabric binaries in `samples-environments/fabric-samples/bin` before each scenarios according to the test target Fabric version.
+The integration tests internally run (stand up and tear down) some Fabric network environments based on `samples-environments`:
+- For Docker-based environment:
+  - The tests internally run (stand up and tear down) `samples-environments/fabric-samples/test-network`.
+  - The tests download (replace) the Fabric binaries in `samples-environments/fabric-samples/bin` before each scenarios according to the test target Fabric version.
+- For K8s-based environment (v2.4+):
+  - The tests internally run (stand up and tear down) `fabric-samples/test-network-k8s` based on instructions described in `samples-environments/k8s-support`.
+  - The tests internally clone `fabric-samples` from the original repository.
 
 ## Prerequisites
 
 - Linux
-- Node.js >= 12.21
+- Node.js >= 14.21
 - Docker
 - Docker Compose
 
@@ -35,8 +40,9 @@ $ npm test
 ### Run the scenario tests with specifying the version of Fabric
 
 The current OpsSC supports the latest versions of Fabric v2.4 and v2.2 series.
-The integration tests use v2.4 by default but they can also be run using other series.
-An example of specifying v2.2 is shown below:
+The integration tests use v2.4 by default but they can also be run using v2.2.
+OpsSC does not support running on K8s for v2.2, so you will need to specify a
+different target in npm to skip that tests:
 
 ```bash
 $ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.5 1.5.2 -s -b # Download Fabric images for v2.2
@@ -45,7 +51,7 @@ $ cd fabric-opssc
 $ make docker FABRIC_TWO_DIGIT_VERSION=2.2 # Make images of OpsSC agent and API server for v2.2
 
 $ cd integration
-$ FABRIC_TWO_DIGIT_VERSION=2.2 npm test # Run tests using Fabric v2.2
+$ FABRIC_TWO_DIGIT_VERSION=2.2 npm run test_v2_2 # Run tests for Fabric v2.2
 ```
 
 ### Run the specified scenario test
