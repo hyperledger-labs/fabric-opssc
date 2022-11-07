@@ -4,6 +4,7 @@
   "description": "Integration test for OpsSC",
   "scripts": {
     "test": "./node_modules/.bin/cucumber-js -p default",
+    "test_v2_2": "./node_modules/.bin/cucumber-js -p v2_2",
     "dry-run": "./node_modules/.bin/cucumber-js -d -p default",
     "lint": "eslint --ext .ts ."
   },
@@ -12,7 +13,8 @@
   "devDependencies": {
     "@types/chai": "^4.2.21",
     "@types/cucumber": "^6.0.1",
-    "@types/node": "^12.20.23",
+    "@types/fs-extra": "^9.0.13",
+    "@types/node": "^14.18.33",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
     "@typescript-eslint/parser": "^4.31.0",
     "axios": "^0.21.4",
@@ -21,6 +23,7 @@
     "cucumber-pretty": "^6.0.0",
     "cucumber-tsflow": "^3.4.1",
     "eslint": "^7.32.0",
+    "fs-extra": "^9.1.0",
     "moment": "^2.29.4",
     "ts-node": "^8.10.2",
     "typescript": "^3.9.10"

@@ -134,7 +134,8 @@ kind load docker-image fabric-opssc/opssc-agent:latest
 
 # Put admin MSP info for each org into K8s
 ls build/enrollments/org1/users/org1admin
-tar -C build/enrollments/org1/users/org1admin -cvf build/admin-msp.tar msp || true
+tar -C build/enrollments/org1/users/org1admin -cvf build/admin-msp.tar msp
+kubectl -n test-network delete configmap org1-admin-msp || true
 kubectl -n test-network create configmap org1-admin-msp --from-file=build/admin-msp.tar
 
 ls build/enrollments/org2/users/org2admin

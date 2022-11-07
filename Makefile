@@ -44,9 +44,12 @@ docker-opssc-api-server/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 
 .PHONY: integration-test
 integration-test: $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
-integration-test/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
+integration-test/2.4: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 	@echo "Executing integration tests (fabric version: $*)"
 	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm test
+integration-test/2.2: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
+	@echo "Executing integration tests (fabric version: $*)"
+	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm run test_v2_2
 
 .PHONY: lint
 lint:

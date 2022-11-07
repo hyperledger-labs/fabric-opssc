@@ -2,7 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:12
+FROM node:14
 
 ARG FABRIC_VERSION
 
