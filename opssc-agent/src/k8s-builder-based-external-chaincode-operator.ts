@@ -28,7 +28,7 @@ export class K8sBuilderBasedExternalChaincodeOperatorImpl extends ChaincodeOpera
 
     const registryName = (this.config.ccs.pullRegistry !== '') ? this.config.ccs.pullRegistry : this.config.ccs.registry;
     const imageJSON = {
-      'name': `${registryName}/chaincode/${this.proposal.chaincodeName}`,
+      'name': `${registryName}/${this.proposal.chaincodeName}`,
       'digest': digest
     };
     fs.outputJSONSync(imageJSONFile, imageJSON);
@@ -61,7 +61,7 @@ export class K8sBuilderBasedExternalChaincodeOperatorImpl extends ChaincodeOpera
     const pathToSourceFiles = this.proposal.chaincodePackage.pathToSourceFiles ? `/${this.proposal.chaincodePackage.pathToSourceFiles}` : '';
 
     // Build chaincode server image
-    const helmCommand = `helm -n ${this.config.ccs.namespace} upgrade ${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set name=${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set imageName=${this.config.ccs.registry}/chaincode/${chaincodeName} --set launchChaincodeServer=false --set imageTag=${imageTag} --set git.repositoryURL=${remote} --set git.commitID=${this.proposal.chaincodePackage.commitID} --set git.pathToSourceFiles=${pathToSourceFiles} --set chaincode.ccID=${this.packageID} --set imagePullSecretName=${this.config.ccs.ccServerImagePullSecretName} /opt/chart --install --timeout 10m --wait`;
+    const helmCommand = `helm -n ${this.config.ccs.namespace} upgrade ${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set name=${this.config.ccs.servicePrefix}-${chaincodeName}-${this.config.ccs.serviceSuffix} --set imageName=${this.config.ccs.registry}/${chaincodeName} --set launchChaincodeServer=false --set imageTag=${imageTag} --set git.repositoryURL=${remote} --set git.commitID=${this.proposal.chaincodePackage.commitID} --set git.pathToSourceFiles=${pathToSourceFiles} --set chaincode.ccID=${this.packageID} --set imagePullSecretName=${this.config.ccs.ccServerImagePullSecretName} /opt/chart --install --timeout 10m --wait`;
     logger.info(`Helm command: ${helmCommand}`);
     execCommand(helmCommand);
 
