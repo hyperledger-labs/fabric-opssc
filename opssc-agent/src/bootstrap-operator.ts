@@ -12,6 +12,8 @@ import { ChaincodeLifecycleCommands, computePackageID } from 'opssc-common/chain
 import { ChannelCommands } from 'opssc-common/channel-commands';
 import { FabricClient } from 'opssc-common/fabric-client';
 import { OpsSCAgentCoreConfig } from './config';
+import { K8sBuilderBasedExternalChaincodeOperatorImpl } from './k8s-builder-based-external-chaincode-operator';
+import { ExternalChaincodeOperatorImpl } from './external-chaincode-operator';
 
 /**
  * BootstrapOperator is an interface which provides functions to bootstrap an organization's nodes
@@ -312,6 +314,10 @@ export class BootstrapOperatorImpl implements BootstrapOperator {
       case 'javascript':
       case 'typescript':
         return new ChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
+      case 'ccaas':
+        return new ExternalChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
+      case 'k8s':
+        return new K8sBuilderBasedExternalChaincodeOperatorImpl(this.config.ccops, proposal, this.fabricClient.getIdentity(), this.fabricClient.config.connectionProfile, this.fabricClient.config.discoverAsLocalhost, this.notifier);
       default:
         throw new Error(`Unsupported chaincode type: ${proposal.chaincodePackage.type}`);
     }
