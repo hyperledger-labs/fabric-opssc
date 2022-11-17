@@ -16,12 +16,12 @@ import path from 'path';
 @binding()
 export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
+  private usedExample: 'test-network-k8s' | 'fabric-operator' = 'test-network-k8s';
+
   @before('on-docker')
   public beforeDockerScenarios() {
-    this.cleanupFabricNetwork();
-
     // Assume a case where garbage remains on the K8s scenarios
-    this.cleanupTestNetworkK8s();
+    this.cleanupAllEnvironments();
   }
 
   @after('on-docker')
@@ -42,16 +42,28 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     execSync(commands);
   }
 
+  @before('with-test-network-k8s')
+  public beforeScenariosWithTestNetworkK8s() {
+    this.usedExample = 'test-network-k8s';
+    // eslint-disable-next-line no-console
+    console.log(`Set the used example as: ${this.usedExample}`);
+  }
+
+  @before('with-fabric-operator')
+  public beforeScenariosWithFabricOperator() {
+    this.usedExample = 'fabric-operator';
+    // eslint-disable-next-line no-console
+    console.log(`Set the used example as: ${this.usedExample}`);
+  }
+
   @before('on-k8s')
   public beforeK8sScenarios() {
 
     // Assume a case where garbage remains on the Docker scenarios
-    this.cleanupFabricNetwork();
+    this.cleanupAllEnvironments();
 
     this.environment = 'k8s';
-    this.cleanupTestNetworkK8s();
-
-    this.cloneAndSetupFabricSamples();
+    (this.usedExample === 'test-network-k8s') ? this.cloneAndSetupFabricSamples() : this.cloneAndSetupFabricOperator();
     this.createKINDCluster();
     this.loadDockerImagesForOpsSCIntoKIND();
   }
@@ -59,43 +71,98 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   @after('on-k8s')
   public afterK8sScenarios() {
     if (process.env.PRESERVE_TEST_NETWORK !== 'true') {
-      this.cleanupTestNetworkK8s();
+      (this.usedExample === 'test-network-k8s') ? this.cleanupTestNetworkK8s() : this.cloneAndSetupFabricOperator();
     }
   }
 
-  private applyPatchToTestNetwork8s(fileName: string) {
-    const commands = `cd ${BaseStepClass.K8S_SUPPORT_PATH} && patch -u fabric-samples/test-network-k8s/scripts/${fileName} < patches/test-network-k8s/${fileName}.patch`;
-    execSync(commands);
+  private applyPatch(fileName: string) {
+    const commands = `patch -u scripts/${fileName} < ../../patches/${this.usedExample}/${fileName}.patch`;
+    execSync(commands, {
+      cwd: this.pathToExample(),
+      env: {
+        ...process.env
+      }
+    });
+  }
+
+  private cleanupAllEnvironments() {
+    this.cleanupFabricNetwork();
+    this.cleanupTestNetworkK8s();
+    this.cleanupSampleNetworkInFabricOperator();
   }
 
   private cleanupTestNetworkK8s() {
     if (fs.existsSync(BaseStepClass.TEST_NETWORK_K8S_PATH)) {
-      const commands = `cd ${BaseStepClass.TEST_NETWORK_K8S_PATH} && ./network down && ./network cluster clean || true && ./network unkind`;
-      execSync(commands);
+      const commands = './network down && ./network cluster clean || true && ./network unkind';
+      execSync(commands, {
+        cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+        env: {
+          ...process.env
+        }
+      });
+    }
+  }
+
+  private cleanupSampleNetworkInFabricOperator() {
+    if (fs.existsSync(BaseStepClass.SAMPLE_NETWORK_IN_FABRIC_OPERATOR_PATH)) {
+      const commands = './network down && ./network cluster clean || true && ./network unkind';
+      execSync(commands, {
+        cwd: BaseStepClass.SAMPLE_NETWORK_IN_FABRIC_OPERATOR_PATH,
+        env: {
+          ...process.env
+        }
+      });
     }
   }
 
   private cloneAndSetupFabricSamples() {
     // Remove old fabric-samples and clone fabric-samples
-    const commands = `cd ${BaseStepClass.K8S_SUPPORT_PATH} && rm -rf fabric-samples && git clone https://github.com/hyperledger/fabric-samples.git`;
-    execSync(commands);
+    const commands = 'rm -rf fabric-samples && git clone https://github.com/hyperledger/fabric-samples.git';
+    execSync(commands, {
+      cwd: BaseStepClass.K8S_SUPPORT_PATH,
+      env: {
+        ...process.env
+      }
+    });
 
     // Apply patches
-    this.applyPatchToTestNetwork8s('chaincode.sh');
-    this.applyPatchToTestNetwork8s('channel.sh');
+    this.applyPatch('chaincode.sh');
+    this.applyPatch('channel.sh');
+  }
+
+  private cloneAndSetupFabricOperator() {
+    // Remove old fabric-operator and clone fabric-operator
+    const commands = 'rm -rf fabric-operator && git clone https://github.com/hyperledger-labs/fabric-operator.git';
+    execSync(commands, {
+      cwd: BaseStepClass.K8S_SUPPORT_PATH,
+      env: {
+        ...process.env
+      }
+    });
+
+    // Apply patches
+    this.applyPatch('chaincode.sh');
   }
 
   private createKINDCluster() {
-    const commands = `cd ${BaseStepClass.TEST_NETWORK_K8S_PATH} && ./network kind && ./network cluster init`;
-    execSync(commands);
+    const commands = './network kind && ./network cluster init';
+    execSync(commands, {
+      cwd: this.pathToExample(),
+      env: {
+        ...process.env
+      }
+    });
   }
 
   private loadDockerImagesForOpsSCIntoKIND() {
-    const imageNames =['fabric-opssc/opssc-api-server:latest', 'fabric-opssc/opssc-agent:latest'];
+    const imageNames = ['fabric-opssc/opssc-api-server:latest', 'fabric-opssc/opssc-agent:latest'];
     for (const imageName of imageNames) {
       const commands = `kind load docker-image ${imageName}`;
       execSync(commands, {
-        cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+        cwd: this.pathToExample(),
+        env: {
+          ...process.env
+        }
       });
     }
   }
@@ -137,7 +204,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   }
 
   @given(/bootstrap opssc-(.*)s for initial orgs/, 'on-docker')
-  public async bootstrapOpsSCServicesForDocker(service: 'api-server'|'agent') {
+  public async bootstrapOpsSCServicesForDocker(service: 'api-server' | 'agent') {
     const dockerComposeFileName = `docker-compose-opssc-${service}s.yaml`;
     const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
     execSync(commands);
@@ -158,47 +225,56 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   }
 
   @given(/bootstrap a Fabric network with CAs/, 'on-k8s')
-  public bootstrapTestNetworkK8s() {
+  public bootstrapFabricNetworkForK8s() {
     const commands = './network up';
+    const envs =
+      (this.usedExample === 'test-network-k8s') ? { TEST_NETWORK_CHAINCODE_BUILDER: 'k8s' } :
+        {
+          TEST_NETWORK_PEER_IMAGE: 'ghcr.io/hyperledger-labs/k8s-fabric-peer',
+          TEST_NETWORK_PEER_IMAGE_LABEL: 'v0.8.0'
+        };
+
     execSync(commands, {
-      cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+      cwd: this.pathToExample(),
       env: {
-        TEST_NETWORK_CHAINCODE_BUILDER: 'k8s',
         ...process.env,
+        ...envs,
       }
     });
   }
 
   @given(/create (.+) channel/, 'on-k8s')
-  public createChannelForTestNetworkK8s(channelID: string) {
+  public createChannelForK8s(channelID: string) {
     const commands = './network channel create';
     execSync(commands, {
-      cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+      cwd: this.pathToExample(),
       env: {
-        TEST_NETWORK_CHANNEL_NAME: channelID,
         ...process.env,
+        TEST_NETWORK_CHANNEL_NAME: channelID,
       }
     });
   }
 
   @given(/put msp info and ccp into k8s/, 'on-k8s')
   public putAdminMSPInfoIntoK8s() {
-    const orgList =['org1', 'org2'];
+    const orgList = ['org1', 'org2'];
     const currentDir = process.cwd();
-    const tempDir = path.join(currentDir, BaseStepClass.TEST_NETWORK_K8S_PATH, 'build');
+    const tempDirName = (this.usedExample === 'test-network-k8s') ? 'build' : 'temp';
+    const tempDirFullPath = path.join(currentDir, this.pathToExample(), tempDirName);
     for (const org of orgList) {
       const commandList = [
         `${path.join(currentDir, BaseStepClass.K8S_SUPPORT_PATH)}/utils/create_ccp_comfigmap.sh`,
-        `tar -C build/enrollments/${org}/users/${org}admin -cvf build/admin-msp.tar msp`,
+        `tar -C ${tempDirName}/enrollments/${org}/users/${org}admin -cvf ${tempDirName}/admin-msp.tar msp`,
         `kubectl -n test-network delete configmap ${org}-admin-msp || true`,
-        `kubectl -n test-network create configmap ${org}-admin-msp --from-file=build/admin-msp.tar`,
-        'rm build/admin-msp.tar'];
+        `kubectl -n test-network create configmap ${org}-admin-msp --from-file=${tempDirName}/admin-msp.tar`,
+        `rm ${tempDirName}/admin-msp.tar`];
       for (const commands of commandList) {
         execSync(commands, {
-          cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+          cwd: this.pathToExample(),
           env: {
-            TEST_NETWORK_TEMP_DIR: tempDir,
             ...process.env,
+            TEST_NETWORK_TEMP_DIR: tempDirFullPath,
+            TEST_NETWORK_SAMPLE_ENV_NAME: this.usedExample,
           }
         });
       }
@@ -207,45 +283,55 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
   @given(/deploy (.+) for opssc on (.+)/, 'on-k8s')
   public deployChaincodeForOpsSCToFabricNetworkK8s(ccName: string, channelID: string) {
-    const commands = `./network chaincode deploy ${ccName} ../../../../chaincode/${ccName}`;
+    const chaincodeSubcommand = (this.usedExample === 'test-network-k8s') ? 'chaincode' : 'cc';
+    const ccLabel =  (this.usedExample === 'test-network-k8s') ? '' : `${ccName}_1.0`;
+    const commands = `./network ${chaincodeSubcommand} deploy ${ccName} ${ccLabel} ../../../../chaincode/${ccName}`;
+    const envs =
+      (this.usedExample === 'test-network-k8s') ? { TEST_NETWORK_CHAINCODE_BUILDER: 'k8s' } :
+        { TEST_NETWORK_CHAINCODE_IMAGE: `chaincode/${ccName}` };
     execSync(commands, {
-      cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+      cwd: this.pathToExample(),
       env: {
+        ...process.env,
         TEST_NETWORK_CHANNEL_NAME: channelID,
-        TEST_NETWORK_CHAINCODE_BUILDER: 'k8s',
+        ...envs,
       }
     });
   }
 
   @given(/register orgs info for (.+) \(type: (system|application|ops)\) to opssc on (.+)/, 'on-k8s')
   public registerOrgInfoForTestNetworkK8s(newChannelName: string, newChannelType: string, opsChannelName: string) {
-    const commandsList =[
-      `./network chaincode invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["CreateChannel","${newChannelName}","${newChannelType}","[]"]}'`,
-      `./network chaincode invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["AddOrganization","${newChannelName}","Org1MSP"]}'`,
-      `./network chaincode invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["AddOrganization","${newChannelName}","Org2MSP"]}'`,
+    const chaincodeSubcommand = (this.usedExample === 'test-network-k8s') ? 'chaincode' : 'cc';
+    const commandsList = [
+      `./network ${chaincodeSubcommand} invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["CreateChannel","${newChannelName}","${newChannelType}","[]"]}'`,
+      `./network ${chaincodeSubcommand} invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["AddOrganization","${newChannelName}","Org1MSP"]}'`,
+      `./network ${chaincodeSubcommand} invoke ${BaseStepClass.CH_OPS_CC_NAME} '{"Args":["AddOrganization","${newChannelName}","Org2MSP"]}'`,
     ];
     for (const commands of commandsList) {
       execSync(commands, {
-        cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+        cwd: this.pathToExample(),
         env: {
-          TEST_NETWORK_CHANNEL_NAME: opsChannelName,
           ...process.env,
+          TEST_NETWORK_CHANNEL_NAME: opsChannelName,
         }
       });
     }
   }
 
   @given(/bootstrap opssc-(.*)s for initial orgs/, 'on-k8s')
-  public async bootstrapOpsSCServicesForTestNetworkK8s(service: 'api-server'|'agent') {
-    const orgList =['org1', 'org2'];
+  public async bootstrapOpsSCServicesForTestNetworkK8s(service: 'api-server' | 'agent') {
+    const orgList = ['org1', 'org2'];
     for (const org of orgList) {
-      const commandsList =[
+      const commandsList = [
         `helm -n test-network uninstall ${org}-opssc-${service} || true`,
-        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/test-network-k8s/${org}-opssc-${service}.yaml --install`
+        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/${this.usedExample}/${org}-opssc-${service}.yaml --install`
       ];
       for (const commands of commandsList) {
         execSync(commands, {
-          cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+          cwd: this.pathToExample(),
+          env: {
+            ...process.env,
+          }
         });
       }
     }
@@ -267,5 +353,9 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   @given(/disable (.+) channel on opssc via opssc-api-server/)
   public async disableChannel(channelName: string) {
     await this.invokeChannelOpsFunc('UpdateChannelType', [channelName, 'disable']);
+  }
+
+  private pathToExample(): string {
+    return (this.usedExample === 'test-network-k8s') ? BaseStepClass.TEST_NETWORK_K8S_PATH : BaseStepClass.SAMPLE_NETWORK_IN_FABRIC_OPERATOR_PATH;
   }
 }

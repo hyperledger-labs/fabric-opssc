@@ -8,8 +8,8 @@ The integration tests internally run (stand up and tear down) some Fabric networ
   - The tests internally run (stand up and tear down) `samples-environments/fabric-samples/test-network`.
   - The tests download (replace) the Fabric binaries in `samples-environments/fabric-samples/bin` before each scenarios according to the test target Fabric version.
 - For K8s-based environment (v2.4+):
-  - The tests internally run (stand up and tear down) `fabric-samples/test-network-k8s` based on instructions described in `samples-environments/k8s-support`.
-  - The tests internally clone `fabric-samples` from the original repository.
+  - The tests internally run (stand up and tear down) `fabric-samples/test-network-k8s` or `fabric-operator/sample-network` based on instructions described in `samples-environments/k8s-support`.
+  - The tests internally clone `fabric-samples` or `fabric-operator` from the original repository.
 
 ## Prerequisites
 

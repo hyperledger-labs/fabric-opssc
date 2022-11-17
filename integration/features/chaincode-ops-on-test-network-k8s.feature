@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+@with-test-network-k8s
 @on-k8s
 Feature: Chaincode ops on k8s-based Fabric network
   Background: Bootstrap a Fabric network with OpsSC on k8s
