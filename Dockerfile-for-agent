@@ -2,23 +2,22 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:14
+FROM node:14 AS build
 
 ARG FABRIC_VERSION
 
-ADD opssc-agent/src /opt/app/src
-ADD common /opt/common
+COPY opssc-agent/src /opt/app/src
+COPY common /opt/common
+
 # Allow npm to run prepare script as root
 RUN cd /opt/common/src; npm --unsafe-perm install
 RUN cd /opt/app/src; npm --unsafe-perm install
 
-# Add fabric binaries
-RUN cd /
-RUN wget https://github.com/hyperledger/fabric/releases/download/v${FABRIC_VERSION}/hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
-RUN tar -xzf hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
-
-# Add fabric-configtx-cli
-ADD configtx-cli/bin/fabric-configtx-cli /usr/local/bin
+# Download fabric binaries
+RUN mkdir /opt/fabric
+RUN cd /opt/fabric; \
+  curl -LO https://github.com/hyperledger/fabric/releases/download/v${FABRIC_VERSION}/hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz; \
+  tar -xzf hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
 
 # Add helm
 ENV HELM_VERSION=v3.10.0
@@ -31,11 +30,26 @@ RUN rm get_helm.sh
 RUN curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
 RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
+FROM node:14-slim
+
+RUN apt-get update && apt-get -y install git
+
+RUN mkdir /config
+COPY --from=build /opt/fabric/config /config
+COPY --from=build /opt/fabric/bin/peer /usr/local/bin
+COPY --from=build /usr/local/bin/helm /usr/local/bin
+COPY --from=build /usr/local/bin/kubectl /usr/local/bin
+COPY --from=build /opt/common/src /opt/common/src
+COPY --from=build /opt/app/src /opt/app/src
+
+# Add fabric-configtx-cli
+COPY configtx-cli/bin/fabric-configtx-cli /usr/local/bin
+
 # Add chart for chaincode server
 COPY opssc-agent/charts/chaincode-server /opt/chart
 
 # Add chaincode for opssc
-ADD chaincode /opt/go/src/bootstrap/
+COPY chaincode /opt/go/src/bootstrap/
 
 # Set default GOPATH
 ENV GOPATH=/opt/go
