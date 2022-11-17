@@ -48,7 +48,9 @@ export default class BaseStepClass {
 
   protected static K8S_SUPPORT_PATH = '../sample-environments/k8s-support';
   protected static TEST_NETWORK_K8S_PATH = `${BaseStepClass.K8S_SUPPORT_PATH}/fabric-samples/test-network-k8s`;
+  protected static SAMPLE_NETWORK_IN_FABRIC_OPERATOR_PATH = `${BaseStepClass.K8S_SUPPORT_PATH}/fabric-operator/sample-network`;
   protected static TEST_NETWORK_PATH = '../sample-environments/fabric-samples/test-network';
+
   protected static OPS_CHANNEL = 'ops-channel';
   protected static CC_OPS_CC_NAME = 'chaincode-ops';
   protected static CH_OPS_CC_NAME = 'channel-ops';
