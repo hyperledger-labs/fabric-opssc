@@ -1,0 +1,30 @@
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 60s
+  hosts:
+    - host: org1-opssc-api-server.localho.st
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+image:
+  repository: "fabric-opssc/opssc-api-server"
+  tag: latest
+  pullPolicy: IfNotPresent
+
+adminMSPID: Org1MSP
+
+logLevel: info
+discoverAsLocalhost: "false"
+
+api:
+  channelProposalEnabled: "true"
+  utilEnabled: "true"
+
+opsscChannelName: "ops-channel"
+opsscChannelOpsCCName: "channel-ops"
+opsscChaincodeOpsCCName: "chaincode-ops"
+
+# imagePullSecrets: docker-secret
