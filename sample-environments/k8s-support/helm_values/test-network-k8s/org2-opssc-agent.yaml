@@ -30,7 +30,7 @@ chaincodeServer:
   # pullRegistryOverride: ""
   # imagePullSecretName: "docker-secret"
 
-opsscChannelName: "mychannel"
+opsscChannelName: "ops-channel"
 opsscChannelOpsCCName: "channel-ops"
 opsscChaincodeOpsCCName: "chaincode-ops"
 

@@ -23,7 +23,7 @@ api:
   channelProposalEnabled: "true"
   utilEnabled: "true"
 
-opsscChannelName: "mychannel"
+opsscChannelName: "ops-channel"
 opsscChannelOpsCCName: "channel-ops"
 opsscChaincodeOpsCCName: "chaincode-ops"
 
