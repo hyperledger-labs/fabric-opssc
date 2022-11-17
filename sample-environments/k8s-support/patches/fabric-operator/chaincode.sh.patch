@@ -1,0 +1,47 @@
+@@ -244,7 +244,11 @@
+   local cc_image=$3
+ 
+   launch_chaincode_service ${org} peer1 ${cc_name} ${cc_id} ${cc_image}
+-#  launch_chaincode_service ${org} peer2 ${cc_name} ${cc_id} ${cc_image}
++  launch_chaincode_service ${org} peer2 ${cc_name} ${cc_id} ${cc_image}
++
++  local org=org2
++  launch_chaincode_service ${org} peer1 ${cc_name} ${cc_id} ${cc_image}
++  launch_chaincode_service ${org} peer2 ${cc_name} ${cc_id} ${cc_image}
+ }
+ 
+ function install_chaincode_for() {
+@@ -266,7 +270,11 @@
+   local cc_package=$1
+ 
+   install_chaincode_for ${org} 1 ${cc_package}
+-#  install_chaincode_for ${org} 2 ${cc_package}
++  install_chaincode_for ${org} 2 ${cc_package}
++
++  local org=2
++  install_chaincode_for ${org} 1 ${cc_package}
++  install_chaincode_for ${org} 2 ${cc_package}
+ }
+ 
+ # approve the chaincode package for an org and assign a name
+@@ -280,6 +288,20 @@
+   export_peer_context $org $peer
+ 
+   peer lifecycle \
++    chaincode approveformyorg \
++    --channelID     ${CHANNEL_NAME} \
++    --name          ${cc_name} \
++    --version       1 \
++    --package-id    ${cc_id} \
++    --sequence      1 \
++    --orderer       ${NS}-org0-orderersnode1-orderer.${INGRESS_DOMAIN}:443 \
++    --tls --cafile  ${TEMP_DIR}/channel-msp/ordererOrganizations/org0/orderers/org0-orderersnode1/tls/signcerts/tls-cert.pem \
++    --connTimeout   ${ORDERER_TIMEOUT}
++
++  local org=2
++  export_peer_context $org $peer
++
++  peer lifecycle \
+     chaincode approveformyorg \
+     --channelID     ${CHANNEL_NAME} \
+     --name          ${cc_name} \

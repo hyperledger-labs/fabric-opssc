@@ -1,16 +1,20 @@
-# K8s-based sample environment
+# K8s-based sample environments
 
-This introduces a sample environment for running the OpsSC based on [test-network-k8s in fabric-samples](https://github.com/hyperledger/fabric-samples/tree/main/test-network-k8s).
+This introduces sample environments for running the OpsSC on K8s.
+- Sample 1: Environment with [test-network-k8s in fabric-samples](https://github.com/hyperledger/fabric-samples/tree/main/test-network-k8s).
+  - See [here](./README.md#try-the-opssc-in-a-k8s-based-sample-environment-with-test-network-k8s)
+- Sample 2: Environment with [sample-network in fabric-operator](https://github.com/hyperledger-labs/fabric-operator/tree/main/sample-network).
+  - See [here](./README.md#try-the-opssc-in-a-k8s-based-sample-environment-with-fabric-operator)
 
 ## Limitations
 
-OpsSC on k8s is under testing. So it has the following limitations.
+OpsSC on k8s has the following limitations.
 
 - Only support Fabric 2.4+
 - Only support `chaincode-ops`
   - `channel-ops` is not supported
 
-## Try the OpsSC in the k8s-based sample environment
+## Try the OpsSC in a k8s-based sample environment with test-network-k8s
 
 ### Prerequisites
 
@@ -422,3 +426,184 @@ curl -X POST http://org1-opssc-api-server.localho.st/api/v1/chaincode/proposals/
 }
 EOF
 ```
+
+## Try the OpsSC in a k8s-based sample environment with fabric-operator
+
+The following instructions describe how to try the OpsSC with [fabric-operator](https://github.com/hyperledger-labs/fabric-operator).
+fabric-operator is an open-sourced Operator implementation, which follows the CNCF Operator Pattern, for managing Fabric networks on K8s.
+`sample-network` in `fabric-operator` repository is an environment similar to `test-network-k8s` (in other words, `fabric-operator` version of `test-network-k8s`).
+
+Note that in the following instructions, the same parts as in `test-network-k8s` are omitted.
+
+### Prerequisites
+
+Same as the example with `test-network-k8s`.
+See [here](./README.md#try-the-opssc-in-a-k8s-based-sample-environment-with-test-network-k8s).
+
+### Prepare fabric-operator
+
+Clone fabric-operator by running the following commands:
+
+```bash
+cd ${FABRIC_OPSSC}/sample-environments/k8s-support
+
+# Remove old clone
+rm -rf fabric-operator
+
+# Clone fabric-operator
+git clone https://github.com/hyperledger-labs/fabric-operator.git
+
+```
+
+_NOTE:_ The following instructions are tested with commit `4b222fe2909803e94241474c1f05d5321b02bfc0` in fabric-operator. Other commits may require some modifications.
+
+To run sample-network in fabric-operator with OpsSC, need to make some updates to sample-network:
+
+- Add operations for installing and approving a chaincode for org2
+  - The original implementation does them only for org1
+
+Apply patches to fabric-operator to make the above updates by running the following commands:
+
+```bash
+# Add operations for installing and approving a chaincode for org2 to sample-network
+patch -u fabric-operator/sample-network/scripts/chaincode.sh < patches/fabric-operator/chaincode.sh.patch
+
+```
+
+### Run the sample-network on a KIND cluster
+
+Before running, clean up the sample network:
+
+```bash
+# Move sample-network dir
+cd fabric-operator/sample-network
+
+# Clean up sample-network
+./network down
+./network cluster clean
+./network unkind
+
+```
+
+Create a KIND cluster:
+
+```bash
+# Create and initialize a KIND cluster
+./network kind
+./network cluster init
+
+```
+
+By the default, a Fabric network is deployed in a namespace `test-network` and a channel named `mychannel` is created.
+In the following instructions, two channels `mychannel` and `ops-channel` are created.
+`mychannel` is an application channel and `ops-channel` is the channel on which the OpsSC chaincodes runs.
+
+Launch the test network and create channels:
+
+```bash
+# Set the namespace name
+export TEST_NETWORK_NETWORK_NAME="test-network"
+
+# Set the environment variables, to use a peer image with k8s builder to use it the following instructions
+export TEST_NETWORK_PEER_IMAGE=ghcr.io/hyperledger-labs/k8s-fabric-peer
+export TEST_NETWORK_PEER_IMAGE_LABEL=v0.8.0
+
+./network up
+
+export TEST_NETWORK_CHANNEL_NAME="mychannel"
+./network channel create # create mychannel
+
+export TEST_NETWORK_CHANNEL_NAME="ops-channel"
+./network channel create # create ops-channel
+
+```
+### Initialize the OpsSC on the test network
+
+Deploy OpsSC chaincodes as chaincode servers and set up the initial chaincode info:
+
+```bash
+# Deploy OpsSC chaincodes
+TEST_NETWORK_CHAINCODE_IMAGE=chaincode/channel-ops ./network cc deploy channel-ops channel-ops_1.0 ../../../../chaincode/channel-ops
+TEST_NETWORK_CHAINCODE_IMAGE=chaincode/chaincode-ops ./network cc deploy chaincode-ops chaincode-ops_1.0 ../../../../chaincode/chaincode-ops
+
+# Put initial channel info into OpsSC chaincodes
+./network cc invoke channel-ops '{"Args":["CreateChannel","ops-channel","ops","[]"]}'
+./network cc invoke channel-ops '{"Args":["AddOrganization","ops-channel","Org1MSP"]}'
+./network cc invoke channel-ops '{"Args":["AddOrganization","ops-channel","Org2MSP"]}'
+
+./network cc invoke channel-ops '{"Args":["CreateChannel","mychannel","application","[]"]}'
+./network cc invoke channel-ops '{"Args":["AddOrganization","mychannel","Org1MSP"]}'
+./network cc invoke channel-ops '{"Args":["AddOrganization","mychannel","Org2MSP"]}'
+
+```
+
+Deploy OpsSC Agent and API Server for each org on k8s by using helm.
+
+The helm values used are respectively as follows:
+
+- [OpsSC API Server](../../../../opssc-api-server/charts/opssc-api-server)
+  - [Sample values for org1](./helm_values/fabric-operator/org1-opssc-api-server.yaml)
+- [OpsSC Agent](../../../../opssc-agent/charts/opssc-agent)
+  - [Sample values for org1](./helm_values/fabric-operator/org1-opssc-agent.yaml)
+
+To deploy OpsSC Agent and API Server for each org, run the following commands:
+
+```bash
+# Load Docker images of OpsSC API Server and Agent from local to KIND
+kind load docker-image fabric-opssc/opssc-api-server:latest
+kind load docker-image fabric-opssc/opssc-agent:latest
+
+# Create connection profiles and put them into K8s as ConfigMap
+export TEST_NETWORK_SAMPLE_ENV_NAME=fabric-operator
+export TEST_NETWORK_TEMP_DIR=${PWD}/temp
+../../utils/create_ccp_comfigmap.sh
+
+# Put admin MSP info for each org into K8s
+ls temp/enrollments/org1/users/org1admin
+tar -C temp/enrollments/org1/users/org1admin -cvf temp/admin-msp.tar msp
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete configmap org1-admin-msp || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create configmap org1-admin-msp --from-file=temp/admin-msp.tar
+
+ls temp/enrollments/org2/users/org2admin
+tar -C temp/enrollments/org2/users/org2admin -cvf temp/admin-msp.tar msp
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete configmap org2-admin-msp || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create configmap org2-admin-msp --from-file=temp/admin-msp.tar
+
+rm temp/admin-msp.tar
+
+# Deploy OpsSC Agent and API server for each org on K8s by using helm
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org1-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/fabric-operator/org1-opssc-api-server.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org2-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/fabric-operator/org2-opssc-api-server.yaml --install
+
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org1-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/fabric-operator/org1-opssc-agent.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org2-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/fabric-operator/org2-opssc-agent.yaml --install
+
+```
+
+Do health check for the agents and servers with `*.localho.st` domain:
+
+```bash
+# Do health check for the agents and servers
+## Check for the API server for Org1MSP
+curl -X GET http://org1-opssc-api-server.localho.st/healthz
+# OK
+
+## Check for the API server for Org2MSP
+curl -X GET http://org2-opssc-api-server.localho.st/healthz
+# OK
+
+## Check for the agent for Org1MSP
+curl -X GET http://org1-opssc-agent.localho.st/healthz
+# OK
+
+## Check for the agent for Org2MSP
+curl -X GET http://org2-opssc-agent.localho.st/healthz
+# OK
+```
+
+### Deploy a new chaincode by using the OpsSC
+
+Same as the example with `test-network-k8s`.
+See [here](./README.md#deploy-a-new-chaincode-by-using-the-opssc).
+
+NOTE: `./network chaincode` should be replaced `./network cc` in the instructions for `fabric-samples/test-network-k8s`.
