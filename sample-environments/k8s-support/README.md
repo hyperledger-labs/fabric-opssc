@@ -41,18 +41,16 @@ To run test-network-k8s with OpsSC, need to make some updates to test-network-k8
 
 - Add operations for installing and approving a chaincode for org2
   - The original implementation does them only for org1
-- Add Orderer information to connection profiles
-  - The following instructions reuses the connection profiles for fabric-rest-sample application
+- Modify channel.sh to avoid an error when network channel create is called multiple times
 
 Apply patches to test-network to make the above updates by running the following commands:
 
 ```bash
 # Add operations for installing and approving a chaincode for org2 to test-network-k8s
-patch -u fabric-samples/test-network-k8s/scripts/chaincode.sh < chaincode.sh.patch
+patch -u fabric-samples/test-network-k8s/scripts/chaincode.sh < patches/test-network-k8s/chaincode.sh.patch
 
-# Add Orderer information to connection profiles for fabric-rest-sample application
-patch -u fabric-samples/test-network-k8s/scripts/ccp-template.json < ccp-template.json.patch
-patch -u fabric-samples/test-network-k8s/scripts/rest_sample.sh < rest_sample.sh.patch
+# Temporary repairs to avoid an error when network channel create is called multiple times
+patch -u fabric-samples/test-network-k8s/scripts/channel.sh < patches/test-network-k8s/channel.sh.patch
 ```
 
 ### Run the test network on a KIND cluster
@@ -79,26 +77,28 @@ Create a KIND cluster:
 
 ```
 
-Launch the test network and create a channel:
+By the default, a Fabric network is deployed in a namespace `test-network` and a channel named `mychannel` is created.
+In the following instructions, two channels `mychannel` and `ops-channel` are created.
+`mychannel` is an application channel and `ops-channel` is the channel on which the OpsSC chaincodes runs.
+
+Launch the test network and create channels:
 
 ```bash
+# Set the namespace name
+export TEST_NETWORK_NETWORK_NAME="test-network"
+
 # Set the builder as 'k8s', to setup k8s builder to use it the following instructions
 export TEST_NETWORK_CHAINCODE_BUILDER="k8s"
 
 ./network up # Internally setup the k8s builder
-./network channel create
 
-# Launch fabric-rest-sample application
-# NOTE: Just for reusing the connection profiles created by this commands
-./network rest-easy
+export TEST_NETWORK_CHANNEL_NAME="mychannel"
+./network channel create # create mychannel
+
+export TEST_NETWORK_CHANNEL_NAME="ops-channel"
+./network channel create # create ops-channel
 
 ```
-
-By the default, a Fabric network is deployed in a namespace `test-network` and a channel named `mychannel` is created.
-Because test-network-k8s only supports to create a single channel,
-in the following instructions, `mychannel` is used in place of `ops-channel`,
-the channel on which the OpsSC chaincodes runs.
-
 ### Initialize the OpsSC on the test network
 
 Deploy OpsSC chaincodes as chaincode servers and set up the initial chaincode info:
@@ -110,6 +110,10 @@ export TEST_NETWORK_CHAINCODE_BUILDER="k8s" # You can also use "ccaas"
 ./network chaincode deploy chaincode-ops ../../../../chaincode/chaincode-ops
 
 # Put initial channel info into OpsSC chaincodes
+./network chaincode invoke channel-ops '{"Args":["CreateChannel","ops-channel","ops","[]"]}'
+./network chaincode invoke channel-ops '{"Args":["AddOrganization","ops-channel","Org1MSP"]}'
+./network chaincode invoke channel-ops '{"Args":["AddOrganization","ops-channel","Org2MSP"]}'
+
 ./network chaincode invoke channel-ops '{"Args":["CreateChannel","mychannel","application","[]"]}'
 ./network chaincode invoke channel-ops '{"Args":["AddOrganization","mychannel","Org1MSP"]}'
 ./network chaincode invoke channel-ops '{"Args":["AddOrganization","mychannel","Org2MSP"]}'
@@ -121,9 +125,9 @@ Deploy OpsSC Agent and API Server for each org on k8s by using helm.
 The helm charts used are respectively as follows:
 
 - [OpsSC API Server](../../../../opssc-api-server/charts/opssc-api-server)
-  - [Sample values for org1](../../helm_values/org1-opssc-api-server.yaml)
+  - [Sample values for org1](./helm_values/test-network-k8s/org1-opssc-api-server.yaml)
 - [OpsSC Agent](../../../../opssc-agent/charts/opssc-agent)
-  - [Sample values for org1](../../helm_values/org1-opssc-agent.yaml)
+  - [Sample values for org1](./helm_values/test-network-k8s/org1-opssc-agent.yaml)
 
 To deploy OpsSC Agent and API Server for each org, run the following commands:
 
@@ -132,27 +136,33 @@ To deploy OpsSC Agent and API Server for each org, run the following commands:
 kind load docker-image fabric-opssc/opssc-api-server:latest
 kind load docker-image fabric-opssc/opssc-agent:latest
 
+# Create connection profiles with peer and orderer information and put them into K8s as ConfigMap
+../../utils/create_ccp_comfigmap.sh
+
 # Put admin MSP info for each org into K8s
 ls build/enrollments/org1/users/org1admin
 tar -C build/enrollments/org1/users/org1admin -cvf build/admin-msp.tar msp
-kubectl -n test-network delete configmap org1-admin-msp || true
-kubectl -n test-network create configmap org1-admin-msp --from-file=build/admin-msp.tar
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete configmap org1-admin-msp || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create configmap org1-admin-msp --from-file=build/admin-msp.tar
 
 ls build/enrollments/org2/users/org2admin
 tar -C build/enrollments/org2/users/org2admin -cvf build/admin-msp.tar msp
-kubectl -n test-network delete configmap org2-admin-msp || true
-kubectl -n test-network create configmap org2-admin-msp --from-file=build/admin-msp.tar
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete configmap org2-admin-msp || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create configmap org2-admin-msp --from-file=build/admin-msp.tar
 
 rm build/admin-msp.tar
 
 # Deploy OpsSC Agent and API server for each org on K8s by using helm
-helm upgrade -n test-network org1-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/org1-opssc-api-server.yaml --install
-helm upgrade -n test-network org2-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/org2-opssc-api-server.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org1-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/test-network-k8s/org1-opssc-api-server.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org2-opssc-api-server ../../../../opssc-api-server/charts/opssc-api-server -f ../../helm_values/test-network-k8s/org2-opssc-api-server.yaml --install
 
-helm upgrade -n test-network org1-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/org1-opssc-agent.yaml --install
-helm upgrade -n test-network org2-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/org2-opssc-agent.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org1-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/test-network-k8s/org1-opssc-agent.yaml --install
+helm upgrade -n "${TEST_NETWORK_NETWORK_NAME}" org2-opssc-agent ../../../../opssc-agent/charts/opssc-agent -f ../../helm_values/test-network-k8s/org2-opssc-agent.yaml --install
 
 ```
+
+Each chart reads a connection profile with peer and orderer information put as ConfigMap.
+So, the above calls an utility script to create connection profiles and put them into K8s as ConfigMap.
 
 Each agent or API server exposes a `Ingress` route binding the virtual host name to the corresponding endpoint.
 External clients can access each agent or API server with `*.localho.st` domain (For more information, see [here](https://github.com/hyperledger/fabric-samples/tree/main/test-network-k8s/docs/KUBERNETES.md)).
@@ -170,11 +180,11 @@ curl -X GET http://org2-opssc-api-server.localho.st/healthz
 # OK
 
 ## Check for the agent for Org1MSP
-curl -X GET http://org2-opssc-api-server.localho.st/healthz
+curl -X GET http://org1-opssc-agent.localho.st/healthz
 # OK
 
-## Check for the agent for Or21MSP
-curl -X GET http://org2-opssc-api-server.localho.st/healthz
+## Check for the agent for Org2MSP
+curl -X GET http://org2-opssc-agent.localho.st/healthz
 # OK
 ```
 
@@ -243,6 +253,7 @@ curl -X GET http://org1-opssc-api-server.localho.st/api/v1/chaincode/proposals/d
 By using the following commands, can invoke and query the chaincode as a test:
 
 ```bash
+export TEST_NETWORK_CHANNEL_NAME="mychannel"
 ./network chaincode invoke basic '{"Args":["CreateAsset","asset1","blue","35","tom","1000"]}'
 ./network chaincode query basic '{"Args":["ReadAsset","asset1"]}'
 
@@ -251,7 +262,7 @@ By using the following commands, can invoke and query the chaincode as a test:
 By using the following commands, you can see pods for the deployed chaincode:
 
 ```bash
-kubectl -n test-network get pods | grep basic
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" get pods | grep basic
 
 # You can get the result as follow
 chaincode-basic-org1-84d79f4667-bfchw            1/1     Running     0          3m5s
@@ -268,6 +279,9 @@ a chaincode server is created per org1 and per chaincode not per peer.
 Simply change the chaincode type in the above instructions for CCaaS builder from `ccaas` to `k8s` to deploy the chaincode with k8s builder. The following is a partial example of deploying a chaincode named `basic2`.
 
 ```bash
+# Set the channel as 'ops-channel'
+export TEST_NETWORK_CHANNEL_NAME="ops-channel"
+
 # Set Chaincode type as 'k8s' to use the k8s builder
 export CC_TYPE=k8s
 
@@ -308,7 +322,7 @@ curl -X POST http://org2-opssc-api-server.localho.st/api/v1/chaincode/proposals/
 By using the following commands, you can see pods for the deployed chaincode:
 
 ```bash
-kubectl -n test-network get pods | grep basic2
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" get pods | grep basic2
 
 # You can get the result as follow
 cc-org1msp-org1-peer1.org1.example.combasic2-1-a0fefbefdf85c51b   1/1     Running     0          40s
@@ -331,7 +345,7 @@ When using an external registry, OpsSC agents must have credential information a
 to push and pull the proposed chaincode images with the registry via Helm.
 
 Before deploying OpsSC agents on K8s by using helm,
-rewrite the helm values about image registry [in this folder](./helm_values):
+rewrite the helm values about image registry [in this folder](./helm_values/test-network-k8s):
 
 ```yaml
 # For your private container image registry
@@ -345,13 +359,12 @@ Next, login the registry and put that credential information as a `Secret` to k8
 
 ```bash
 # Example of using ECR
-export NAMESPACE=test-network
 export REGISTRY_HOST=<your_account_id>.dkr.ecr.<region>.amazonaws.com
 export REGISTRY_USER=AWS
 export REGISTRY_PASSWORD=$(aws ecr get-login-password)
 
-kubectl -n "${NAMESPACE}" delete secret docker-secret || true
-kubectl -n "${NAMESPACE}" create secret docker-registry docker-secret --docker-server="${REGISTRY_HOST}" --docker-username="${REGISTRY_USER}" --docker-password="${REGISTRY_PASSWORD}"
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete secret docker-secret || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create secret docker-registry docker-secret --docker-server="${REGISTRY_HOST}" --docker-username="${REGISTRY_USER}" --docker-password="${REGISTRY_PASSWORD}"
 ```
 
 Then, perform the same steps after deploying the OpsSC agents as described above.
@@ -367,7 +380,7 @@ So, credential information of the external registry must be registered in the se
 By executing the following command, credential information can be added to the service account in test-network-k8s:
 
 ```bash
-kubectl -n ${NAMESPACE} patch serviceaccount default -p '{"imagePullSecrets": [{"name": "docker-secret"}]}'
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" patch serviceaccount default -p '{"imagePullSecrets": [{"name": "docker-secret"}]}'
 
 ```
 
@@ -380,12 +393,11 @@ The aforementioned OpsSC agent helm chart reads a git credential information put
 Set your credential information as follows:
 
 ```bash
-export NAMESPACE=test-network
 export GIT_USER=<put_your_git_username>
 export GIT_PASSWORD=<put_your_git_password>
 
-kubectl -n "${NAMESPACE}" delete secret git || true
-kubectl -n "${NAMESPACE}" create secret generic git --from-literal=username="${GIT_USER}" --from-literal=password="${GIT_PASSWORD}"
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" delete secret git || true
+kubectl -n "${TEST_NETWORK_NETWORK_NAME}" create secret generic git --from-literal=username="${GIT_USER}" --from-literal=password="${GIT_PASSWORD}"
 ```
 
 After setting up the above, start OpsSC agents.

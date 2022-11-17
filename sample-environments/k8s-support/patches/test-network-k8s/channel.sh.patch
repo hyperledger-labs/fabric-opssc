@@ -1,0 +1,11 @@
+@@ -24,7 +24,9 @@
+ 
+ function channel_up() {
+ 
+-  register_org_admins
++  # Temporary repairs to avoid 'Identity 'org0admin' is already registered' error
++  # when network channel create is called multiple times
++  register_org_admins || true
+   enroll_org_admins
+ 
+   create_channel_MSP

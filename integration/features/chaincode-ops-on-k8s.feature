@@ -8,17 +8,19 @@ Feature: Chaincode ops on k8s-based Fabric network
   Background: Bootstrap a Fabric network with OpsSC on k8s
     Given bootstrap a Fabric network with CAs
 
+    Given create ops-channel channel
     Given create mychannel channel
-    Given put msp info into k8s
+    Given put msp info and ccp into k8s
 
-    Given deploy channel-ops for opssc on mychannel
-    Given deploy chaincode-ops for opssc on mychannel
+    Given deploy channel-ops for opssc on ops-channel
+    Given deploy chaincode-ops for opssc on ops-channel
 
-    Given register orgs info for mychannel (type: application) to opssc on mychannel
+    Given register orgs info for ops-channel (type: ops) to opssc on ops-channel
+    Given register orgs info for mychannel (type: application) to opssc on ops-channel
 
     Given bootstrap opssc-api-servers for initial orgs
     Given bootstrap opssc-agents for initial orgs
-    Then 2 chaincodes should be committed on mychannel
+    Then 2 chaincodes should be committed on ops-channel
 
   Scenario: Chaincode ops on k8s-based Fabric network by using OpsSC
 

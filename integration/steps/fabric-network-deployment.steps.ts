@@ -11,6 +11,7 @@ import axios from 'axios';
 import fs from 'fs-extra';
 import { execSync } from 'child_process';
 import BaseStepClass from '../utils/base-step-class';
+import path from 'path';
 
 @binding()
 export class FabricNetworkDeploymentSteps extends BaseStepClass {
@@ -63,7 +64,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   }
 
   private applyPatchToTestNetwork8s(fileName: string) {
-    const commands = `cd ${BaseStepClass.K8S_SUPPORT_PATH} && patch -u fabric-samples/test-network-k8s/scripts/${fileName} < ${fileName}.patch`;
+    const commands = `cd ${BaseStepClass.K8S_SUPPORT_PATH} && patch -u fabric-samples/test-network-k8s/scripts/${fileName} < patches/test-network-k8s/${fileName}.patch`;
     execSync(commands);
   }
 
@@ -81,8 +82,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
     // Apply patches
     this.applyPatchToTestNetwork8s('chaincode.sh');
-    this.applyPatchToTestNetwork8s('ccp-template.json');
-    this.applyPatchToTestNetwork8s('rest_sample.sh');
+    this.applyPatchToTestNetwork8s('channel.sh');
   }
 
   private createKINDCluster() {
@@ -181,12 +181,14 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     });
   }
 
-  @given(/put msp info into k8s/, 'on-k8s')
+  @given(/put msp info and ccp into k8s/, 'on-k8s')
   public putAdminMSPInfoIntoK8s() {
     const orgList =['org1', 'org2'];
+    const currentDir = process.cwd();
+    const tempDir = path.join(currentDir, BaseStepClass.TEST_NETWORK_K8S_PATH, 'build');
     for (const org of orgList) {
       const commandList = [
-        './network rest-easy',
+        `${path.join(currentDir, BaseStepClass.K8S_SUPPORT_PATH)}/utils/create_ccp_comfigmap.sh`,
         `tar -C build/enrollments/${org}/users/${org}admin -cvf build/admin-msp.tar msp`,
         `kubectl -n test-network delete configmap ${org}-admin-msp || true`,
         `kubectl -n test-network create configmap ${org}-admin-msp --from-file=build/admin-msp.tar`,
@@ -194,6 +196,10 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
       for (const commands of commandList) {
         execSync(commands, {
           cwd: BaseStepClass.TEST_NETWORK_K8S_PATH,
+          env: {
+            TEST_NETWORK_TEMP_DIR: tempDir,
+            ...process.env,
+          }
         });
       }
     }
@@ -235,7 +241,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     for (const org of orgList) {
       const commandsList =[
         `helm -n test-network uninstall ${org}-opssc-${service} || true`,
-        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/${org}-opssc-${service}.yaml --install`
+        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/test-network-k8s/${org}-opssc-${service}.yaml --install`
       ];
       for (const commands of commandsList) {
         execSync(commands, {
