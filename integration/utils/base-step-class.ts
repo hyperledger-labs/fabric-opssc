@@ -20,7 +20,8 @@ type servicePorts = {
 
 type FabricVersion = {
   fabric: string,
-  fabricCA: string
+  fabricCA: string,
+  k8sFabricPeer?: string
 }
 
 export default class BaseStepClass {
@@ -30,8 +31,8 @@ export default class BaseStepClass {
   protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.4';
 
   protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
-    '2.4': { fabric: '2.4.6', fabricCA: '1.5.5' },
-    '2.2': { fabric: '2.2.8', fabricCA: '1.5.5' },
+    '2.4': { fabric: '2.4.7', fabricCA: '1.5.5', k8sFabricPeer: 'v0.8.0' },
+    '2.2': { fabric: '2.2.9', fabricCA: '1.5.5' },
   }
 
   protected static fabricVersion() {
@@ -40,6 +41,10 @@ export default class BaseStepClass {
 
   protected static fabricCAVersion() {
     return BaseStepClass.FABRIC_VERSION_MAP[BaseStepClass.FABRIC_TWO_DIGIT_VERSION].fabricCA;
+  }
+
+  protected static k8sFabricPeerVersion() {
+    return BaseStepClass.FABRIC_VERSION_MAP[BaseStepClass.FABRIC_TWO_DIGIT_VERSION].k8sFabricPeer;
   }
 
   protected static opsSCImageTag() {
