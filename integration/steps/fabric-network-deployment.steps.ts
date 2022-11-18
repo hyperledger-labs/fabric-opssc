@@ -231,7 +231,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
       (this.usedExample === 'test-network-k8s') ? { TEST_NETWORK_CHAINCODE_BUILDER: 'k8s' } :
         {
           TEST_NETWORK_PEER_IMAGE: 'ghcr.io/hyperledger-labs/k8s-fabric-peer',
-          TEST_NETWORK_PEER_IMAGE_LABEL: 'v0.8.0'
+          TEST_NETWORK_PEER_IMAGE_LABEL: BaseStepClass.k8sFabricPeerVersion()
         };
 
     execSync(commands, {

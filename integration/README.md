@@ -45,7 +45,7 @@ OpsSC does not support running on K8s for v2.2, so you will need to specify a
 different target in npm to skip that tests:
 
 ```bash
-$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.5 1.5.2 -s -b # Download Fabric images for v2.2
+$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.9 1.5.5 -s -b # Download Fabric images for v2.2
 
 $ cd fabric-opssc
 $ make docker FABRIC_TWO_DIGIT_VERSION=2.2 # Make images of OpsSC agent and API server for v2.2
