@@ -8,7 +8,7 @@ import { setDefaultTimeout } from 'cucumber';
 import moment from 'moment';
 import axios from 'axios';
 
-setDefaultTimeout(240 * 1000);
+setDefaultTimeout(300 * 1000);
 
 type servicePorts = {
   peer: number,

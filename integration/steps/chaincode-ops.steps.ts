@@ -8,6 +8,7 @@ import { before, binding, then, when } from 'cucumber-tsflow';
 import { expect } from 'chai';
 import axios from 'axios';
 import BaseStepClass from '../utils/base-step-class';
+import { execSync } from 'child_process';
 
 type TaskType = 'vote' | 'acknowledge' | 'commit';
 type TaskTypeAsPastParticiple = 'voted' | 'acknowledged' | 'committed';
@@ -406,6 +407,51 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   public async unsetMaxMaliciousOrgsInVotes() {
     const status = await this.invokeChaincodeOpsFunc('UnsetMaxMaliciousOrgsInVotes', []);
     expect(status).to.equals(200);
+  }
+
+  @when(/(start|stop) opssc-agents for org(1|2|3|4)/, 'on-k8s')
+  public async controlOpsSCAgents(action: 'start'|'stop', orgIndex: number) {
+    const replicas = action === 'start' ? 1 : 0;
+    const commands = `kubectl scale -n test-network --replicas=${replicas} deployment/org${orgIndex}-opssc-agent`;
+    execSync(commands);
+
+    for (let n = ChaincodeOpsSteps.RETRY; n >= 0; n--) {
+      await this.delay(10000);
+      try {
+        const response = await axios.get(`${this.getServiceEndpoint('k8s', `org${orgIndex}`, 'agent')}/healthz`);
+        switch (action) {
+          case 'start':
+            if (response.status === 200) {
+              return;
+            }
+            break;
+          case 'stop':
+            if (response.status !== 200) {
+              return;
+            }
+            break;
+          default:
+            expect.fail(`Unexpected action: ${action}`);
+        }
+      } catch (error) {
+        if (action === 'stop') {
+          const commands = `kubectl -n test-network get pods | grep org${orgIndex}-opssc-agent`;
+          let result;
+          try {
+            result = execSync(commands).toString();
+          } catch (err) {
+            result = err.stderr.toString();
+          }
+          // eslint-disable-next-line no-console
+          console.log(result);
+          if (result.length === 0) {
+            return;
+          }
+        }
+        // console.log(error.message); // For debug
+      }
+    }
+    expect.fail(`Fail to ${action} opssc-agent`);
   }
 
   @then(/(.+) fails to approve the proposal for chaincode \(name: (.+), seq: (\d+), channel: (.+)\) with an error \((.+)\)/)
