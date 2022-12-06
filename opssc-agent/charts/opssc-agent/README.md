@@ -32,14 +32,31 @@ OpsSC Agent for Hyperledger Fabric v2.x
 | ingress.hosts[0].paths[0] | object | `{"path":"/","pathType":"ImplementationSpecific"}` | Ingress path |
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress TLS configuration |
+| livenessProbe.enabled | bool | `true` | Whether to enable livenessProbe |
+| livenessProbe.failureThreshold | int | `12` | The livenessProbe failure threshold |
+| livenessProbe.initialDelaySeconds | int | `90` | The livenessProbe initial delay (in seconds) |
+| livenessProbe.periodSeconds | int | `60` | The livenessProbe period (in seconds) |
+| livenessProbe.successThreshold | int | `1` | The livenessProbe success threshold |
+| livenessProbe.timeoutSeconds | int | `5` | The livenessProbe timeout (in seconds) |
 | logLevel | string | `"info"` | Log level |
 | nameOverride | string | `""` | Override the name of resources |
 | nodeSelector | object | `{}` | Node labels for pod assignment |
 | opsscChaincodeOpsCCName | string | `"chaincode-ops"` | Chaincode name of the chaincode OpsSC |
 | opsscChannelName | string | `"ops-channel"` | Channel name for the OpsSC |
 | opsscChannelOpsCCName | string | `"channel-ops"` | Chaincode name of the channel OpsSC |
+| persistence.accessMode | string | `"ReadWriteOnce"` | Use volume as read-only or read-write |
+| persistence.annotations | object | `{}` | Annotations to add to the PV |
+| persistence.enabled | bool | `true` | Whether to enable PV |
+| persistence.size | string | `"1Mi"` | Size of data volume |
+| persistence.storageClass | string | `nil` | Storage class of PVC |
 | podAnnotations | object | `{}` | Pod annotations |
 | podSecurityContext | object | `{}` | Pod security context |
+| readinessProbe.enabled | bool | `true` | Whether to enable readinessProbe |
+| readinessProbe.failureThreshold | int | `12` | The readinessProbe failure threshold |
+| readinessProbe.initialDelaySeconds | int | `90` | The readinessProbe initial delay (in seconds) |
+| readinessProbe.periodSeconds | int | `60` | The readinessProbe period (in seconds) |
+| readinessProbe.successThreshold | int | `1` | The readinessProbe success threshold |
+| readinessProbe.timeoutSeconds | int | `5` | The readinessProbe timeout (in seconds) |
 | replicaCount | int | `1` | Replica count, currently only `1` is assumed |
 | resources | object | `{}` | CPU/Memory resource requests/limits |
 | secrets.adminMSPName | string | `"org1-admin-msp"` | Admin MSP config name, the value should be a tar file named `admin-msp.tar` (TODO: Should be improved) |
