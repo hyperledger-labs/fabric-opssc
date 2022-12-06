@@ -142,3 +142,31 @@ tolerations: []
 
 # -- Affinity settings for pod assignment
 affinity: {}
+
+livenessProbe:
+  # -- Whether to enable livenessProbe
+  enabled: true
+  # -- The livenessProbe timeout (in seconds)
+  timeoutSeconds: 5
+  # -- The livenessProbe success threshold
+  successThreshold: 1
+  # -- The livenessProbe failure threshold
+  failureThreshold: 3
+  # -- The livenessProbe initial delay (in seconds)
+  initialDelaySeconds: 5
+  # -- The livenessProbe period (in seconds)
+  periodSeconds: 30
+
+readinessProbe:
+  # -- Whether to enable readinessProbe
+  enabled: true
+  # -- The readinessProbe timeout (in seconds)
+  timeoutSeconds: 5
+  # -- The readinessProbe success threshold
+  successThreshold: 1
+  # -- The readinessProbe failure threshold
+  failureThreshold: 3
+  # -- The readinessProbe initial delay (in seconds)
+  initialDelaySeconds: 5
+  # -- The readinessProbe period (in seconds)
+  periodSeconds: 30

@@ -134,12 +134,6 @@ resources: {}
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
 
 autoscaling:
   # -- Currently autoscaling is unsupported
@@ -157,3 +151,43 @@ tolerations: []
 
 # -- Affinity settings for pod assignment
 affinity: {}
+
+persistence:
+  # -- Whether to enable PV
+  enabled: true
+  # -- Annotations to add to the PV
+  annotations: {}
+  # -- Storage class of PVC
+  storageClass:
+  # -- Use volume as read-only or read-write
+  accessMode: ReadWriteOnce
+  # -- Size of data volume
+  size: 1Mi
+
+livenessProbe:
+  # -- Whether to enable livenessProbe
+  enabled: true
+  # -- The livenessProbe timeout (in seconds)
+  timeoutSeconds: 5
+  # -- The livenessProbe success threshold
+  successThreshold: 1
+  # -- The livenessProbe failure threshold
+  failureThreshold: 12
+  # -- The livenessProbe initial delay (in seconds)
+  initialDelaySeconds: 90
+  # -- The livenessProbe period (in seconds)
+  periodSeconds: 60
+
+readinessProbe:
+  # -- Whether to enable readinessProbe
+  enabled: true
+  # -- The readinessProbe timeout (in seconds)
+  timeoutSeconds: 5
+  # -- The readinessProbe success threshold
+  successThreshold: 1
+  # -- The readinessProbe failure threshold
+  failureThreshold: 12
+  # -- The readinessProbe initial delay (in seconds)
+  initialDelaySeconds: 90
+  # -- The readinessProbe period (in seconds)
+  periodSeconds: 60
