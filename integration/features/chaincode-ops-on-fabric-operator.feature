@@ -93,3 +93,20 @@ Feature: Chaincode ops on k8s-based Fabric network
     And the proposal status for chaincode (name: basic, seq: 3, channel: mychannel) should be rejected
     ## -- A proposal is not withdrawn after the decision
     Then org1 fails to withdraw the proposal for chaincode (name: basic, seq: 3, channel: mychannel) with an error (the voting is already closed)
+
+    # Catching up on events during an agent stop
+    # -- When stop opssc agent for org2, and a new proposal to deploy a new chaincode is requested.
+    When stop opssc-agents for org2
+    And org1 requests a proposal to deploy the chaincode (name: basic5, seq: 1, channel: mychannel) based on basic ccaas template via opssc-api-server
+    And org2 votes for the proposal for chaincode (name: basic5, seq: 1, channel: mychannel) with opssc-api-server
+    # -- then the proposal should be processed for org1, but the process for org2 should be pending.
+    Then the proposal for chaincode (name: basic5, seq: 1, channel: mychannel) should be voted (with agreed) by 2 or more orgs
+    And the proposal for chaincode (name: basic5, seq: 1, channel: mychannel) should be acknowledged (with success) by 1 or more orgs
+    And the proposal status for chaincode (name: basic5, seq: 1, channel: mychannel) should be approved
+    # -- When restart opssc agent for org2, then the pending event should be processed (the new chaincode should be committed)
+    When start opssc-agents for org2
+    Then the proposal for chaincode (name: basic5, seq: 1, channel: mychannel) should be acknowledged (with success) by 2 or more orgs
+    And the proposal for chaincode (name: basic5, seq: 1, channel: mychannel) should be committed (with success) by 1 or more orgs
+    And the proposal status for chaincode (name: basic5, seq: 1, channel: mychannel) should be committed
+    And chaincode (name: basic5, channel: mychannel) based on basic should be able to register the asset (ID: asset101) by invoking CreateAsset func
+    And chaincode (name: basic5, channel: mychannel) based on basic ccaas should be able to get the asset (ID: asset101) by querying ReadAsset func

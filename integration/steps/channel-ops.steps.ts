@@ -64,7 +64,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     expect.fail('Fail to bootstrap opssc-api-server');
   }
 
-  @given(/bootstrap opssc-agents for org(3|4)/)
+  @given(/bootstrap opssc-agents for org(3|4)/, 'on-docker')
   public async bootstrapOpsSCAgents(orgIndex: number) {
     const dockerComposeFileName = `docker-compose-opssc-agents-org${orgIndex}.yaml`;
     const commands = `IMAGE_TAG=${BaseStepClass.opsSCImageTag()} docker-compose -f ${BaseStepClass.TEST_NETWORK_PATH}/docker/${dockerComposeFileName} up -d`;
@@ -84,7 +84,7 @@ export class ChannelOpsSteps extends BaseStepClass {
     expect.fail('Fail to bootstrap opssc-agent');
   }
 
-  @when(/(start|stop) opssc-agents for org(1|2|3|4)/)
+  @when(/(start|stop) opssc-agents for org(1|2|3|4)/, 'on-docker')
   public async controlOpsSCAgents(action: 'start'|'stop', orgIndex: number) {
     const commands = `docker ${action} opssc-agent.org${orgIndex}.example.com`;
     execSync(commands);
