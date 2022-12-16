@@ -38,10 +38,12 @@ export interface ChaincodeServerConfig {
   registry: string;
   pullRegistry: string;
   ccServerImagePullSecretName: string;
+  serviceAccountName: string;
   namespace: string;
   servicePrefix: string;
   serviceSuffix: string;
   servicePort: string;
+  helmTimeout: string;
 }
 
 export const config: OpsSCAgentConfig = {
@@ -74,10 +76,12 @@ export const config: OpsSCAgentConfig = {
         registry: process.env.CC_SERVER_REGISTRY || '',
         pullRegistry: process.env.CC_SERVER_PULL_REGISTRY || process.env.CC_SERVER_REGISTRY || '',
         ccServerImagePullSecretName: process.env.CC_SERVER_IMAGE_PULL_SECRET_NAME || '',
+        serviceAccountName: process.env.CC_SERVER_SERVICE_ACCOUNT_NAME || '',
         namespace: process.env.CC_SERVER_NAMESPACE || 'hyperledger',
         servicePrefix: process.env.CC_SERVER_PREFIX || 'chaincode',
         serviceSuffix: process.env.CC_SERVER_SUFFIX || 'org1',
         servicePort: process.env.CC_SERVER_PORT || '7052',
+        helmTimeout: process.env.CC_SERVER_HELM_TIMEOUT || '10m',
       }
     }
   }

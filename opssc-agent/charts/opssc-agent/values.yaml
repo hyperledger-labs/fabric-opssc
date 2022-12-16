@@ -102,13 +102,19 @@ chaincodeServer:
   # -- Override name for pulling image (It is assumed to be used when the registry names are different locally and in the cluster, for example [KIND](https://kind.sigs.k8s.io/docs/user/local-registry/))
   pullRegistryOverride: ""
   # -- Prefix of the chaincode server name
-  prefix: chaincode
+  prefix: cc
   # -- Suffix of the chaincode server name
   suffix: org1
   # -- Chaincode server port
   port: "7052"
   # -- Chaincode image pull secret name
   imagePullSecretName: ""
+  # -- Service account name for chaincode server resources (if not set, implicitly, default will be used.)
+  serviceAccountName: ""
+
+  helm:
+    # -- Value to wait for K8s commands to complete via Helm. The value should be described by [a Go duration value](https://pkg.go.dev/time#ParseDuration)
+    timeout: "10m"
 
 websocket:
   # -- Whether to enable WebSocket client to send messages to the server
