@@ -16,7 +16,7 @@ discoverAsLocalhost: "false"
 
 chaincodeServer:
   launchFromAgent: "true"
-  prefix: chaincode
+  prefix: cc
   suffix: org2
   port: "7052"
   # For KIND

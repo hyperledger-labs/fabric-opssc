@@ -19,6 +19,26 @@ launchChaincodeServer: true
 # -- Override name for pulling image (It is assumed to be used when the registry names are different locally and in the cluster, for example [KIND](https://kind.sigs.k8s.io/docs/user/local-registry/))
 pullImageNameOverride: ""
 
+imageBuilder:
+  git:
+    # -- git image name
+    imageName: "alpine/git"
+    # -- git image tag
+    imageTag: "2.36.3"
+    # -- git image pull policy
+    imagePullPolicy: "IfNotPresent"
+  kaniko:
+    # -- kaniko image tag
+    imageName: "gcr.io/kaniko-project/executor"
+    # -- kaniko image tag
+    imageTag: "v1.9.1-debug"
+    # -- kaniko image pull policy
+    imagePullPolicy: "IfNotPresent"
+    # -- kaniko image pull name
+  imagePullSecretName: ""
+  # -- back off limit of the image build job
+  backoffLimit: 0
+
 chaincode:
   # -- Chaincode ID for chaincode server
   ccID: ""
@@ -36,3 +56,6 @@ git:
   # -- Relative path from the repository path, which should start with `/` and end without `/` 
   # (e.g., `repositoryPath/pathToSourceFiles/SourceFiles` should be `/pathToSourceFiles`)
   pathToSourceFiles: ""
+
+# -- Service account name (if not set, implicitly, default will be used.)
+serviceAccountName: ""

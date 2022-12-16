@@ -11,12 +11,14 @@ OpsSC Agent for Hyperledger Fabric v2.x
 | adminMSPID | string | `"Org1MSP"` | MSP ID for the organization to be operated |
 | affinity | object | `{}` | Affinity settings for pod assignment |
 | autoscaling.enabled | bool | `false` | Currently autoscaling is unsupported |
+| chaincodeServer.helm.timeout | string | `"10m"` | Value to wait for K8s commands to complete via Helm. The value should be described by [a Go duration value](https://pkg.go.dev/time#ParseDuration) |
 | chaincodeServer.imagePullSecretName | string | `""` | Chaincode image pull secret name |
 | chaincodeServer.launchFromAgent | bool | `true` | Whether to launch the chaincode server from the agent (This only works with `ccaas`) |
 | chaincodeServer.port | string | `"7052"` | Chaincode server port |
-| chaincodeServer.prefix | string | `"chaincode"` | Prefix of the chaincode server name |
+| chaincodeServer.prefix | string | `"cc"` | Prefix of the chaincode server name |
 | chaincodeServer.pullRegistryOverride | string | `""` | Override name for pulling image (It is assumed to be used when the registry names are different locally and in the cluster, for example [KIND](https://kind.sigs.k8s.io/docs/user/local-registry/)) |
 | chaincodeServer.registry | string | `"localhost:5000"` | Chaincode image registry name |
+| chaincodeServer.serviceAccountName | string | `""` | Service account name for chaincode server resources (if not set, implicitly, default will be used.) |
 | chaincodeServer.suffix | string | `"org1"` | Suffix of the chaincode server name |
 | discoverAsLocalhost | bool | `false` | Whether to discover as localhost |
 | fullnameOverride | string | `""` | Override the full name of resources |

@@ -91,6 +91,8 @@ spec:
             {{- end }}
             - name: CC_SERVER_IMAGE_PULL_SECRET_NAME
               value: {{ .Values.chaincodeServer.imagePullSecretName | quote }}
+            - name: CC_SERVER_SERVICE_ACCOUNT_NAME
+              value: {{ .Values.chaincodeServer.serviceAccountName | quote }}
             - name: CC_SERVER_NAMESPACE
               value: {{ .Release.Namespace }}
             - name: CC_SERVER_PREFIX
@@ -99,6 +101,8 @@ spec:
               value: {{ .Values.chaincodeServer.suffix | quote }}
             - name: CC_SERVER_PORT
               value: {{ .Values.chaincodeServer.port | quote }}
+            - name: CC_SERVER_HELM_TIMEOUT
+              value: {{ .Values.chaincodeServer.helm.timeout | quote }}
             - name: WS_ENABLED
               value: {{ .Values.websocket.enabled | quote }}
             - name: WS_URL

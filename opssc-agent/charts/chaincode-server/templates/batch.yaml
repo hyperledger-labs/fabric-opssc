@@ -7,7 +7,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation
     "helm.sh/hook-weight": "3"
 spec:
-  backoffLimit: 0
+  backoffLimit: {{ .Values.imageBuilder.backoffLimit }}
   completions: 1
   template:
     metadata:
@@ -16,14 +16,16 @@ spec:
       restartPolicy: Never
       initContainers:
         - name: init-clone-repository
-          image: alpine/git
+          image: "{{ .Values.imageBuilder.git.imageName }}:{{ .Values.imageBuilder.git.imageTag }}"
+          imagePullPolicy: {{ .Values.imageBuilder.git.imagePullPolicy }}
           command: ['sh', '-c', "git clone -- {{ .Values.git.repositoryURL }} /context && cd /context &&  git checkout {{ .Values.git.commitID }}"]
           volumeMounts:
           - name: context
             mountPath: /context
       containers:
       - name: kaniko
-        image: gcr.io/kaniko-project/executor:debug
+        image: "{{ .Values.imageBuilder.kaniko.imageName }}:{{ .Values.imageBuilder.kaniko.imageTag }}"
+        imagePullPolicy: {{ .Values.imageBuilder.kaniko.imagePullPolicy }}
         args: ["--dockerfile=/context{{ .Values.git.pathToSourceFiles }}/Dockerfile",
               "--context=/context{{ .Values.git.pathToSourceFiles }}",
               "--cache=false",
@@ -57,3 +59,10 @@ spec:
           emptyDir: {}
         - name: root
           emptyDir: {}
+      {{- if .Values.serviceAccountName }}
+      serviceAccountName: {{ .Values.serviceAccountName | quote }}
+      {{- end }}
+      {{- if .Values.imageBuilder.imagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.imageBuilder.imagePullSecretName }}
+      {{- end }}
