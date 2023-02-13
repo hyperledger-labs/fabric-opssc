@@ -10,7 +10,7 @@ This introduces sample environments for running the OpsSC on K8s.
 
 OpsSC on k8s has the following limitations.
 
-- Only support Fabric 2.4+
+- Only support Fabric 2.5+
 - Only support `chaincode-ops`
   - `channel-ops` is not supported
 

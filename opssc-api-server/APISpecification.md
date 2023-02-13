@@ -753,7 +753,8 @@ None
   - **Required:**
     `channelID=[string]`<br/>
     `ccName=[string]`<br/>
-    `channelID=[string]`<br/>
+    `func=[string]`<br/>
+    `args=[string array]`
 
 - **Data Params**
 
@@ -833,7 +834,7 @@ None
 
   - **Code:** 200 <br />
     **Content:** The version of the API server <br />
-    `"0.3.0"`
+    `"0.4.0"`
 
 - **Error Response:**
 

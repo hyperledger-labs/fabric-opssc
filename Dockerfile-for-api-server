@@ -1,8 +1,9 @@
-# Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:14 AS build
+ARG NODE_VERSION
+FROM node:${NODE_VERSION} AS build
 
 ARG FABRIC_VERSION
 
@@ -19,7 +20,7 @@ RUN cd /opt/fabric; \
   curl -LO https://github.com/hyperledger/fabric/releases/download/v${FABRIC_VERSION}/hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz; \
   tar -xzf hyperledger-fabric-linux-amd64-${FABRIC_VERSION}.tar.gz
 
-FROM node:14-slim
+FROM node:${NODE_VERSION}-slim
 
 RUN mkdir /config
 COPY --from=build /opt/fabric/config /config

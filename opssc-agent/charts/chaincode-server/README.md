@@ -1,6 +1,6 @@
 # chaincode-server
 
-![Version: 0.3](https://img.shields.io/badge/Version-0.3-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square)
 
 Chaincode Server for Hyperledger Fabric v2.x
 

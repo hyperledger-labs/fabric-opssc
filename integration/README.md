@@ -7,14 +7,14 @@ The integration tests internally run (stand up and tear down) some Fabric networ
 - For Docker-based environment:
   - The tests internally run (stand up and tear down) `samples-environments/fabric-samples/test-network`.
   - The tests download (replace) the Fabric binaries in `samples-environments/fabric-samples/bin` before each scenarios according to the test target Fabric version.
-- For K8s-based environment (v2.4+):
+- For K8s-based environment (v2.5+):
   - The tests internally run (stand up and tear down) `fabric-samples/test-network-k8s` or `fabric-operator/sample-network` based on instructions described in `samples-environments/k8s-support`.
   - The tests internally clone `fabric-samples` or `fabric-operator` from the original repository.
 
 ## Prerequisites
 
 - Linux
-- Node.js >= 14.21
+- Node.js >= 16 (Tested by using v16.19.0)
 - Docker
 - Docker Compose
 
@@ -39,13 +39,13 @@ $ npm test
 
 ### Run the scenario tests with specifying the version of Fabric
 
-The current OpsSC supports the latest versions of Fabric v2.4 and v2.2 series.
-The integration tests use v2.4 by default but they can also be run using v2.2.
+The current OpsSC supports the latest versions of Fabric v2.5 and v2.2 series.
+The integration tests use v2.5 by default but they can also be run using v2.2.
 OpsSC does not support running on K8s for v2.2, so you will need to specify a
 different target in npm to skip that tests:
 
 ```bash
-$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.9 1.5.5 -s -b # Download Fabric images for v2.2
+$ curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- -f 2.2.9 -c 1.5.5 b d
 
 $ cd fabric-opssc
 $ make docker FABRIC_TWO_DIGIT_VERSION=2.2 # Make images of OpsSC agent and API server for v2.2
@@ -71,15 +71,15 @@ The original code of this is in [fabric-samples](https://github.com/hyperledger/
 but by default it uses [the local files](../sample-environments/fabric-samples) to initialize
 or clones this OpsSC remote repository for chaincode deployment by using OpsSC.
 
-Can run the scenario tests including the chaincode deployment by using OpsSC with the following environment variables to specify to remote chaincode repository for asset-transfer-basic and asset-transfer-private:
+Can run the scenario tests including the chaincode deployment by using OpsSC with the following environment variables to specify to remote chaincode repository for asset-transfer-basic and asset-transfer-private-data:
 
 - `GIT_USER=<Git repo user name used in agents>`
 - `GIT_PASSWORD=<Git repo user password used in agents>`
-- `IT_REMOTE_CC_REPO=<Remote repo which has asset-transfer-basic and asset-transfer-private>`
+- `IT_REMOTE_CC_REPO=<Remote repo which has asset-transfer-basic and asset-transfer-private-data>`
 - `IT_REMOTE_BASIC_GO_CC_PATH=<Path to the source code of asset-transfer-basic in Go>`
 - `IT_REMOTE_BASIC_GO_JS_PATH=<Path to the source code of asset-transfer-basic in JavaScript>`
 - `IT_REMOTE_BASIC_GO_TS_PATH=<Path to the source code of asset-transfer-basic in TypeScript>`
-- `IT_REMOTE_PRIVATE_GO_CC_PATH=<Path to the source code of asset-transfer-private in Go>`
+- `IT_REMOTE_PRIVATE_GO_CC_PATH=<Path to the source code of asset-transfer-private-data in Go>`
 - `IT_REMOTE_COMMIT_ID=<The commit ID>`
 
 The example is:
