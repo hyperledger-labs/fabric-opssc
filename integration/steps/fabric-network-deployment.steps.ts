@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -155,7 +155,8 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
   }
 
   private loadDockerImagesForOpsSCIntoKIND() {
-    const imageNames = ['fabric-opssc/opssc-api-server:latest', 'fabric-opssc/opssc-agent:latest'];
+    const imageNames = [`fabric-opssc/opssc-api-server:${FabricNetworkDeploymentSteps.opsSCImageTag()}`,
+                        `fabric-opssc/opssc-agent:${FabricNetworkDeploymentSteps.opsSCImageTag()}`];
     for (const imageName of imageNames) {
       const commands = `kind load docker-image ${imageName}`;
       execSync(commands, {
@@ -169,7 +170,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
   @given(/download Fabric binaries/, 'on-docker')
   public downloadFabricBinaries() {
-    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH}/.. && curl -sSL https://bit.ly/2ysbOFE | bash -s -- ${BaseStepClass.fabricVersion()} ${BaseStepClass.fabricCAVersion()} -s -d`;
+    const commands = `cd ${BaseStepClass.TEST_NETWORK_PATH}/.. && curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- -f ${BaseStepClass.fabricVersion()} -c ${BaseStepClass.fabricCAVersion()} b d`;
     execSync(commands);
   }
 
@@ -230,7 +231,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     const envs =
       (this.usedExample === 'test-network-k8s') ? { TEST_NETWORK_CHAINCODE_BUILDER: 'k8s' } :
         {
-          TEST_NETWORK_PEER_IMAGE: 'ghcr.io/hyperledger-labs/k8s-fabric-peer',
+          TEST_NETWORK_PEER_IMAGE: 'ghcr.io/hyperledger-labs/fabric-builder-k8s/k8s-fabric-peer',
           TEST_NETWORK_PEER_IMAGE_LABEL: BaseStepClass.k8sFabricPeerVersion()
         };
 
@@ -324,7 +325,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     for (const org of orgList) {
       const commandsList = [
         `helm -n test-network uninstall ${org}-opssc-${service} || true`,
-        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/${this.usedExample}/${org}-opssc-${service}.yaml --install`
+        `helm upgrade -n test-network ${org}-opssc-${service} ../../../../opssc-${service}/charts/opssc-${service} -f ../../helm_values/${this.usedExample}/${org}-opssc-${service}.yaml --set image.tag=${FabricNetworkDeploymentSteps.opsSCImageTag()} --install`
       ];
       for (const commands of commandsList) {
         execSync(commands, {

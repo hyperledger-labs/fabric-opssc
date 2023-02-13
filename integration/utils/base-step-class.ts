@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2020-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -28,10 +28,10 @@ export default class BaseStepClass {
 
   protected static OPSSC_VERSION = process.env.npm_package_version;
 
-  protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.4';
+  protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.5';
 
   protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
-    '2.4': { fabric: '2.4.7', fabricCA: '1.5.5', k8sFabricPeer: 'v0.8.0' },
+    '2.5': { fabric: '2.5.0-beta', fabricCA: '1.5.6-beta3', k8sFabricPeer: '0.10.0' },
     '2.2': { fabric: '2.2.9', fabricCA: '1.5.5' },
   }
 

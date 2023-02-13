@@ -1,8 +1,9 @@
-# Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+# Copyright 2019-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 #
 # SPDX-License-Identifier: Apache-2.0
 
-FROM node:14 AS build
+ARG NODE_VERSION
+FROM node:${NODE_VERSION} AS build
 
 ARG FABRIC_VERSION
 
@@ -30,7 +31,7 @@ RUN rm get_helm.sh
 RUN curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
 RUN install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
-FROM node:14-slim
+FROM node:${NODE_VERSION}-slim
 
 RUN apt-get update && apt-get -y install git
 

@@ -9,6 +9,11 @@ ingress:
         - path: /
           pathType: ImplementationSpecific
 
+image:
+  repository: "fabric-opssc/opssc-agent"
+  tag: latest
+  pullPolicy: IfNotPresent
+
 adminMSPID: Org1MSP
 
 logLevel: info

@@ -54,7 +54,7 @@ The other materials (the OpsSC concept etc.):
 
 - Linux
 - Go >= 1.14
-- Node.js >= 14.21
+- Node.js >= 16 (Tested by using v16.19.0)
 - Docker (assuming the current stable release)
 - Docker Compose (assuming the current stable release, OpsSC is tested with version 1.28.6)
 - Git
@@ -102,7 +102,7 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 
 The current implementation assumes the following Fabric network:
 
-- Hyperledger Fabric v2.4.0 or later (Tested by using v2.4.7)
+- Hyperledger Fabric v2.5.0 or later (Tested by using v2.5.0)
   - Also it works in v2.2.2 or later (Tested by using v2.2.9)
 - Fabric network configuration
   - Using Fabric CAs
@@ -156,9 +156,9 @@ By running the following commands, download the binaries and docker images for H
 
 ```sh
 $ cd ${FABRIC_OPSSC}/sample-environments/fabric-samples
-$ export FABRIC_VERSION=2.4.9
-$ export FABRIC_CA_VERSION=1.5.5
-$ curl -sSL https://bit.ly/2ysbOFE | bash -s -- ${FABRIC_VERSION} ${FABRIC_CA_VERSION} -s
+$ export FABRIC_VERSION=2.5.0-beta
+$ export FABRIC_CA_VERSION=1.5.6-beta3
+$ curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- -f ${FABRIC_VERSION} -c ${FABRIC_CA_VERSION} b d
 
 $ ls bin # Confirm the target version binaries are downloaded
 configtxgen  configtxlator  cryptogen  discover  fabric-ca-client  fabric-ca-server  idemixgen  orderer  osnadmin  peer
@@ -196,7 +196,7 @@ fabric-opssc/opssc-api-server                                  latest           
 (...)
 ```
 
-By default, the command builds images for Fabric v2.4 series.
+By default, the command builds images for Fabric v2.5 series.
 If you want to build images for v2.2 series, you should set the `FABRIC_TWO_DIGIT_VERSION` variable.
 
 ### Run the test network
@@ -937,6 +937,7 @@ If any of the above steps fail in the middle, reset the environment with this co
 
 ### Learn more
 
+#### Integration test
 For other more detailed usage, refer to the integration test.
 
 - [integration tests for operating chaincodes](./integration/features/chaincode-ops-on-docker.feature)
@@ -944,22 +945,44 @@ For other more detailed usage, refer to the integration test.
 - [integration tests for operating channels](./integration/features/chaincode-ops-on-docker.feature)
   - e.g., adding a channel, adding an organization (with a peer and an orderer)
 
+#### Running with k8s environments
+
+See [the documents](./sample-environments/k8s-support/README.md)
+
 ## Limitations
 
 The current implementation has limitations. The main limitations are as follows:
 
 - The conditions for passing a proposal are assumed to be voted by a majority of the members of the target channel
-- Does not not yet support deploying Java chaincode
-- Does not not yet support using Channel participating API from v2.3.0
+- Does not yet support deploying Java chaincode
+- Does not yet support using Channel participating API from v2.3.0
 
 ## Future work
 
 - General operations supports: can execute arbitrary command via OpsSC chaincode
 - Improving test coverage
-- Support deploying external chaincode servers (for chaincode operations)
 - Porting the OpsSC API server and agent implementations from Node SDK-based to Go SDK-based (after the GA is released)
 
 ## Changes
+
+### v0.4.0 (TBD, 2023)
+
+- Support both Hyperledger Fabric v2.5 and v2.2 series (Out of scope: v2.4)
+- Support chaincode operations on Kubernetes (K8s) environments
+  - Support for chaincode operations with External Chaincode Builder for K8s
+    - [CCaaS builder ('ccaas')](https://github.com/hyperledger/fabric/releases/tag/v2.4.1) support
+    - [K8s chaincode builder ('k8s')](https://github.com/hyperledger-labs/fabric-builder-k8s) support
+  - Helm charts to run OpsSC on K8s
+    - Helm chart for OpsSC API server
+    - Helm chart for OpsSC Agent
+    - Helm chart for building a chaincode image and running it as a chaincode server
+  - Documents and integration tests for OpsSC on K8s
+    - Environment using [fabric-samples/test-network-k8s](https://github.com/hyperledger/fabric-samples/tree/main/test-network-k8s)
+    - Environment using [fabric-operator/sample-network](https://github.com/hyperledger-labs/fabric-operator/tree/main/sample-network)
+  - Limitations:
+    - Channel operations on K8s environments are not yet supported
+    - Only support Fabric 2.5+
+- Other minor improvements
 
 ### v0.3.0 (Oct. 27, 2022)
 

@@ -13,10 +13,10 @@
 #   - integration-test - runs integration tests for a specific fabric version
 #   - check-support-version - checks whether the specified FABRIC_TWO_DIGIT_VERSION is supported or not
 
-BASE_VERSION = 0.3.0
-FABRIC_TWO_DIGIT_VERSION ?= 2.4
+BASE_VERSION = 0.4.0
+FABRIC_TWO_DIGIT_VERSION ?= 2.5
 
-SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.4 2.2
+SUPPORT_FABRIC_TWO_DIGIT_VERSIONS = 2.5 2.2
 
 .PHONY: build-and-tests-all
 build-and-tests-all: lint $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-agent/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=docker-opssc-api-server/%) $(SUPPORT_FABRIC_TWO_DIGIT_VERSIONS:%=integration-test/%)
@@ -44,12 +44,12 @@ docker-opssc-api-server/%: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
 
 .PHONY: integration-test
 integration-test: $(FABRIC_TWO_DIGIT_VERSION:%=integration-test/%)
-integration-test/2.4: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
-	@echo "Executing integration tests (fabric version: $*)"
-	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm test
+integration-test/2.5: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
+	@echo "Executing integration tests (fabric version: 2.5)"
+	@cd integration && FABRIC_TWO_DIGIT_VERSION=2.5 npm test
 integration-test/2.2: $(FABRIC_TWO_DIGIT_VERSION:%=check-support-version)
-	@echo "Executing integration tests (fabric version: $*)"
-	@cd integration && FABRIC_TWO_DIGIT_VERSION=$* npm run test_v2_2
+	@echo "Executing integration tests (fabric version: 2.2)"
+	@cd integration && FABRIC_TWO_DIGIT_VERSION=2.2 npm run test_v2_2
 
 .PHONY: lint
 lint:
@@ -57,6 +57,13 @@ lint:
 	@cd opssc-api-server/src && npm run lint
 	@cd opssc-agent/src && npm run lint
 	@cd integration && npm run lint
+
+.PHONY: compile
+compile:
+	@cd common/src && npm install
+	@cd opssc-api-server/src && npm install
+	@cd opssc-agent/src && npm install
+	@cd integration && npm install
 
 .PHONY: unit-test
 unit-test: chaincode-setup
