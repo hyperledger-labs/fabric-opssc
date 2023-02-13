@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2022 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
+ * Copyright 2019-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -230,7 +230,12 @@ export class ChaincodeOperatorImpl implements ChaincodeOperator {
 
       // Build chaincode for typescript
       if (this.proposal.chaincodePackage.type === 'typescript') {
-        execCommand('npm install', false, this.chaincodeAbsolutePath());
+        if (fs.existsSync(path.join(this.chaincodeAbsolutePath(), 'package-lock.json'))
+          || fs.existsSync(path.join(this.chaincodeAbsolutePath(), 'npm-shrinkwrap.json'))) {
+          execCommand('npm ci', false, this.chaincodeAbsolutePath());
+        } else {
+          execCommand('npm install', false, this.chaincodeAbsolutePath());
+        }
         execCommand('npm run build', false, this.chaincodeAbsolutePath());
       }
 
