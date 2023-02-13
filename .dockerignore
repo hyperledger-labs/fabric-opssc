@@ -4,7 +4,6 @@ sample-environments
 integration
 */src/*.js
 */src/node_modules/*
-*/src/package-lock.json
 */scripts
 chaincode/*/vendor
 chaincode/channel-ops/channel-ops
