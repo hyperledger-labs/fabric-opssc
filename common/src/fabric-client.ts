@@ -79,6 +79,8 @@ export class FabricClient {
         const submitResult = await contract.submitTransaction(request.func, ...request.args);
         return submitResult.toString('utf-8');
       } catch (error) {
+        // To update service discovery results
+        this.close();
         if (error.message != null) {
           const errorAsString = error.message as string;
           if ((errorAsString).includes('MVCC_READ_CONFLICT') || (errorAsString).includes('PHANTOM_READ_CONFLICT')
@@ -86,7 +88,6 @@ export class FabricClient {
             // Retry
             await new Promise((resolve) => setTimeout(resolve, Math.random() * 800));
             logger.info('Retry transaction: %s', errorAsString);
-            this.close(); // To update service discovery results
             continue;
           }
           logger.error('Failed to submit transaction: %s', errorAsString);
@@ -105,9 +106,15 @@ export class FabricClient {
    * @returns {Promise<string>} the result of the query
    */
   async evaluateTransaction(request: TransactionRequest): Promise<string> {
-    const contract = await this.getContract(request.channelID, request.chaincodeName);
-    const result = await contract.evaluateTransaction(request.func, ...request.args);
-    return result.toString('utf-8');
+    try {
+      const contract = await this.getContract(request.channelID, request.chaincodeName);
+      const result = await contract.evaluateTransaction(request.func, ...request.args);
+      return result.toString('utf-8');
+    } catch (error) {
+        // To update service discovery results
+        this.close();
+        throw error;
+    }
   }
 
   /**
