@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -58,7 +58,7 @@ func setChannel(c configtx.ConfigTx, newChannelProfile ChannelProfile) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create channel policies data structure for configtx from the profile")
 	}
-	if err = channelGroup.SetPolicies(configtx.AdminsPolicyKey, newChannelPolicies); err != nil {
+	if err = channelGroup.SetPolicies(newChannelPolicies); err != nil {
 		return errors.Wrap(err, "failed to set the channel policies to the current configuration")
 	}
 
@@ -81,7 +81,7 @@ func setChannel(c configtx.ConfigTx, newChannelProfile ChannelProfile) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to create application policies data structure for configtx from the profile")
 	}
-	if err = appGroup.SetPolicies(configtx.AdminsPolicyKey, newAppPolicies); err != nil {
+	if err = appGroup.SetPolicies(newAppPolicies); err != nil {
 		return errors.Wrap(err, "failed to set the application policies to the current configuration")
 	}
 

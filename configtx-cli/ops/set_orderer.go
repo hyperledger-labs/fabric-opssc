@@ -1,5 +1,5 @@
 /*
-Copyright 2020 Hitachi America, Ltd. All Rights Reserved.
+Copyright 2020-2023 Hitachi, Ltd., Hitachi America, Ltd. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -118,7 +118,7 @@ func setOrderer(c configtx.ConfigTx, newOrdererProfile OrdererProfile) error {
 	// Replace Orderer Policies
 	// NOTE: ordererGroup.SetConfiguration() skips updating policies.
 	// So, this function replaces the policies as follows.
-	if err = ordererGroup.SetPolicies(configtx.AdminsPolicyKey, newPolicies); err != nil {
+	if err = ordererGroup.SetPolicies(newPolicies); err != nil {
 		return errors.Wrap(err, "failed to set the orderer policies to the current configuration")
 	}
 
