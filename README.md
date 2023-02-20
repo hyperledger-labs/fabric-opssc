@@ -103,7 +103,7 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 The current implementation assumes the following Fabric network:
 
 - Hyperledger Fabric v2.5.0 or later (Tested by using v2.5.0)
-  - Also it works in v2.2.2 or later (Tested by using v2.2.9)
+  - Also it works in v2.2.2 or later (Tested by using v2.2.10)
 - Fabric network configuration
   - Using Fabric CAs
   - Using Raft orderers

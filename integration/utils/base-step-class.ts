@@ -32,7 +32,7 @@ export default class BaseStepClass {
 
   protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
     '2.5': { fabric: '2.5.0-beta', fabricCA: '1.5.6-beta3', k8sFabricPeer: '0.10.0' },
-    '2.2': { fabric: '2.2.9', fabricCA: '1.5.5' },
+    '2.2': { fabric: '2.2.10', fabricCA: '1.5.6-beta3' },
   }
 
   protected static fabricVersion() {
