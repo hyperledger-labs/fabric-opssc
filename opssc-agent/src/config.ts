@@ -72,7 +72,7 @@ export const config: OpsSCAgentConfig = {
       gitPassword: process.env.GIT_PASSWORD,
       goPath: process.env.GOPATH,
       ccs: {
-        launchFromAgent: process.env.CC_SERVER_LAUNCH_FROM_AGENT === 'true',
+        launchFromAgent: process.env.CC_SERVER_LAUNCH_FROM_AGENT !== 'false',
         registry: process.env.CC_SERVER_REGISTRY || '',
         pullRegistry: process.env.CC_SERVER_PULL_REGISTRY || process.env.CC_SERVER_REGISTRY || '',
         ccServerImagePullSecretName: process.env.CC_SERVER_IMAGE_PULL_SECRET_NAME || '',
