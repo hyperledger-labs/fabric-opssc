@@ -107,7 +107,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   }
 
   private createCCParametersForK8s(ccTemplate: string, lang: string): [string, string, string, string, string|undefined] {
-    const repository = process.env.IT_K8S_REMOTE_CC_REPO || 'github.com/hyperledger/fabric-samples';
+    const repository = process.env.IT_K8S_REMOTE_CC_REPO || 'github.com/hyperledger-labs/fabric-opssc';
     const commitID = process.env.IT_K8S_REMOTE_COMMIT_ID || 'main';
     switch (ccTemplate) {
       case 'basic':
@@ -118,7 +118,7 @@ export class ChaincodeOpsSteps extends BaseStepClass {
   }
 
   private createBasicCCParametersForK8s(lang: string): [string, string, string|undefined] {
-    const basePath = 'asset-transfer-basic';
+    const basePath = 'sample-environments/fabric-samples/asset-transfer-basic';
     const collectionsBase64 = undefined;
     let validationParameterBase64;
     switch (lang) {
