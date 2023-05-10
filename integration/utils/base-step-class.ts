@@ -31,7 +31,7 @@ export default class BaseStepClass {
   protected static FABRIC_TWO_DIGIT_VERSION = process.env.FABRIC_TWO_DIGIT_VERSION ? process.env.FABRIC_TWO_DIGIT_VERSION : '2.5';
 
   protected static FABRIC_VERSION_MAP: { [char: string]: FabricVersion } = {
-    '2.5': { fabric: '2.5.1', fabricCA: '1.5.6', k8sFabricPeer: '0.10.0' },
+    '2.5': { fabric: '2.5.1', fabricCA: '1.5.6', k8sFabricPeer: '0.11.0' },
     '2.2': { fabric: '2.2.11', fabricCA: '1.5.6' },
   }
 
