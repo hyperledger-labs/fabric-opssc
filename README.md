@@ -965,7 +965,7 @@ The current implementation has limitations. The main limitations are as follows:
 
 ## Changes
 
-### v0.4.0 (TBD, 2023)
+### v0.4.0 (May 16, 2023)
 
 - Support both Hyperledger Fabric v2.5 and v2.2 series (Out of scope: v2.4)
 - Support chaincode operations on Kubernetes (K8s) environments
