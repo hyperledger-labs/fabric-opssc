@@ -158,7 +158,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
     if (!process.env.GIT_USER || !process.env.GIT_PASSWORD) return;
 
     const commandsList = [
-      `kubectl -n test-network delete secret git || true`,
+      'kubectl -n test-network delete secret git || true',
       `kubectl -n test-network create secret generic git --from-literal=username="${process.env.GIT_USER}" --from-literal=password="${process.env.GIT_PASSWORD}"`];
 
     for (const commands of commandsList) {
@@ -173,7 +173,7 @@ export class FabricNetworkDeploymentSteps extends BaseStepClass {
 
   private loadDockerImagesForOpsSCIntoKIND() {
     const imageNames = [`fabric-opssc/opssc-api-server:${FabricNetworkDeploymentSteps.opsSCImageTag()}`,
-                        `fabric-opssc/opssc-agent:${FabricNetworkDeploymentSteps.opsSCImageTag()}`];
+      `fabric-opssc/opssc-agent:${FabricNetworkDeploymentSteps.opsSCImageTag()}`];
     for (const imageName of imageNames) {
       const commands = `kind load docker-image ${imageName}`;
       execSync(commands, {

@@ -111,9 +111,9 @@ export class FabricClient {
       const result = await contract.evaluateTransaction(request.func, ...request.args);
       return result.toString('utf-8');
     } catch (error) {
-        // To update service discovery results
-        this.close();
-        throw error;
+      // To update service discovery results
+      this.close();
+      throw error;
     }
   }
 

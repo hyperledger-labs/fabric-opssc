@@ -102,8 +102,8 @@ The main reason for using two languages is that the Fabric SDK Go is not yet GA 
 
 The current implementation assumes the following Fabric network:
 
-- Hyperledger Fabric v2.5.0 or later (Tested by using v2.5.1)
-  - Also it works in v2.2.2 or later (Tested by using v2.2.11)
+- Hyperledger Fabric v2.5.0 or later (Tested by using v2.5.2)
+  - Also it works in v2.2.2 or later (Tested by using v2.2.12)
 - Fabric network configuration
   - Using Fabric CAs
   - Using Raft orderers
@@ -156,7 +156,7 @@ By running the following commands, download the binaries and docker images for H
 
 ```sh
 $ cd ${FABRIC_OPSSC}/sample-environments/fabric-samples
-$ export FABRIC_VERSION=2.5.1
+$ export FABRIC_VERSION=2.5.2
 $ export FABRIC_CA_VERSION=1.5.6
 $ curl -sSL https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh | bash -s -- -f ${FABRIC_VERSION} -c ${FABRIC_CA_VERSION} b d
 
