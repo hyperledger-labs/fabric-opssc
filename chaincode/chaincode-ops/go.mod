@@ -12,5 +12,5 @@ require (
 	github.com/stretchr/testify v1.8.1
 	github.com/sykesm/zap-logfmt v0.0.4 // indirect
 	go.uber.org/zap v1.16.0 // indirect
-	google.golang.org/protobuf v1.28.1
+	google.golang.org/protobuf v1.33.0
 )
