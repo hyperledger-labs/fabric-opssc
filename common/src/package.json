@@ -12,7 +12,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "fabric-common": "^2.2.18",
-    "fabric-network": "^2.2.18",
+    "fabric-network": "^2.2.20",
     "fabric-protos": "^2.2.18",
     "fs-extra": "^9.1.0",
     "ignore-walk": "^3.0.4",
