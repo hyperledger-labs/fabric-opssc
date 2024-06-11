@@ -11,9 +11,9 @@
   "author": "Tatsuya Sato <tatsuya.sato.so@hitachi.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "fabric-common": "^2.2.18",
-    "fabric-network": "^2.2.18",
-    "fabric-protos": "^2.2.18",
+    "fabric-common": "^2.2.20",
+    "fabric-network": "^2.2.20",
+    "fabric-protos": "^2.2.20",
     "fs-extra": "^9.1.0",
     "ignore-walk": "^3.0.4",
     "js-yaml": "^3.14.1",
