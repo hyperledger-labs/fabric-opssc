@@ -20,7 +20,7 @@
     "morgan": "^1.9.1",
     "opssc-common": "file:../../common/src",
     "winston": "^3.2.1",
-    "ws": "^7.5.4"
+    "ws": "^7.5.10"
   },
   "devDependencies": {
     "@types/cors": "^2.8.12",
