@@ -22,7 +22,7 @@
     "opssc-common": "file:../../common/src",
     "simple-git": "^3.16.0",
     "winston": "^3.3.3",
-    "ws": "^7.5.4"
+    "ws": "^7.5.10"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.1",
