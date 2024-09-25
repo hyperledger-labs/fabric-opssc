@@ -12,9 +12,9 @@
   "author": "Tatsuya Sato <tatsuya.sato.so@hitachi.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "body-parser": "^1.20.1",
+    "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.21.0",
     "fabric-network": "^2.2.18",
     "fs-extra": "^9.1.0",
     "js-yaml": "^3.14.1",
